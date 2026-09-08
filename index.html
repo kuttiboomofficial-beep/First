@@ -174,20 +174,7 @@ let txs=JSON.parse(localStorage.getItem('moneymate_transactions')||'[]'),bud=JSO
 const DB_NAME='MoneyMateDB',DB_STORE='state',DB_KEY='main';
 function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>r.result.createObjectStore(DB_STORE);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
 async function mirrorSave(){try{const db=await openDB(),tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).put({transactions:txs,budgets:bud,emis,savings:saves,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')},DB_KEY)}catch(e){}}
-async function restoreMirror(){
- try{
-  const db=await openDB();
-  const d=await new Promise((resolve,reject)=>{
-   const r=db.transaction(DB_STORE,'readonly').objectStore(DB_STORE).get(DB_KEY);
-   r.onsuccess=()=>resolve(r.result||null); r.onerror=()=>reject(r.error);
-  });
-  if(!d)return;
-  if(!txs.length&&Array.isArray(d.transactions)&&d.transactions.length){txs=d.transactions;localStorage.setItem('moneymate_transactions',JSON.stringify(txs))}
-  if(!Object.keys(bud).length&&d.budgets&&Object.keys(d.budgets).length){bud=d.budgets;localStorage.setItem('moneymate_budgets',JSON.stringify(bud))}
-  if(!emis.length&&Array.isArray(d.emis)&&d.emis.length){emis=d.emis;localStorage.setItem('moneymate_emis',JSON.stringify(emis))}
-  if(!saves.length&&Array.isArray(d.savings)&&d.savings.length){saves=d.savings;localStorage.setItem('moneymate_savings',JSON.stringify(saves))}
- }catch(e){console.warn('Mirror restore skipped',e)}
-}
+async function restoreMirror(){try{const db=await openDB();return await new Promise(resolve=>{const r=db.transaction(DB_STORE,'readonly').objectStore(DB_STORE).get(DB_KEY);r.onsuccess=()=>{const d=r.result;if(!d){resolve(false);return}let changed=false;if(!txs.length&&Array.isArray(d.transactions)&&d.transactions.length){txs=d.transactions;localStorage.setItem('moneymate_transactions',JSON.stringify(txs));changed=true}if(!Object.keys(bud).length&&d.budgets&&Object.keys(d.budgets).length){bud=d.budgets;localStorage.setItem('moneymate_budgets',JSON.stringify(bud));changed=true}if(!emis.length&&Array.isArray(d.emis)&&d.emis.length){emis=d.emis;localStorage.setItem('moneymate_emis',JSON.stringify(emis));changed=true}if(!saves.length&&Array.isArray(d.savings)&&d.savings.length){saves=d.savings;localStorage.setItem('moneymate_savings',JSON.stringify(saves));changed=true}resolve(changed)};r.onerror=()=>resolve(false)})}catch(e){return false}}
 
 const $=id=>document.getElementById(id),money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2}),cur=()=>new Date().toISOString().slice(0,7),ym=d=>String(d).slice(0,7);
 function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.push(d.toISOString().slice(0,7));d.setMonth(d.getMonth()-1)}return a}
@@ -337,7 +324,7 @@ function removePin(){localStorage.removeItem('moneymate_pin');$('lockScreen').st
 
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderReport();renderCalendar();renderRecurring();renderInsights();renderHealth()}
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(()=>{}))}
 async function boot(){
  fill();
  if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');
