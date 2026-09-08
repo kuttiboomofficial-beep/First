@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V2.6 Final Stable</title>
+<title>MoneyMate V2.7 Refresh-Proof</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -170,11 +170,18 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 
 <script>
 const IC=['Salary','Freelance','Business','Interest','Other'],EC=['Food','Travel','Shopping','Bills','Rent','EMI','Medical','Education','Entertainment','Other'];
-let txs=JSON.parse(localStorage.getItem('moneymate_transactions')||'[]'),bud=JSON.parse(localStorage.getItem('moneymate_budgets')||'{}'),emis=JSON.parse(localStorage.getItem('moneymate_emis')||'[]'),saves=JSON.parse(localStorage.getItem('moneymate_savings')||'[]');
+function safeJSON(key,fallback){try{const raw=localStorage.getItem(key);return raw==null?fallback:JSON.parse(raw)}catch(e){console.warn('Invalid local data for',key);return fallback}}
+let txs=safeJSON('moneymate_transactions',[]),bud=safeJSON('moneymate_budgets',{}),emis=safeJSON('moneymate_emis',[]),saves=safeJSON('moneymate_savings',[]);
+if(!Array.isArray(txs))txs=[]; if(!bud||typeof bud!=='object'||Array.isArray(bud))bud={}; if(!Array.isArray(emis))emis=[]; if(!Array.isArray(saves))saves=[];
 const DB_NAME='MoneyMateDB',DB_STORE='state',DB_KEY='main';
-function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>r.result.createObjectStore(DB_STORE);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
-async function mirrorSave(){try{const db=await openDB();await new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).put({version:'2.6',transactions:txs,budgets:bud,emis,savings:saves,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')},DB_KEY);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}catch(e){console.warn('Mirror save failed',e)}}
-async function restoreMirror(){const db=await openDB();const d=await new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readonly');const r=tx.objectStore(DB_STORE).get(DB_KEY);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error)});if(!d)return false;let changed=false;if(!txs.length&&Array.isArray(d.transactions)&&d.transactions.length){txs=d.transactions;localStorage.setItem('moneymate_transactions',JSON.stringify(txs));changed=true}if(!Object.keys(bud).length&&d.budgets&&Object.keys(d.budgets).length){bud=d.budgets;localStorage.setItem('moneymate_budgets',JSON.stringify(bud));changed=true}if(!emis.length&&Array.isArray(d.emis)&&d.emis.length){emis=d.emis;localStorage.setItem('moneymate_emis',JSON.stringify(emis));changed=true}if(!saves.length&&Array.isArray(d.savings)&&d.savings.length){saves=d.savings;localStorage.setItem('moneymate_savings',JSON.stringify(saves));changed=true}if(d.recurring&&!localStorage.getItem('moneymate_recurring'))localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring));if(d.emiLeadDays!=null&&!localStorage.getItem('moneymate_emi_lead'))localStorage.setItem('moneymate_emi_lead',String(d.emiLeadDays));if(d.dark==='true'&&!localStorage.getItem('moneymate_dark'))localStorage.setItem('moneymate_dark','true');return changed}
+function openDB(){return new Promise((resolve,reject)=>{try{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(DB_STORE))r.result.createObjectStore(DB_STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)}catch(e){reject(e)}})}
+function statePayload(){return {version:'2.7',updatedAt:Date.now(),transactions:txs,budgets:bud,emis,savings:saves,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')}}
+async function mirrorSave(){try{const payload=statePayload();const db=await openDB();await new Promise((resolve,reject)=>{const t=db.transaction(DB_STORE,'readwrite');t.objectStore(DB_STORE).put(payload,DB_KEY);t.oncomplete=resolve;t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error||new Error('IDB transaction aborted'))});localStorage.setItem('moneymate_updated_at',String(payload.updatedAt))}catch(e){console.warn('Mirror save failed',e)}}
+async function restoreMirror(){try{const db=await openDB();const d=await new Promise((resolve,reject)=>{const t=db.transaction(DB_STORE,'readonly');const r=t.objectStore(DB_STORE).get(DB_KEY);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error);t.onerror=()=>reject(t.error)});if(!d)return false;const localStamp=Number(localStorage.getItem('moneymate_updated_at')||0);const idbStamp=Number(d.updatedAt||0);
+ const idbHasData=(Array.isArray(d.transactions)&&d.transactions.length)||(d.budgets&&Object.keys(d.budgets).length)||(Array.isArray(d.emis)&&d.emis.length)||(Array.isArray(d.savings)&&d.savings.length);
+ const localHasData=txs.length||Object.keys(bud).length||emis.length||saves.length;
+ if(idbHasData && (!localHasData || (idbStamp && idbStamp>localStamp))){txs=Array.isArray(d.transactions)?d.transactions:[];bud=d.budgets&&typeof d.budgets==='object'?d.budgets:{};emis=Array.isArray(d.emis)?d.emis:[];saves=Array.isArray(d.savings)?d.savings:[];localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));if(d.recurring!=null)localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring));if(d.emiLeadDays!=null)localStorage.setItem('moneymate_emi_lead',String(d.emiLeadDays));if(d.dark==='true')localStorage.setItem('moneymate_dark','true');localStorage.setItem('moneymate_updated_at',String(idbStamp||Date.now()));return true}
+ return false}catch(e){console.warn('Restore failed',e);return false}}
 
 const $=id=>document.getElementById(id),money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2}),cur=()=>new Date().toISOString().slice(0,7),ym=d=>String(d).slice(0,7);
 function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.push(d.toISOString().slice(0,7));d.setMonth(d.getMonth()-1)}return a}
@@ -324,14 +331,16 @@ function removePin(){localStorage.removeItem('moneymate_pin');$('lockScreen').st
 
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderReport();renderCalendar();renderRecurring();renderInsights();renderHealth()}
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{}))}
 async function boot(){
  fill();
- try{await restoreMirror()}catch(e){console.warn('Restore failed',e)}
+ let restored=false;
+ try{restored=await restoreMirror()}catch(e){console.warn('Restore failed',e)}
  if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');
  processDueRecurring();
  renderAll();
- await mirrorSave();
+ // Never let an empty startup state overwrite an existing IndexedDB backup.
+ if(!restored || txs.length || Object.keys(bud).length || emis.length || saves.length) await mirrorSave();
  lockNow();
 }
 boot();
