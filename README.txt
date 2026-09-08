@@ -1,16 +1,18 @@
-MoneyMate V2.1 Premium
+MoneyMate V2.2 Premium
 ======================
-New:
-- Bottom navigation for mobile
-- More menu for Savings / Reports / Settings
+- Mobile bottom navigation
 - Income vs Expense visual chart
-- EMI due-status indicator
-- Savings goal progress
-- V2 data structures retained
+- EMI due status + Mark Paid
+- Savings goals + Add Amount
 - Search/filter/edit/delete transactions
-- Budget, backup/restore, dark mode
-- Offline localStorage
+- Budget tracking
+- Dark mode
+- JSON backup/restore
+- PIN privacy lock (local device)
+- PWA manifest + service worker for offline caching
+- App icon
+- Existing V1/V1.1/V1.2/V2 localStorage data keys retained
 
-Note:
-The app remains offline-first. For a true installable PWA with offline caching,
-a manifest + service worker can be added in the next build when deployed over HTTPS.
+For GitHub Pages:
+Upload/replace index.html, manifest.json, sw.js and icon.svg in the same folder.
+Open the site over HTTPS, then use browser menu -> Add to Home screen / Install.
