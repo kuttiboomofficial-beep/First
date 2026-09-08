@@ -4,182 +4,154 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<meta name="description" content="MoneyMate V2 Premium - Offline Personal Finance Tracker">
-<title>MoneyMate V2 Premium</title>
+<title>MoneyMate V2.1</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827;transition:.2s}
-.app{max-width:540px;margin:auto;min-height:100vh;background:#fff}
-header{padding:19px 17px;background:#111827;color:#fff}
-header h1{margin:0;font-size:25px}header p{margin:5px 0 0;color:#cbd5e1;font-size:13px}
-nav{display:flex;gap:7px;overflow:auto;padding:10px 11px;background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:5}
-nav button{background:#f1f5f9;padding:9px 12px;font-size:13px;white-space:nowrap}
-nav button.active{background:#111827;color:#fff}
-main{padding:15px 16px 90px}.tab{display:none}.tab.active{display:block}
-.monthbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}.monthbar select{flex:1}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{padding:15px;border-radius:16px;background:#f8fafc;border:1px solid #e5e7eb}.card.full{grid-column:1/-1;background:#e2e8f0}.card small{color:#64748b}.card b{display:block;font-size:20px;margin-top:6px}.card.full b{font-size:28px}.card-icon{float:right;font-size:21px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
-button{border:0;border-radius:11px;padding:12px;font-size:14px;font-weight:700;cursor:pointer}.income{background:#dcfce7}.expense{background:#fee2e2}
-.section{margin-top:18px}.section h2,h2{font-size:18px;margin:0 0 10px}.section-title{display:flex;align-items:center}
-.listbox{border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin-top:12px}.listline{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eee}.listline:last-child{border-bottom:0}
-.progress{height:9px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:9px 0}.progress i{display:block;height:100%;width:0;background:#334155}
-.tx{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}.tx small{display:block;color:#64748b;margin-top:4px}.amt{font-weight:700}.plus{color:#15803d}.minus{color:#b91c1c}
-.empty{text-align:center;color:#94a3b8;padding:27px 10px}.search{margin-bottom:10px}
-input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;background:inherit;color:inherit}
-label{display:block;font-size:13px;font-weight:700;margin:10px 0 6px}.formrow{display:flex;gap:8px}.formrow>*{flex:1}
-.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#eef2f7;font-size:12px;margin:2px}.danger{background:#fee2e2}.ok{background:#dcfce7}
-.modal{display:none;position:fixed;inset:0;background:#0008;align-items:end;justify-content:center;z-index:20}.modal-box{background:white;width:100%;max-width:540px;border-radius:22px 22px 0 0;padding:19px;max-height:90vh;overflow:auto}.row{display:flex;gap:9px;margin-top:14px}.row button{flex:1}.cancel{background:#e5e7eb}
-footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:540px;background:white;border-top:1px solid #e5e7eb;padding:9px;text-align:center;color:#64748b;font-size:12px;z-index:6}
-body.dark{background:#0f172a;color:#e5e7eb}.dark .app,.dark nav,.dark footer,.dark .modal-box{background:#111827;color:#e5e7eb}.dark nav{border-color:#334155}.dark nav button{background:#1e293b;color:#e5e7eb}.dark nav button.active{background:#e5e7eb;color:#111827}.dark .card{background:#1e293b;border-color:#334155}.dark .card.full{background:#273449}.dark .listbox{border-color:#334155}.dark .listline,.dark .tx{border-color:#334155}.dark input,.dark select{border-color:#475569;background:#0f172a}.dark .cancel{background:#334155}.dark .progress{background:#334155}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
+.app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
+h1{margin:0;font-size:25px}header p{margin:5px 0 0;color:#cbd5e1;font-size:13px}
+main{padding:15px 16px 88px}.tab{display:none}.tab.active{display:block}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:540px;height:70px;background:#fff;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(5,1fr);z-index:10}
+.bottom button{background:transparent;border-radius:0;padding:5px 2px;font-size:11px;color:#64748b}.bottom button.active{color:#111827;font-weight:800}.bottom span{display:block;font-size:21px;margin-bottom:2px}
+.monthbar{display:flex;gap:8px;margin-bottom:12px}.monthbar select{flex:1}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{padding:15px;border-radius:16px;background:#f8fafc;border:1px solid #e5e7eb}.full{grid-column:1/-1;background:#e2e8f0}.card small{color:#64748b}.card b{display:block;font-size:20px;margin-top:6px}.full b{font-size:28px}.card-icon{float:right;font-size:22px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}button{border:0;border-radius:11px;padding:12px;font-size:14px;font-weight:700}.income{background:#dcfce7}.expense{background:#fee2e2}
+h2{font-size:18px;margin:20px 0 10px}.section-title{display:flex;align-items:center}.listbox{border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin-top:10px}.listline{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eee}.listline:last-child{border-bottom:0}
+.progress{height:9px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:9px 0}.progress i{display:block;height:100%;background:#334155}
+.tx{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}.tx small{display:block;color:#64748b;margin-top:4px}.plus{color:#15803d}.minus{color:#b91c1c}.empty{text-align:center;color:#94a3b8;padding:25px 8px}
+input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;background:#fff;color:#111827}label{display:block;font-size:13px;font-weight:700;margin:10px 0 6px}.row{display:flex;gap:8px;margin-top:12px}.row>*{flex:1}
+.chart{width:100%;height:210px;border:1px solid #e5e7eb;border-radius:14px;padding:10px;background:#fafafa}.barwrap{height:155px;display:flex;align-items:end;gap:10px;padding:10px 5px}.bar{flex:1;min-width:28px;border-radius:7px 7px 2px 2px;background:#334155;position:relative}.bar em{position:absolute;top:-18px;width:100%;text-align:center;font-size:10px;font-style:normal}.chartlabels{display:flex;gap:10px;padding:0 5px}.chartlabels span{flex:1;text-align:center;font-size:10px;color:#64748b}
+.badge{display:inline-block;padding:5px 8px;border-radius:99px;font-size:11px;background:#e2e8f0}.warn{background:#fee2e2;color:#991b1b}.good{background:#dcfce7;color:#166534}
+.modal{display:none;position:fixed;inset:0;background:#0008;align-items:end;justify-content:center;z-index:30}.modal-box{background:#fff;width:100%;max-width:540px;border-radius:22px 22px 0 0;padding:19px;max-height:90vh;overflow:auto}
+.dark{background:#0f172a;color:#e5e7eb}.dark .app,.dark .bottom,.dark .modal-box{background:#111827;color:#e5e7eb}.dark .card{background:#1e293b;border-color:#334155}.dark .full{background:#273449}.dark .listbox,.dark .chart{border-color:#334155;background:#172033}.dark .listline,.dark .tx{border-color:#334155}.dark input,.dark select{background:#0f172a;color:#e5e7eb;border-color:#475569}.dark .bottom{border-color:#334155}.dark .bottom button{color:#94a3b8}.dark .bottom button.active{color:#fff}
 </style>
 </head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V2 Premium</p></header>
-<nav>
-<button class="active" onclick="showTab('dashboard',this)">🏠 Dashboard</button>
-<button onclick="showTab('transactions',this)">💳 Transactions</button>
-<button onclick="showTab('budget',this)">🎯 Budget</button>
-<button onclick="showTab('emi',this)">🏦 EMI</button>
-<button onclick="showTab('savings',this)">🎯 Savings</button>
-<button onclick="showTab('reports',this)">📊 Reports</button>
-<button onclick="showTab('settings',this)">⚙️ Settings</button>
-</nav>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V2.1 Premium</p></header>
 <main>
-<section id="dashboard" class="tab active">
-<div class="monthbar"><select id="monthFilter" onchange="renderAll()"></select><button onclick="setCurrentMonth()">📅 Today</button></div>
+<section id="home" class="tab active">
+<div class="monthbar"><select id="homeMonth"></select><button onclick="today()">📅 Today</button></div>
 <div class="cards">
-<div class="card full"><span class="card-icon">💰</span><small>Balance</small><b id="balance">₹0</b></div>
-<div class="card"><span class="card-icon">📥</span><small>Income</small><b id="income">₹0</b></div>
-<div class="card"><span class="card-icon">📤</span><small>Expense</small><b id="expense">₹0</b></div>
-<div class="card"><span class="card-icon">🧾</span><small>Transactions</small><b id="count">0</b></div>
-<div class="card"><span class="card-icon">📈</span><small>Savings Rate</small><b id="savingRate">0%</b></div>
+<div class="card full"><span class="card-icon">💰</span><small>Balance</small><b id="bal">₹0</b></div>
+<div class="card"><span class="card-icon">📥</span><small>Income</small><b id="inc">₹0</b></div>
+<div class="card"><span class="card-icon">📤</span><small>Expense</small><b id="exp">₹0</b></div>
+<div class="card"><span class="card-icon">🧾</span><small>Transactions</small><b id="cnt">0</b></div>
+<div class="card"><span class="card-icon">📈</span><small>Savings Rate</small><b id="rate">0%</b></div>
 </div>
-<div class="actions"><button class="income" onclick="openModal('income')">💵 ＋ Add Income</button><button class="expense" onclick="openModal('expense')">💸 － Add Expense</button></div>
-<div class="section"><h2 class="section-title">🎯 Budget Status</h2><div id="budgetMini"></div></div>
-<div class="section"><h2 class="section-title">🏦 EMI Overview</h2><div id="emiMini"></div></div>
-<div class="section"><h2 class="section-title">🎯 Savings Goals</h2><div id="savingMini"></div></div>
+<div class="actions"><button class="income" onclick="openTx('income')">💵 Add Income</button><button class="expense" onclick="openTx('expense')">💸 Add Expense</button></div>
+<h2>🎯 Budget Status</h2><div id="homeBudget"></div>
+<h2>🏦 EMI Due</h2><div id="homeEmi"></div>
+<h2>🎯 Savings Goals</h2><div id="homeSave"></div>
 </section>
 
 <section id="transactions" class="tab">
-<div class="monthbar"><select id="txMonth" onchange="renderTransactions()"></select><button onclick="openModal('income')">➕ Add</button></div>
-<input class="search" id="searchTx" placeholder="🔍 Search category or note..." oninput="renderTransactions()">
-<div class="formrow"><select id="typeFilter" onchange="renderTransactions()"><option value="all">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select><select id="catFilter" onchange="renderTransactions()"><option value="all">All Categories</option></select></div>
-<div id="list"></div>
+<h2>💳 Transactions</h2><div class="monthbar"><select id="txMonth"></select><button onclick="openTx('income')">➕ Add</button></div>
+<input id="search" placeholder="🔍 Search category or note..." oninput="renderTx()">
+<div class="row"><select id="tf" onchange="renderTx()"><option value="all">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select><select id="cf" onchange="renderTx()"><option value="all">All Categories</option></select></div>
+<div id="txList"></div>
 </section>
 
 <section id="budget" class="tab">
-<h2 class="section-title">🎯 Monthly Budget</h2>
-<label>📅 Selected Month</label><select id="budgetMonth" onchange="renderBudget()"></select>
-<label>💰 Overall Monthly Budget (₹)</label><input id="budgetAmount" type="number" min="0" placeholder="e.g. 30000" oninput="saveBudget()">
-<div id="budgetBox" class="listbox"></div>
+<h2>🎯 Monthly Budget</h2><label>📅 Month</label><select id="budgetMonth" onchange="renderBudget()"></select>
+<label>💰 Overall Budget (₹)</label><input id="budgetAmount" type="number" oninput="saveBudget()"><div id="budgetBox" class="listbox"></div>
 </section>
 
 <section id="emi" class="tab">
-<h2 class="section-title">🏦 EMI Tracker</h2>
-<button onclick="openEMIModal()">➕ Add Loan / EMI</button>
-<div id="emiList"></div>
+<h2>🏦 EMI Tracker</h2><button onclick="openEmi()">➕ Add Loan / EMI</button><div id="emiList"></div>
 </section>
 
 <section id="savings" class="tab">
-<h2 class="section-title">🎯 Savings Goals</h2>
-<button onclick="openSavingModal()">➕ Add Goal</button>
-<div id="savingList"></div>
+<h2>🎯 Savings Goals</h2><button onclick="openSave()">➕ Add Goal</button><div id="saveList"></div>
 </section>
 
 <section id="reports" class="tab">
-<h2 class="section-title">📊 Monthly Report</h2>
-<select id="reportMonth" onchange="renderReports()"></select>
+<h2>📊 Reports</h2><select id="reportMonth" onchange="renderReport()"></select>
 <div id="reportBox" class="listbox"></div>
+<h3>📈 Income vs Expense</h3><div id="chart" class="chart"></div>
 </section>
 
 <section id="settings" class="tab">
-<h2 class="section-title">⚙️ Settings</h2>
-<div class="listbox">
-<button onclick="toggleDark()" style="width:100%">🌙 Toggle Dark Mode</button>
-<div class="row"><button onclick="exportData()">💾 Backup Data</button><button onclick="importData()">📥 Restore Data</button></div>
-<div class="row"><button onclick="installApp()">📱 Install App</button><button onclick="clearData()" class="danger">🗑️ Clear Data</button></div>
-<p style="font-size:12px;color:#64748b">Backup creates a JSON file. Restore uses a previously saved MoneyMate backup.</p>
-</div>
-</section>
+<h2>⚙️ Settings</h2><div class="listbox">
+<button style="width:100%" onclick="dark()">🌙 Toggle Dark Mode</button>
+<div class="row"><button onclick="backup()">💾 Backup</button><button onclick="restore()">📥 Restore</button></div>
+<button style="width:100%;margin-top:8px" onclick="clearAll()">🗑️ Clear All Data</button>
+<p style="font-size:12px;color:#64748b">Your finance data is stored locally on this device. Backup regularly before changing phones or browsers.</p>
+</div></section>
 </main>
-<footer>💰 MoneyMate V2 • 🔒 Offline • Data stays on this device</footer>
+
+<nav class="bottom">
+<button class="active" onclick="go('home',this)"><span>🏠</span>Home</button>
+<button onclick="go('transactions',this)"><span>💳</span>Transactions</button>
+<button onclick="go('budget',this)"><span>🎯</span>Budget</button>
+<button onclick="go('emi',this)"><span>🏦</span>EMI</button>
+<button onclick="go('more',this)"><span>⋯</span>More</button>
+</nav>
 </div>
 
-<div class="modal" id="modal"><div class="modal-box">
-<h2 id="modalTitle">🧾 Add Transaction</h2><input type="hidden" id="editId">
-<label>🔄 Type</label><select id="type"><option value="income">Income</option><option value="expense">Expense</option></select>
-<label>🏷️ Category</label><select id="category"></select>
-<label>💰 Amount (₹)</label><input id="amount" type="number" min="0" placeholder="0">
-<label>📅 Date</label><input id="date" type="date">
-<label>📝 Note</label><input id="note" maxlength="80" placeholder="Optional">
-<div class="row"><button class="cancel" onclick="closeModal()">✖️ Cancel</button><button onclick="saveTx()">💾 Save</button></div>
+<div id="moreModal" class="modal"><div class="modal-box">
+<h2>⋯ More</h2>
+<div class="row"><button onclick="goFromMore('savings')">🎯 Savings</button><button onclick="goFromMore('reports')">📊 Reports</button></div>
+<button style="width:100%;margin-top:8px" onclick="goFromMore('settings')">⚙️ Settings</button>
+<button style="width:100%;margin-top:8px;background:#e5e7eb" onclick="closeMore()">✖️ Close</button>
 </div></div>
 
-<div class="modal" id="emiModal"><div class="modal-box">
-<h2>🏦 Add EMI</h2><input type="hidden" id="emiId">
-<label>🏷️ Loan Name</label><input id="emiName" placeholder="e.g. Home Loan">
-<label>💰 Total Loan Amount (₹)</label><input id="emiTotal" type="number">
-<label>💵 Monthly EMI (₹)</label><input id="emiMonthly" type="number">
-<label>✅ Amount Paid (₹)</label><input id="emiPaid" type="number" value="0">
-<label>📅 Next Due Date</label><input id="emiDue" type="date">
-<div class="row"><button class="cancel" onclick="closeEMIModal()">✖️ Cancel</button><button onclick="saveEMI()">💾 Save</button></div>
-</div></div>
+<div id="txModal" class="modal"><div class="modal-box"><h2 id="txTitle">🧾 Transaction</h2><input type="hidden" id="txId">
+<label>🔄 Type</label><select id="txType" onchange="cats()"><option value="income">Income</option><option value="expense">Expense</option></select>
+<label>🏷️ Category</label><select id="txCat"></select><label>💰 Amount</label><input id="txAmt" type="number">
+<label>📅 Date</label><input id="txDate" type="date"><label>📝 Note</label><input id="txNote">
+<div class="row"><button onclick="closeTx()" style="background:#e5e7eb">✖️ Cancel</button><button onclick="saveTx()">💾 Save</button></div></div></div>
 
-<div class="modal" id="savingModal"><div class="modal-box">
-<h2>🎯 Add Savings Goal</h2><input type="hidden" id="savingId">
-<label>🎯 Goal Name</label><input id="savingName" placeholder="e.g. New Bike">
-<label>💰 Target Amount (₹)</label><input id="savingTarget" type="number">
-<label>💵 Saved Amount (₹)</label><input id="savingSaved" type="number" value="0">
-<div class="row"><button class="cancel" onclick="closeSavingModal()">✖️ Cancel</button><button onclick="saveSaving()">💾 Save</button></div>
-</div></div>
+<div id="emiModal" class="modal"><div class="modal-box"><h2>🏦 EMI</h2><input type="hidden" id="emiId">
+<label>🏷️ Loan Name</label><input id="emiName"><label>💰 Total Loan</label><input id="emiTotal" type="number">
+<label>💵 Monthly EMI</label><input id="emiMonthly" type="number"><label>✅ Paid Amount</label><input id="emiPaid" type="number" value="0"><label>📅 Next Due</label><input id="emiDue" type="date">
+<div class="row"><button onclick="closeEmi()" style="background:#e5e7eb">✖️ Cancel</button><button onclick="saveEmi()">💾 Save</button></div></div></div>
 
-<input type="file" id="fileInput" accept="application/json" style="display:none">
+<div id="saveModal" class="modal"><div class="modal-box"><h2>🎯 Savings Goal</h2><input type="hidden" id="saveId">
+<label>🎯 Goal Name</label><input id="saveName"><label>💰 Target</label><input id="saveTarget" type="number"><label>💵 Saved</label><input id="saveSaved" type="number" value="0">
+<div class="row"><button onclick="closeSave()" style="background:#e5e7eb">✖️ Cancel</button><button onclick="saveGoal()">💾 Save</button></div></div></div>
+<input id="file" type="file" accept="application/json" style="display:none">
 
 <script>
-const incomeCats=['Salary','Freelance','Business','Interest','Other'];
-const expenseCats=['Food','Travel','Shopping','Bills','Rent','EMI','Medical','Education','Entertainment','Other'];
-let transactions=JSON.parse(localStorage.getItem('moneymate_transactions')||'[]');
-let budgets=JSON.parse(localStorage.getItem('moneymate_budgets')||'{}');
-let emis=JSON.parse(localStorage.getItem('moneymate_emis')||'[]');
-let savings=JSON.parse(localStorage.getItem('moneymate_savings')||'[]');
-
-function money(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
-function ym(d){return String(d).slice(0,7)} function currentYM(){return new Date().toISOString().slice(0,7)}
+const IC=['Salary','Freelance','Business','Interest','Other'],EC=['Food','Travel','Shopping','Bills','Rent','EMI','Medical','Education','Entertainment','Other'];
+let txs=JSON.parse(localStorage.getItem('moneymate_transactions')||'[]'),bud=JSON.parse(localStorage.getItem('moneymate_budgets')||'{}'),emis=JSON.parse(localStorage.getItem('moneymate_emis')||'[]'),saves=JSON.parse(localStorage.getItem('moneymate_savings')||'[]');
+const $=id=>document.getElementById(id),money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2}),cur=()=>new Date().toISOString().slice(0,7),ym=d=>String(d).slice(0,7);
 function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.push(d.toISOString().slice(0,7));d.setMonth(d.getMonth()-1)}return a}
-function monthName(s){let [y,m]=s.split('-');return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
-function fillMonths(){['monthFilter','txMonth','budgetMonth','reportMonth'].forEach(id=>{let e=document.getElementById(id),o=e.value||currentYM();e.innerHTML=months().map(m=>`<option value="${m}">${monthName(m)}</option>`).join('');e.value=o})}
-function showTab(id,btn){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAll()}
-function setCurrentMonth(){['monthFilter','txMonth','budgetMonth','reportMonth'].forEach(id=>document.getElementById(id).value=currentYM());renderAll()}
-function monthTx(m){return transactions.filter(x=>ym(x.date)===m)}
-function openModal(type,id=null){modal.style.display='flex';editId.value=id||'';document.getElementById('type').value=type;updateCats();if(id){let x=transactions.find(t=>t.id==id);modalTitle.textContent='✏️ Edit Transaction';category.value=x.category;amount.value=x.amount;date.value=x.date;note.value=x.note||''}else{modalTitle.textContent=type==='income'?'💵 Add Income':'💸 Add Expense';date.value=new Date().toISOString().slice(0,10);amount.value='';note.value=''}}
-function closeModal(){modal.style.display='none'} type.addEventListener('change',updateCats)
-function updateCats(){let a=type.value==='income'?incomeCats:expenseCats;category.innerHTML=a.map(x=>`<option>${x}</option>`).join('')}
-function saveTx(){let typ=type.value,amt=Number(amount.value),id=editId.value;if(!amt||amt<=0){alert('Amount enter pannunga');return}let o={id:id?Number(id):Date.now(),type:typ,amount:amt,category:category.value,date:date.value,note:note.value.trim()};if(id){let i=transactions.findIndex(x=>x.id==id);transactions[i]=o}else transactions.unshift(o);localStorage.setItem('moneymate_transactions',JSON.stringify(transactions));closeModal();renderAll()}
-function delTx(id){if(confirm('Delete this transaction?')){transactions=transactions.filter(x=>x.id!==id);localStorage.setItem('moneymate_transactions',JSON.stringify(transactions));renderAll()}}
-function renderDashboard(){let m=monthFilter.value,t=monthTx(m),inc=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),exp=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);income.textContent=money(inc);expense.textContent=money(exp);balance.textContent=money(inc-exp);count.textContent=t.length;savingRate.textContent=(inc?Math.round((inc-exp)/inc*100):0)+'%';let b=Number(budgets[m]||0);budgetMini.innerHTML=b?`<div class="listbox"><b>${money(exp)} / ${money(b)}</b><div class="progress"><i style="width:${Math.min(100,exp/b*100)}%"></i></div><small>${exp>b?'⚠️ Budget exceeded':'✅ '+money(b-exp)+' remaining'}</small></div>`:'<div class="empty">Set a monthly budget to track spending.</div>';emiMini.innerHTML=emis.length?emis.slice(0,3).map(e=>`<div class="listline"><span>🏦 ${esc(e.name)}</span><b>${money(e.monthly)}</b></div>`).join(''):'<div class="empty">No EMI added.</div>';savingMini.innerHTML=savings.length?savings.slice(0,3).map(s=>{let p=s.target?Math.min(100,s.saved/s.target*100):0;return `<div class="listbox"><b>🎯 ${esc(s.name)}</b><div class="progress"><i style="width:${p}%"></i></div><small>${money(s.saved)} / ${money(s.target)} • ${Math.round(p)}%</small></div>`}).join(''):'<div class="empty">No savings goal.</div>'}
-function renderTransactions(){let m=txMonth.value,q=searchTx.value.toLowerCase(),tf=typeFilter.value,cf=catFilter.value;let cats=[...new Set(monthTx(m).map(x=>x.category))];catFilter.innerHTML='<option value="all">All Categories</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');catFilter.value=cf;let t=monthTx(m).filter(x=>(tf==='all'||x.type===tf)&&(cf==='all'||x.category===cf)&&((x.category+' '+x.note).toLowerCase().includes(q)));list.innerHTML=t.length?t.map(x=>`<div class="tx"><div><b>${esc(x.category)}</b><small>${esc(x.date)}${x.note?' • '+esc(x.note):''}</small></div><div style="text-align:right"><div class="amt ${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</div><button onclick="openModal('${x.type}',${x.id})" style="padding:4px 7px;font-size:11px">✏️</button> <button onclick="delTx(${x.id})" style="padding:4px 7px;font-size:11px">🗑️</button></div></div>`).join(''):'<div class="empty">No matching transactions.</div>'}
-function saveBudget(){let m=budgetMonth.value;budgets[m]=Number(budgetAmount.value)||0;localStorage.setItem('moneymate_budgets',JSON.stringify(budgets));renderBudget();renderDashboard()}
-function renderBudget(){let m=budgetMonth.value,b=Number(budgets[m]||0),exp=monthTx(m).filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);budgetAmount.value=b||'';budgetBox.innerHTML=b?`<b>💸 Spent: ${money(exp)}</b><div class="progress"><i style="width:${Math.min(100,exp/b*100)}%"></i></div><b>💰 ${money(Math.max(0,b-exp))}</b> remaining<br><small>${exp>b?'⚠️ Budget exceeded':'✅ Budget available'}</small>`:'<div class="empty">Enter a budget amount above.</div>'}
-function openEMIModal(id=null){emiModal.style.display='flex';emiId.value=id||'';if(id){let e=emis.find(x=>x.id==id);emiName.value=e.name;emiTotal.value=e.total;emiMonthly.value=e.monthly;emiPaid.value=e.paid;emiDue.value=e.due}else{emiName.value='';emiTotal.value='';emiMonthly.value='';emiPaid.value=0;emiDue.value=''}}
-function closeEMIModal(){emiModal.style.display='none'}
-function saveEMI(){if(!emiName.value||!Number(emiTotal.value)||!Number(emiMonthly.value)){alert('Loan name, total and EMI required');return}let o={id:emiId.value?Number(emiId.value):Date.now(),name:emiName.value.trim(),total:Number(emiTotal.value),monthly:Number(emiMonthly.value),paid:Number(emiPaid.value)||0,due:emiDue.value};if(emiId.value){let i=emis.findIndex(x=>x.id==emiId.value);emis[i]=o}else emis.push(o);localStorage.setItem('moneymate_emis',JSON.stringify(emis));closeEMIModal();renderAll()}
-function delEMI(id){if(confirm('Delete this EMI?')){emis=emis.filter(x=>x.id!==id);localStorage.setItem('moneymate_emis',JSON.stringify(emis));renderAll()}}
-function renderEMI(){emiList.innerHTML=emis.length?emis.map(e=>{let rem=Math.max(0,e.total-e.paid),p=e.total?Math.min(100,e.paid/e.total*100):0;return `<div class="listbox"><div class="listline"><b>🏦 ${esc(e.name)}</b><span>${money(rem)} left</span></div><div class="progress"><i style="width:${p}%"></i></div><small>EMI ${money(e.monthly)} • Paid ${money(e.paid)} • Due ${e.due||'Not set'}</small><div class="row"><button onclick="openEMIModal(${e.id})">✏️ Edit</button><button onclick="delEMI(${e.id})">🗑️ Delete</button></div></div>`}).join(''):'<div class="empty">No EMI added yet.</div>'}
-function openSavingModal(id=null){savingModal.style.display='flex';savingId.value=id||'';if(id){let s=savings.find(x=>x.id==id);savingName.value=s.name;savingTarget.value=s.target;savingSaved.value=s.saved}else{savingName.value='';savingTarget.value='';savingSaved.value=0}}
-function closeSavingModal(){savingModal.style.display='none'}
-function saveSaving(){if(!savingName.value||!Number(savingTarget.value)){alert('Goal name and target required');return}let o={id:savingId.value?Number(savingId.value):Date.now(),name:savingName.value.trim(),target:Number(savingTarget.value),saved:Number(savingSaved.value)||0};if(savingId.value){let i=savings.findIndex(x=>x.id==savingId.value);savings[i]=o}else savings.push(o);localStorage.setItem('moneymate_savings',JSON.stringify(savings));closeSavingModal();renderAll()}
-function delSaving(id){if(confirm('Delete this goal?')){savings=savings.filter(x=>x.id!==id);localStorage.setItem('moneymate_savings',JSON.stringify(savings));renderAll()}}
-function renderSavings(){savingList.innerHTML=savings.length?savings.map(s=>{let p=s.target?Math.min(100,s.saved/s.target*100):0;return `<div class="listbox"><b>🎯 ${esc(s.name)}</b><div class="progress"><i style="width:${p}%"></i></div><div class="listline"><span>${money(s.saved)} saved</span><b>${Math.round(p)}%</b></div><small>Target ${money(s.target)} • Remaining ${money(Math.max(0,s.target-s.saved))}</small><div class="row"><button onclick="openSavingModal(${s.id})">✏️ Edit</button><button onclick="delSaving(${s.id})">🗑️ Delete</button></div></div>`}).join(''):'<div class="empty">No savings goal yet.</div>'}
-function renderReports(){let m=reportMonth.value,t=monthTx(m),inc=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),exp=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);let rows=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="listline"><span>🏷️ ${esc(k)}</span><b>${money(v)}</b></div>`).join('');reportBox.innerHTML=`<div class="listline"><span>📥 Total Income</span><b class="plus">${money(inc)}</b></div><div class="listline"><span>📤 Total Expense</span><b class="minus">${money(exp)}</b></div><div class="listline"><span>💰 Net Balance</span><b>${money(inc-exp)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${inc?Math.round((inc-exp)/inc*100):0}%</b></div><h3>🏷️ Expense by Category</h3>${rows||'<small>No expenses.</small>'}`}
-function toggleDark(){document.body.classList.toggle('dark');localStorage.setItem('moneymate_dark',document.body.classList.contains('dark'))}
-function exportData(){let data={transactions,budgets,emis,savings,version:'2.0'};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='MoneyMate_Backup.json';a.click();URL.revokeObjectURL(a.href)}
-function importData(){fileInput.value='';fileInput.click()}
-fileInput.addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d||!Array.isArray(d.transactions))throw 0;transactions=d.transactions;budgets=d.budgets||{};emis=d.emis||[];savings=d.savings||[];localStorage.setItem('moneymate_transactions',JSON.stringify(transactions));localStorage.setItem('moneymate_budgets',JSON.stringify(budgets));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(savings));renderAll();alert('Backup restored successfully!')}catch(err){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
-function clearData(){if(confirm('Clear ALL MoneyMate data from this device?')){localStorage.removeItem('moneymate_transactions');localStorage.removeItem('moneymate_budgets');localStorage.removeItem('moneymate_emis');localStorage.removeItem('moneymate_savings');transactions=[];budgets={};emis=[];savings=[];renderAll()}}
-let deferredPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e})
-async function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null}else alert('If your browser shows “Add to Home screen”, choose it to install MoneyMate.')}
+function mn(s){let [y,m]=s.split('-');return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
+function fill(){['homeMonth','txMonth','budgetMonth','reportMonth'].forEach(id=>{let e=$(id),v=e.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=v})}
+function go(id,btn){if(id==='more'){$('moreModal').style.display='flex';return}document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAll()}
+function goFromMore(id){closeMore();document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.bottom button')[4].classList.add('active');renderAll()}
+function closeMore(){$('moreModal').style.display='none'}
+function today(){['homeMonth','txMonth','budgetMonth','reportMonth'].forEach(id=>$(id).value=cur());renderAll()}
+function mt(m){return txs.filter(x=>ym(x.date)===m)}
+function cats(){let a=$('txType').value==='income'?IC:EC;$('txCat').innerHTML=a.map(x=>`<option>${x}</option>`).join('')}
+function openTx(type,id=null){$('txModal').style.display='flex';$('txId').value=id||'';$('txType').value=type;cats();if(id){let x=txs.find(t=>t.id==id);$('txTitle').textContent='✏️ Edit Transaction';$('txCat').value=x.category;$('txAmt').value=x.amount;$('txDate').value=x.date;$('txNote').value=x.note||''}else{$('txTitle').textContent=type==='income'?'💵 Add Income':'💸 Add Expense';$('txDate').value=new Date().toISOString().slice(0,10);$('txAmt').value='';$('txNote').value=''}}
+function closeTx(){$('txModal').style.display='none'}
+function saveTx(){let id=$('txId').value,a=Number($('txAmt').value);if(a<=0){alert('Amount enter pannunga');return}let o={id:id?Number(id):Date.now(),type:$('txType').value,category:$('txCat').value,amount:a,date:$('txDate').value,note:$('txNote').value.trim()};if(id)txs[txs.findIndex(x=>x.id==id)]=o;else txs.unshift(o);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));closeTx();renderAll()}
+function delTx(id){if(confirm('Delete this transaction?')){txs=txs.filter(x=>x.id!==id);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));renderAll()}}
+function renderHome(){let m=$('homeMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);$('inc').textContent=money(i);$('exp').textContent=money(e);$('bal').textContent=money(i-e);$('cnt').textContent=t.length;$('rate').textContent=(i?Math.round((i-e)/i*100):0)+'%';let b=Number(bud[m]||0);$('homeBudget').innerHTML=b?`<div class="listbox"><b>💸 ${money(e)} / ${money(b)}</b><div class="progress"><i style="width:${Math.min(100,e/b*100)}%"></i></div><small>${e>b?'⚠️ Budget exceeded':'✅ '+money(b-e)+' remaining'}</small></div>`:'<div class="empty">Set a monthly budget to track spending.</div>';$('homeEmi').innerHTML=emis.length?emis.slice(0,3).map(e=>emiCard(e)).join(''):'<div class="empty">No EMI added.</div>';$('homeSave').innerHTML=saves.length?saves.slice(0,3).map(s=>saveCard(s)).join(''):'<div class="empty">No savings goal.</div>'}
+function emiCard(e){let due=e.due?new Date(e.due+'T00:00:00'):null,todayD=new Date();todayD.setHours(0,0,0,0);let days=due?Math.ceil((due-todayD)/86400000):null;let badge=days!==null?(days<0?'⚠️ Overdue':days<=7?'⏰ Due in '+days+' day(s)':'📅 '+days+' days'):'No due date';return `<div class="listbox"><div class="listline"><b>🏦 ${esc(e.name)}</b><span class="badge ${days!==null&&days<=7?'warn':'good'}">${badge}</span></div><small>EMI ${money(e.monthly)} • Remaining ${money(Math.max(0,e.total-e.paid))}</small></div>`}
+function saveCard(s){let p=s.target?Math.min(100,s.saved/s.target*100):0;return `<div class="listbox"><b>🎯 ${esc(s.name)}</b><div class="progress"><i style="width:${p}%"></i></div><small>${money(s.saved)} / ${money(s.target)} • ${Math.round(p)}%</small></div>`}
+function renderTx(){let m=$('txMonth').value,q=$('search').value.toLowerCase(),tf=$('tf').value,old=$('cf').value,c=[...new Set(mt(m).map(x=>x.category))];$('cf').innerHTML='<option value="all">All Categories</option>'+c.map(x=>`<option>${esc(x)}</option>`).join('');$('cf').value=old;let a=mt(m).filter(x=>(tf==='all'||x.type===tf)&&(old==='all'||x.category===old)&&((x.category+' '+x.note).toLowerCase().includes(q)));$('txList').innerHTML=a.length?a.map(x=>`<div class="tx"><div><b>${esc(x.category)}</b><small>${esc(x.date)}${x.note?' • '+esc(x.note):''}</small></div><div style="text-align:right"><b class="${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</b><br><button onclick="openTx('${x.type}',${x.id})">✏️</button> <button onclick="delTx(${x.id})">🗑️</button></div></div>`).join(''):'<div class="empty">No matching transactions.</div>'}
+function saveBudget(){let m=$('budgetMonth').value;bud[m]=Number($('budgetAmount').value)||0;localStorage.setItem('moneymate_budgets',JSON.stringify(bud));renderBudget();renderHome()}
+function renderBudget(){let m=$('budgetMonth').value,b=Number(bud[m]||0),e=mt(m).filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);$('budgetAmount').value=b||'';$('budgetBox').innerHTML=b?`<b>💸 Spent ${money(e)}</b><div class="progress"><i style="width:${Math.min(100,e/b*100)}%"></i></div><b>💰 ${money(Math.max(0,b-e))}</b> remaining<br><small>${e>b?'⚠️ Budget exceeded':'✅ Budget available'}</small>`:'<div class="empty">Enter a budget amount above.</div>'}
+function openEmi(id=null){$('emiModal').style.display='flex';$('emiId').value=id||'';if(id){let e=emis.find(x=>x.id==id);$('emiName').value=e.name;$('emiTotal').value=e.total;$('emiMonthly').value=e.monthly;$('emiPaid').value=e.paid;$('emiDue').value=e.due||''}else{$('emiName').value='';$('emiTotal').value='';$('emiMonthly').value='';$('emiPaid').value=0;$('emiDue').value=''}}
+function closeEmi(){$('emiModal').style.display='none'}
+function saveEmi(){if(!$('emiName').value||!Number($('emiTotal').value)||!Number($('emiMonthly').value)){alert('Loan name, total and EMI required');return}let o={id:$('emiId').value?Number($('emiId').value):Date.now(),name:$('emiName').value.trim(),total:Number($('emiTotal').value),monthly:Number($('emiMonthly').value),paid:Number($('emiPaid').value)||0,due:$('emiDue').value};if($('emiId').value)emis[emis.findIndex(x=>x.id==$('emiId').value)]=o;else emis.push(o);localStorage.setItem('moneymate_emis',JSON.stringify(emis));closeEmi();renderAll()}
+function delEmi(id){if(confirm('Delete this EMI?')){emis=emis.filter(x=>x.id!==id);localStorage.setItem('moneymate_emis',JSON.stringify(emis));renderAll()}}
+function renderEmi(){ $('emiList').innerHTML=emis.length?emis.map(e=>`<div class="listbox">${emiCard(e)}<div class="row"><button onclick="openEmi(${e.id})">✏️ Edit</button><button onclick="delEmi(${e.id})">🗑️ Delete</button></div></div>`).join(''):'<div class="empty">No EMI added yet.</div>'}
+function openSave(id=null){$('saveModal').style.display='flex';$('saveId').value=id||'';if(id){let s=saves.find(x=>x.id==id);$('saveName').value=s.name;$('saveTarget').value=s.target;$('saveSaved').value=s.saved}else{$('saveName').value='';$('saveTarget').value='';$('saveSaved').value=0}}
+function closeSave(){$('saveModal').style.display='none'}
+function saveGoal(){if(!$('saveName').value||!Number($('saveTarget').value)){alert('Goal name and target required');return}let o={id:$('saveId').value?Number($('saveId').value):Date.now(),name:$('saveName').value.trim(),target:Number($('saveTarget').value),saved:Number($('saveSaved').value)||0};if($('saveId').value)saves[saves.findIndex(x=>x.id==$('saveId').value)]=o;else saves.push(o);localStorage.setItem('moneymate_savings',JSON.stringify(saves));closeSave();renderAll()}
+function delSave(id){if(confirm('Delete this goal?')){saves=saves.filter(x=>x.id!==id);localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll()}}
+function renderSavings(){$('saveList').innerHTML=saves.length?saves.map(s=>`<div class="listbox">${saveCard(s)}<div class="row"><button onclick="openSave(${s.id})">✏️ Edit</button><button onclick="delSave(${s.id})">🗑️ Delete</button></div></div>`).join(''):'<div class="empty">No savings goal yet.</div>'}
+function renderReport(){let m=$('reportMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);$('reportBox').innerHTML=`<div class="listline"><span>📥 Income</span><b class="plus">${money(i)}</b></div><div class="listline"><span>📤 Expense</span><b class="minus">${money(e)}</b></div><div class="listline"><span>💰 Net</span><b>${money(i-e)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${i?Math.round((i-e)/i*100):0}%</b></div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>`<div class="listline"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join('');chart(i,e)}
+function chart(i,e){let max=Math.max(i,e,1),ib=Math.max(8,i/max*100),eb=Math.max(8,e/max*100);$('chart').innerHTML=`<div class="barwrap"><div class="bar" style="height:${ib}%"><em>${money(i)}</em></div><div class="bar" style="height:${eb}%"><em>${money(e)}</em></div></div><div class="chartlabels"><span>📥 Income</span><span>📤 Expense</span></div>`}
+function dark(){document.body.classList.toggle('dark');localStorage.setItem('moneymate_dark',document.body.classList.contains('dark'))}
+function backup(){let d={version:'2.1',transactions:txs,budgets:bud,emis,savings:saves};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
+function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];renderAll()}}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function renderAll(){renderDashboard();renderTransactions();renderBudget();renderEMI();renderSavings();renderReports()}
-fillMonths();if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');renderAll();
+function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderReport()}
+fill();if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');renderAll();
 </script>
 </body></html>
