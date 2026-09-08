@@ -1,28 +1,17 @@
-MoneyMate V1
-=============
+MoneyMate V1.1
+==============
 Fresh offline personal finance tracker.
 
-How to run:
-1. Extract the ZIP.
-2. Open index.html in a browser.
-3. Add Income / Expense.
-4. Data is stored locally on the device/browser.
-
-V1 includes:
-- Dashboard
-- Income
-- Expense
-- Categories
-- Date and notes
-- Balance calculation
-- Recent transaction history
-- Delete transaction
+New in V1.1:
+- Monthly filter
+- Edit transactions
+- Monthly budget
+- Budget remaining / exceeded indicator
+- Monthly report
+- Category-wise expense report
+- Transaction count
+- Expanded categories
 - Offline local storage
-- Mobile-friendly UI
 
-Next planned versions:
-V1.1 Budget
-V1.2 EMI
-V1.3 Savings Goals
-V1.4 Reports
-V1.5 Backup/Restore + PWA install
+Run:
+Extract ZIP and open index.html.
