@@ -1,16 +1,7 @@
-MoneyMate V2.3 Premium
-======================
+MoneyMate V2.4 Premium
 New:
-- Advanced reports: category breakdown + last 6 months
-- Smart money insights
-- Recurring income/expense (weekly/monthly) + Add Now
-- Calendar transaction view
-- EMI Mark Paid and due status
-- Savings goals Add Amount
-- PIN lock, dark mode, backup/restore
-- PWA manifest + service worker
-- Existing transaction/budget/EMI/savings localStorage keys retained
-
-GitHub Pages:
-Replace/upload index.html, manifest.json, sw.js and icon.svg in the same folder.
-Use HTTPS and browser menu -> Add to Home screen / Install.
+- EMI due/today/overdue reminder status
+- Salary / Quick Income
+- Automatic processing of due recurring transactions
+- Financial Health Score
+- V2.3 reports, calendar, recurring, savings, PIN, backup/restore retained
