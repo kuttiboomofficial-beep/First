@@ -1,7 +1,3 @@
-MoneyMate V2.4 Premium
-New:
-- EMI due/today/overdue reminder status
-- Salary / Quick Income
-- Automatic processing of due recurring transactions
-- Financial Health Score
-- V2.3 reports, calendar, recurring, savings, PIN, backup/restore retained
+MoneyMate V2.6 Final Stable
+Fixes: Savings Goals rendering/actions, Reports rendering, Calendar rendering, safer startup restore/save order.
+Offline/local data remains device-local.

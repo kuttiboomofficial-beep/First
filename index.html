@@ -201,6 +201,24 @@ function closeEmi(){$('emiModal').style.display='none'}
 function saveEmi(){if(!$('emiName').value||!Number($('emiTotal').value)||!Number($('emiMonthly').value)){alert('Loan name, total and EMI required');return}let o={id:$('emiId').value?Number($('emiId').value):Date.now(),name:$('emiName').value.trim(),total:Number($('emiTotal').value),monthly:Number($('emiMonthly').value),paid:Number($('emiPaid').value)||0,due:$('emiDue').value};if($('emiId').value)emis[emis.findIndex(x=>x.id==$('emiId').value)]=o;else emis.push(o);localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave();closeEmi();renderAll()}
 function delEmi(id){if(confirm('Delete this EMI?')){emis=emis.filter(x=>x.id!==id);localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave();renderAll()}}
 function renderEmi(){let lead=getEmiLeadDays();if($('emiLeadDays'))$('emiLeadDays').value=lead;$('emiList').innerHTML=emis.length?emis.map(e=>{let rem=Math.max(0,Number(e.total||0)-Number(e.paid||0)),s=emiStatus(e);return `<div class="listbox">${emiCard(e)}<div class="reminder ${s.cls}">🔔 <b>${s.text}</b>${e.due||e.nextDue?` • ${esc(e.due||e.nextDue)}`:''}</div><div class="row"><button class="action-small" onclick="payEmi(${e.id})">✅ Mark Paid</button><button class="action-small" onclick="openEmi(${e.id})">✏️ Edit</button><button class="action-small" onclick="delEmi(${e.id})">🗑️ Delete</button></div><small>Remaining ${money(rem)}</small></div>`}).join(''):'<div class="empty">No EMI added yet.</div>'}
+function openSave(id=null){
+ $('saveModal').style.display='flex';$('saveId').value=id||'';
+ if(id){let s=saves.find(x=>x.id==id);if(!s){closeSave();return}$('saveName').value=s.name||'';$('saveTarget').value=s.target||'';$('saveSaved').value=s.saved||0}
+ else{$('saveName').value='';$('saveTarget').value='';$('saveSaved').value=0}
+}
+function closeSave(){$('saveModal').style.display='none'}
+function saveGoal(){
+ let name=$('saveName').value.trim(),target=Number($('saveTarget').value),saved=Number($('saveSaved').value)||0;
+ if(!name||target<=0){alert('Goal name and target required');return}
+ saved=Math.max(0,Math.min(target,saved));let id=$('saveId').value;
+ let o={id:id?Number(id):Date.now(),name,target,saved};
+ if(id){let idx=saves.findIndex(x=>x.id==id);if(idx>=0)saves[idx]=o;else saves.push(o)}else saves.push(o);
+ localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();closeSave();renderAll();alert('Savings goal saved ✅');
+}
+function delSave(id){if(confirm('Delete this savings goal?')){saves=saves.filter(x=>x.id!==id);localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();renderAll()}}
+function renderSavings(){
+ $('saveList').innerHTML=saves.length?saves.map(s=>`${saveCard(s)}<div class="row" style="margin-top:6px"><button class="action-small" onclick="addSaving(${s.id})">💰 Add Saved</button><button class="action-small" onclick="openSave(${s.id})">✏️ Edit</button><button class="action-small" onclick="delSave(${s.id})">🗑️ Delete</button></div>`).join(''):'<div class="empty">No savings goal.</div>';
+}
 function recurringData(){return JSON.parse(localStorage.getItem('moneymate_recurring')||'[]')}
 function saveRecurring(a){localStorage.setItem('moneymate_recurring',JSON.stringify(a))}
 function renderRecurring(){
@@ -307,6 +325,15 @@ function removePin(){localStorage.removeItem('moneymate_pin');$('lockScreen').st
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderReport();renderCalendar();renderRecurring();renderInsights();renderHealth()}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
-fill();if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');processDueRecurring();renderAll();restoreMirror();mirrorSave();lockNow();
+async function boot(){
+ fill();
+ if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');
+ try{await restoreMirror()}catch(e){}
+ processDueRecurring();
+ renderAll();
+ await mirrorSave();
+ lockNow();
+}
+boot();
 </script>
 </body></html>
