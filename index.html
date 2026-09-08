@@ -34,13 +34,23 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 .lock-card{width:100%;max-width:380px;text-align:center;background:#1e293b;border:1px solid #475569;border-radius:22px;padding:26px}
 .lock-card h2{margin-top:0}.lock-card input{text-align:center;font-size:22px;letter-spacing:8px;background:#0f172a;color:#fff;border-color:#475569}
 .action-small{padding:8px 10px;font-size:12px}
-</style></head>
+</style>
+<style>
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:10px 0}
+.calgrid div{min-height:48px;border:1px solid #e5e7eb;border-radius:9px;padding:5px;font-size:11px}
+.calgrid .wd{min-height:auto;border:0;text-align:center;font-weight:800;color:#64748b}
+.calgrid .day{cursor:pointer}.calgrid .day strong{display:block;font-size:13px}.calgrid .hasinc{box-shadow:inset 0 -3px 0 #22c55e}.calgrid .hasexp{box-shadow:inset 0 -3px 0 #ef4444}
+.insight{padding:11px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;margin:7px 0}
+.chip{display:inline-block;padding:5px 8px;border-radius:99px;background:#e2e8f0;margin:3px;font-size:11px}
+.dark .calgrid div{border-color:#334155}.dark .calgrid .wd{border:0}.dark .insight{background:#1e293b;border-color:#334155}.dark .chip{background:#334155}
+</style>
+</head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V2.2 Premium</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V2.3 Premium</p></header>
 <main>
 <section id="home" class="tab active">
-<div class="monthbar"><select id="homeMonth"></select><button onclick="today()">📅 Today</button></div>
+<div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights()"></select><button onclick="today()">📅 Today</button></div>
 <div class="cards">
 <div class="card full"><span class="card-icon">💰</span><small>Balance</small><b id="bal">₹0</b></div>
 <div class="card"><span class="card-icon">📥</span><small>Income</small><b id="inc">₹0</b></div>
@@ -50,6 +60,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </div>
 <div class="actions"><button class="income" onclick="openTx('income')">💵 Add Income</button><button class="expense" onclick="openTx('expense')">💸 Add Expense</button></div>
 <h2>🎯 Budget Status</h2><div id="homeBudget"></div>
+<h2>💡 Smart Insights</h2><div id="insights"></div>
 <h2>🏦 EMI Due</h2><div id="homeEmi"></div>
 <h2>🎯 Savings Goals</h2><div id="homeSave"></div>
 </section>
@@ -58,6 +69,13 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <h2>💳 Transactions</h2><div class="monthbar"><select id="txMonth"></select><button onclick="openTx('income')">➕ Add</button></div>
 <input id="search" placeholder="🔍 Search category or note..." oninput="renderTx()">
 <div class="row"><select id="tf" onchange="renderTx()"><option value="all">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select><select id="cf" onchange="renderTx()"><option value="all">All Categories</option></select></div>
+
+<h3 style="margin:18px 0 8px">🔁 Recurring Transactions</h3>
+<div class="listbox">
+<div class="row"><select id="recType"><option value="income">📥 Income</option><option value="expense">📤 Expense</option></select><input id="recName" placeholder="Name e.g. Salary"></div>
+<div class="row"><input id="recAmt" type="number" placeholder="Amount"><select id="recFreq"><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></div>
+<div class="row"><input id="recNext" type="date"><button onclick="addRecurring()">➕ Add Recurring</button></div>
+</div><div id="recList"></div>
 <div id="txList"></div>
 </section>
 
@@ -78,6 +96,16 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <h2>📊 Reports</h2><select id="reportMonth" onchange="renderReport()"></select>
 <div id="reportBox" class="listbox"></div>
 <h3>📈 Income vs Expense</h3><div id="chart" class="chart"></div>
+<h3>🥧 Expense by Category</h3><div id="catChart" class="listbox"></div>
+<h3>📆 Last 6 Months</h3><div id="sixChart" class="chart"></div>
+</section>
+
+
+<section id="calendar" class="tab">
+<h2>📅 Calendar</h2>
+<div class="monthbar"><select id="calMonth" onchange="renderCalendar()"></select><button onclick="todayCal()">📅 Today</button></div>
+<div id="calendarGrid" class="calgrid"></div>
+<div id="calDay" class="listbox"><div class="empty">Tap a date to view transactions.</div></div>
 </section>
 
 <section id="settings" class="tab">
@@ -103,7 +131,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <div id="moreModal" class="modal"><div class="modal-box">
 <h2>⋯ More</h2>
 <div class="row"><button onclick="goFromMore('savings')">🎯 Savings</button><button onclick="goFromMore('reports')">📊 Reports</button></div>
-<button style="width:100%;margin-top:8px" onclick="goFromMore('settings')">⚙️ Settings</button>
+<div class="row"><button onclick="goFromMore('calendar')">📅 Calendar</button><button onclick="goFromMore('settings')">⚙️ Settings</button></div>
 <button style="width:100%;margin-top:8px;background:#e5e7eb" onclick="closeMore()">✖️ Close</button>
 </div></div>
 
@@ -133,11 +161,11 @@ let txs=JSON.parse(localStorage.getItem('moneymate_transactions')||'[]'),bud=JSO
 const $=id=>document.getElementById(id),money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2}),cur=()=>new Date().toISOString().slice(0,7),ym=d=>String(d).slice(0,7);
 function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.push(d.toISOString().slice(0,7));d.setMonth(d.getMonth()-1)}return a}
 function mn(s){let [y,m]=s.split('-');return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
-function fill(){['homeMonth','txMonth','budgetMonth','reportMonth'].forEach(id=>{let e=$(id),v=e.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=v})}
+function fill(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{let e=$(id),v=e.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=v})}
 function go(id,btn){if(id==='more'){$('moreModal').style.display='flex';return}document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAll()}
 function goFromMore(id){closeMore();document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.bottom button')[4].classList.add('active');renderAll()}
 function closeMore(){$('moreModal').style.display='none'}
-function today(){['homeMonth','txMonth','budgetMonth','reportMonth'].forEach(id=>$(id).value=cur());renderAll()}
+function today(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>$(id).value=cur());renderAll()}
 function mt(m){return txs.filter(x=>ym(x.date)===m)}
 function cats(){let a=$('txType').value==='income'?IC:EC;$('txCat').innerHTML=a.map(x=>`<option>${x}</option>`).join('')}
 function openTx(type,id=null){$('txModal').style.display='flex';$('txId').value=id||'';$('txType').value=type;cats();if(id){let x=txs.find(t=>t.id==id);$('txTitle').textContent='✏️ Edit Transaction';$('txCat').value=x.category;$('txAmt').value=x.amount;$('txDate').value=x.date;$('txNote').value=x.note||''}else{$('txTitle').textContent=type==='income'?'💵 Add Income':'💸 Add Expense';$('txDate').value=new Date().toISOString().slice(0,10);$('txAmt').value='';$('txNote').value=''}}
@@ -160,11 +188,69 @@ function closeSave(){$('saveModal').style.display='none'}
 function saveGoal(){if(!$('saveName').value||!Number($('saveTarget').value)){alert('Goal name and target required');return}let o={id:$('saveId').value?Number($('saveId').value):Date.now(),name:$('saveName').value.trim(),target:Number($('saveTarget').value),saved:Number($('saveSaved').value)||0};if($('saveId').value)saves[saves.findIndex(x=>x.id==$('saveId').value)]=o;else saves.push(o);localStorage.setItem('moneymate_savings',JSON.stringify(saves));closeSave();renderAll()}
 function delSave(id){if(confirm('Delete this goal?')){saves=saves.filter(x=>x.id!==id);localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll()}}
 function renderSavings(){$('saveList').innerHTML=saves.length?saves.map(s=>`<div class="listbox">${saveCard(s)}<div class="row"><button class="action-small" onclick="addSaving(${s.id})">💵 Add Amount</button><button class="action-small" onclick="openSave(${s.id})">✏️ Edit</button><button class="action-small" onclick="delSave(${s.id})">🗑️ Delete</button></div></div>`).join(''):'<div class="empty">No savings goal yet.</div>'}
-function renderReport(){let m=$('reportMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);$('reportBox').innerHTML=`<div class="listline"><span>📥 Income</span><b class="plus">${money(i)}</b></div><div class="listline"><span>📤 Expense</span><b class="minus">${money(e)}</b></div><div class="listline"><span>💰 Net</span><b>${money(i-e)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${i?Math.round((i-e)/i*100):0}%</b></div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>`<div class="listline"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join('');chart(i,e)}
+
+function addRecurring(){
+ let name=$('recName').value.trim(),amt=Number($('recAmt').value),type=$('recType').value,freq=$('recFreq').value,next=$('recNext').value;
+ if(!name||!amt||!next){alert('Name, amount and next date required');return}
+ let a=JSON.parse(localStorage.getItem('moneymate_recurring')||'[]');
+ a.push({id:Date.now(),name,amount:amt,type,freq,next,active:true});
+ localStorage.setItem('moneymate_recurring',JSON.stringify(a));
+ $('recName').value='';$('recAmt').value='';renderRecurring();
+}
+function recurringData(){return JSON.parse(localStorage.getItem('moneymate_recurring')||'[]')}
+function saveRecurring(a){localStorage.setItem('moneymate_recurring',JSON.stringify(a))}
+function renderRecurring(){
+ let a=recurringData();
+ $('recList').innerHTML=a.length?a.map(r=>`<div class="listbox"><div class="listline"><span><b>${r.type==='income'?'📥':'📤'} ${esc(r.name)}</b><small>${r.freq==='monthly'?'Monthly':'Weekly'} • Next ${esc(r.next)}</small></span><b>${money(r.amount)}</b></div><button class="action-small" onclick="applyRecurring(${r.id})">⚡ Add Now</button> <button class="action-small" onclick="delRecurring(${r.id})">🗑️</button></div>`).join(''):'<div class="empty">No recurring transactions.</div>';
+}
+function applyRecurring(id){
+ let a=recurringData(),r=a.find(x=>x.id===id);if(!r)return;
+ txs.unshift({id:Date.now(),type:r.type,category:r.name,amount:r.amount,date:r.next,note:'Recurring'});
+ localStorage.setItem('moneymate_transactions',JSON.stringify(txs));
+ let d=new Date(r.next+'T00:00:00'); if(r.freq==='monthly') d.setMonth(d.getMonth()+1); else d.setDate(d.getDate()+7);
+ r.next=d.toISOString().slice(0,10);saveRecurring(a);renderAll();alert('Recurring transaction added ✅');
+}
+function delRecurring(id){if(confirm('Delete recurring transaction?')){let a=recurringData().filter(x=>x.id!==id);saveRecurring(a);renderRecurring()}}
+function renderInsights(){
+ let m=$('homeMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
+ let b=Number(bud[m]||0),top={};t.filter(x=>x.type==='expense').forEach(x=>top[x.category]=(top[x.category]||0)+x.amount);
+ let best=Object.entries(top).sort((a,b)=>b[1]-a[1])[0],prev=new Date(m+'-01T00:00:00');prev.setMonth(prev.getMonth()-1);
+ let pm=prev.toISOString().slice(0,7),pe=mt(pm).filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),change=pe?Math.round((e-pe)/pe*100):null;
+ let arr=[]; if(i)arr.push(`💰 Net savings this month: <b>${money(i-e)}</b>`);
+ if(best)arr.push(`🏷️ Highest expense: <b>${esc(best[0])}</b> (${money(best[1])})`);
+ if(b)arr.push(e>b?`⚠️ Budget exceeded by <b>${money(e-b)}</b>`:`🎯 Budget remaining: <b>${money(b-e)}</b>`);
+ if(change!==null)arr.push(change>0?`📈 Expense is <b>${change}% higher</b> than last month`:`📉 Expense is <b>${Math.abs(change)}% lower</b> than last month`);
+ $('insights').innerHTML=arr.length?arr.map(x=>`<div class="insight">${x}</div>`).join(''):'<div class="empty">Add a few transactions to get smart insights.</div>';
+}
+function renderCalendar(){
+ let m=$('calMonth').value;if(!m)return;let [y,mo]=m.split('-').map(Number),first=new Date(y,mo-1,1),days=new Date(y,mo,0).getDate(),start=first.getDay(),a=mt(m);
+ let inc={},exp={};a.forEach(x=>{if(x.type==='income')inc[x.date]=(inc[x.date]||0)+x.amount;else exp[x.date]=(exp[x.date]||0)+x.amount});
+ let out=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div class="wd">${x}</div>`).join('');
+ for(let i=0;i<start;i++)out+='<div></div>';
+ for(let d=1;d<=days;d++){let ds=`${m}-${String(d).padStart(2,'0')}`,cl=(inc[ds]?'hasinc ':'')+(exp[ds]?'hasexp':'');out+=`<div class="day ${cl}" onclick="showCalDay('${ds}')"><strong>${d}</strong>${inc[ds]?'<span>🟢</span>':''}${exp[ds]?'<span>🔴</span>':''}</div>`}
+ $('calendarGrid').innerHTML=out;
+}
+function showCalDay(ds){let a=txs.filter(x=>x.date===ds);$('calDay').innerHTML=a.length?`<b>📅 ${ds}</b>`+a.map(x=>`<div class="tx"><span>${x.type==='income'?'📥':'📤'} ${esc(x.category)}<small>${esc(x.note||'')}</small></span><b class="${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</b></div>`).join(''):'<div class="empty">No transactions on this date.</div>'}
+function todayCal(){$('calMonth').value=cur();renderCalendar();showCalDay(new Date().toISOString().slice(0,10))}
+
+
+function renderCategoryChart(t){
+ let c={};t.filter(x=>x.type==='expense').forEach(x=>c[x.category]=(c[x.category]||0)+x.amount);
+ let total=Object.values(c).reduce((a,b)=>a+b,0);
+ $('catChart').innerHTML=total?Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="listline"><span>🏷️ ${esc(k)}</span><b>${money(v)} <small>${Math.round(v/total*100)}%</small></b></div>`).join(''):'<div class="empty">No expenses for this month.</div>';
+}
+function renderSixMonths(m){
+ let d=new Date(m+'-01T00:00:00'),vals=[];
+ for(let n=5;n>=0;n--){let x=new Date(d);x.setMonth(d.getMonth()-n);let mm=x.toISOString().slice(0,7),t=mt(mm),i=t.filter(z=>z.type==='income').reduce((a,z)=>a+z.amount,0),e=t.filter(z=>z.type==='expense').reduce((a,z)=>a+z.amount,0);vals.push({m:mm,i,e})}
+ let max=Math.max(1,...vals.flatMap(x=>[x.i,x.e]));
+ $('sixChart').innerHTML='<div class="barwrap">'+vals.map(x=>`<div class="bar" style="height:${Math.max(6,x.i/max*100)}%" title="${mn(x.m)} income ${money(x.i)}"><em>${money(x.i)}</em></div><div class="bar" style="height:${Math.max(6,x.e/max*100)}%" title="${mn(x.m)} expense ${money(x.e)}"><em>${money(x.e)}</em></div>`).join('')+'</div><div class="chartlabels">'+vals.map(x=>`<span>${x.m.slice(5)}</span>`).join('')+'</div>';
+}
+
+function renderReport(){let m=$('reportMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);$('reportBox').innerHTML=`<div class="listline"><span>📥 Income</span><b class="plus">${money(i)}</b></div><div class="listline"><span>📤 Expense</span><b class="minus">${money(e)}</b></div><div class="listline"><span>💰 Net</span><b>${money(i-e)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${i?Math.round((i-e)/i*100):0}%</b></div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>`<div class="listline"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join('');chart(i,e);renderCategoryChart(t);renderSixMonths(m)}
 function chart(i,e){let max=Math.max(i,e,1),ib=Math.max(8,i/max*100),eb=Math.max(8,e/max*100);$('chart').innerHTML=`<div class="barwrap"><div class="bar" style="height:${ib}%"><em>${money(i)}</em></div><div class="bar" style="height:${eb}%"><em>${money(e)}</em></div></div><div class="chartlabels"><span>📥 Income</span><span>📤 Expense</span></div>`}
 function dark(){document.body.classList.toggle('dark');localStorage.setItem('moneymate_dark',document.body.classList.contains('dark'))}
-function backup(){let d={version:'2.1',transactions:txs,budgets:bud,emis,savings:saves};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
-function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
+function backup(){let d={version:'2.3',transactions:txs,budgets:bud,emis,savings:saves,recurring:recurringData()};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring||[]));localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
 function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];renderAll()}}
 
 function payEmi(id){let e=emis.find(x=>x.id===id);if(!e)return;let amount=Number(prompt('Enter EMI payment amount',e.monthly));if(!amount||amount<=0)return;e.paid=Math.min(e.total,e.paid+amount);localStorage.setItem('moneymate_emis',JSON.stringify(emis));renderAll();alert('EMI payment recorded ✅')}
@@ -176,7 +262,7 @@ function lockNow(){if(localStorage.getItem('moneymate_pin'))$('lockScreen').styl
 function removePin(){localStorage.removeItem('moneymate_pin');$('lockScreen').style.display='none';alert('PIN lock disabled')}
 
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderReport()}
+function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderReport();renderCalendar();renderRecurring();renderInsights()}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
 fill();if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');renderAll();lockNow();
 </script>
