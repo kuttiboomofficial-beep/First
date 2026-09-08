@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V2.2</title>
+<title>MoneyMate V2.5 Final Stable</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -53,7 +53,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </style></head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V2.4 Premium</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V2.5 Final Stable</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
@@ -283,9 +283,9 @@ function renderSixMonths(m){
 function renderReport(){let m=$('reportMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);$('reportBox').innerHTML=`<div class="listline"><span>📥 Income</span><b class="plus">${money(i)}</b></div><div class="listline"><span>📤 Expense</span><b class="minus">${money(e)}</b></div><div class="listline"><span>💰 Net</span><b>${money(i-e)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${i?Math.round((i-e)/i*100):0}%</b></div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>`<div class="listline"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join('');chart(i,e);renderCategoryChart(t);renderSixMonths(m)}
 function chart(i,e){let max=Math.max(i,e,1),ib=Math.max(8,i/max*100),eb=Math.max(8,e/max*100);$('chart').innerHTML=`<div class="barwrap"><div class="bar" style="height:${ib}%"><em>${money(i)}</em></div><div class="bar" style="height:${eb}%"><em>${money(e)}</em></div></div><div class="chartlabels"><span>📥 Income</span><span>📤 Expense</span></div>`}
 function dark(){document.body.classList.toggle('dark');localStorage.setItem('moneymate_dark',document.body.classList.contains('dark'))}
-function backup(){let d={version:'2.3',transactions:txs,budgets:bud,emis,savings:saves,recurring:recurringData(),emiLeadDays:getEmiLeadDays()};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function backup(){let d={version:'2.5',transactions:txs,budgets:bud,emis,savings:saves,recurring:recurringData(),emiLeadDays:getEmiLeadDays()};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring||[]));if(d.emiLeadDays!=null)localStorage.setItem('moneymate_emi_lead',d.emiLeadDays);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
-function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];renderAll()}}
+function clearAll(){if(!confirm('⚠️ Clear ALL MoneyMate data?'))return;if(!confirm('This will permanently delete transactions, budgets, EMI and savings goals. Continue?'))return;['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings','moneymate_recurring'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];renderAll();alert('All MoneyMate data cleared.')}
 
 function payEmi(id){let e=emis.find(x=>x.id===id);if(!e)return;let amount=Number(prompt('Enter EMI payment amount',e.monthly));if(!amount||amount<=0)return;e.paid=Math.min(e.total,e.paid+amount);localStorage.setItem('moneymate_emis',JSON.stringify(emis));renderAll();alert('EMI payment recorded ✅')}
 function addSaving(id){let s=saves.find(x=>x.id===id);if(!s)return;let amount=Number(prompt('How much did you save?','500'));if(!amount||amount<=0)return;s.saved=Math.min(s.target,s.saved+amount);localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll();alert(s.saved>=s.target?'🎉 Goal completed!':'Savings added successfully ✅')}
@@ -296,6 +296,14 @@ function lockNow(){if(localStorage.getItem('moneymate_pin'))$('lockScreen').styl
 function removePin(){localStorage.removeItem('moneymate_pin');$('lockScreen').style.display='none';alert('PIN lock disabled')}
 
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function openSave(id=null){$('saveModal').style.display='flex';$('saveId').value=id||'';if(id){let s=saves.find(x=>x.id==id);$('saveName').value=s.name;$('saveTarget').value=s.target;$('saveSaved').value=s.saved||0}else{$('saveName').value='';$('saveTarget').value='';$('saveSaved').value=0}}
+function closeSave(){$('saveModal').style.display='none'}
+function saveGoal(){let name=$('saveName').value.trim(),target=Number($('saveTarget').value),saved=Math.max(0,Number($('saveSaved').value)||0);if(!name||target<=0){alert('Goal name and target amount are required');return}saved=Math.min(saved,target);let id=$('saveId').value?Number($('saveId').value):Date.now(),o={id,name,target,saved};if($('saveId').value){let ix=saves.findIndex(x=>x.id==id);if(ix>=0)saves[ix]=o}else saves.push(o);localStorage.setItem('moneymate_savings',JSON.stringify(saves));closeSave();renderAll();alert('Savings goal saved 🎯')}
+function delSave(id){if(!confirm('Delete this savings goal?'))return;saves=saves.filter(x=>x.id!==id);localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll()}
+function renderSavings(){$('saveList').innerHTML=saves.length?saves.map(s=>{let p=s.target?Math.min(100,s.saved/s.target*100):0;return `<div class="listbox"><div class="listline"><b>🎯 ${esc(s.name)}</b><span class="badge ${p>=100?'good':''}">${p>=100?'✅ Completed':Math.round(p)+'%'}</span></div><div class="progress"><i style="width:${p}%"></i></div><small>${money(s.saved)} saved of ${money(s.target)} • ${money(Math.max(0,s.target-s.saved))} remaining</small><div class="row"><button class="action-small" onclick="addSaving(${s.id})">💰 Add Money</button><button class="action-small" onclick="openSave(${s.id})">✏️ Edit</button><button class="action-small" onclick="delSave(${s.id})">🗑️ Delete</button></div></div>`}).join(''):'<div class="empty">No savings goal yet. Add your first goal.</div>'}
+function addRecurring(){let type=$('recType').value,name=$('recName').value.trim(),amount=Number($('recAmt').value),next=$('recNext').value;if(!name||amount<=0||!next){alert('Name, amount and next date are required');return}let a=recurringData();a.push({id:Date.now(),type,name,amount,freq:$('recFreq').value,next});saveRecurring(a);renderRecurring();alert('Recurring transaction added 🔁')}
+function processDueRecurring(){let a=recurringData(),today=new Date();today.setHours(0,0,0,0);let changed=false;for(const r of a){let guard=0;while(r.next&&new Date(r.next+'T00:00:00')<=today&&guard++<120){txs.unshift({id:Date.now()+Math.floor(Math.random()*1000),type:r.type,category:r.name,amount:Number(r.amount),date:r.next,note:'Recurring'});let d=new Date(r.next+'T00:00:00');if(r.freq==='monthly')d.setMonth(d.getMonth()+1);else d.setDate(d.getDate()+7);r.next=d.toISOString().slice(0,10);changed=true}}if(changed){localStorage.setItem('moneymate_transactions',JSON.stringify(txs));saveRecurring(a)}}
+
 function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderReport();renderCalendar();renderRecurring();renderInsights();renderHealth()}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
 fill();if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');processDueRecurring();renderAll();lockNow();
