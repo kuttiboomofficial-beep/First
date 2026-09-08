@@ -1,22 +1,26 @@
-MoneyMate V1.2
-==============
-Fresh offline personal finance tracker with icon-based UI.
+MoneyMate V2 Premium
+====================
+Offline personal finance tracker.
 
-New in V1.2:
-- Icons added across navigation
-- Icons on dashboard cards
-- Icons on actions, sections and form labels
-- Edit/Delete action icons
-- More visual, mobile-friendly interface
-
-All V1.1 features remain:
-- Monthly filter
-- Edit transactions
+Features:
+- Dashboard
+- Income / Expense
+- Monthly filters
+- Search & transaction filters
+- Edit / Delete transactions
 - Monthly budget
-- Budget remaining / exceeded indicator
-- Monthly report
-- Category-wise expense report
-- Offline local storage
+- EMI tracker
+- Savings goals
+- Monthly reports
+- Dark mode
+- JSON backup / restore
+- Install prompt support
+- Local device storage
+
+Data compatibility:
+Uses the same localStorage keys for transactions and budgets as V1/V1.1/V1.2,
+so existing browser data remains compatible when the same site/origin is upgraded.
 
 Run:
-Extract ZIP and open index.html.
+Extract the ZIP and open index.html.
+For true PWA install/offline caching, deploy the project on HTTPS and add a service worker in a future build.
