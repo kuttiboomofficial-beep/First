@@ -1,7 +1,7 @@
 {
   "name": "MoneyMate V2.6 Final Stable",
   "short_name": "MoneyMate",
-  "start_url": "./",
+  "start_url": "./?v=2.6.1",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#111827",
