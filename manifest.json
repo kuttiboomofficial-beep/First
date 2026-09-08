@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#111827",
-  "description": "Offline personal finance tracker • V2.7 Refresh-Proof",
+  "description": "Offline personal finance tracker • V2.8 Refresh-Safe",
   "icons": [
     {
       "src": "icon.svg",

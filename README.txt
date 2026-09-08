@@ -1,5 +1,8 @@
-MoneyMate V2.8 Refresh-Safe
+MoneyMate V2.8 Refresh-Safe FIXED
 
-Fixes: reliable Income/Expense saving, LocalStorage-first persistence, queued IndexedDB writes, safe startup restore, and fresh service-worker cache.
-
-Upload all files in this folder to the GitHub Pages root and replace the old files.
+Fixes:
+- Income/Expense Save JavaScript syntax error fixed (async functions).
+- Startup restore waits for IndexedDB before rendering/saving.
+- LocalStorage + IndexedDB persistence.
+- Service worker cache v2.8.0 with old-cache cleanup.
+- Version label updated to V2.8 Refresh-Safe.
