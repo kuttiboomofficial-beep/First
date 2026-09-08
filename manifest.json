@@ -1,7 +1,7 @@
 {
-  "name": "MoneyMate V2.7 Refresh-Proof",
+  "name": "MoneyMate V2.8 Refresh-Proof",
   "short_name": "MoneyMate",
-  "start_url": "./?v=2.7.0",
+  "start_url": "./?v=2.8.0",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#111827",
