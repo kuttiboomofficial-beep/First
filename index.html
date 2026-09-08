@@ -25,60 +25,66 @@ label{display:block;font-size:13px;font-weight:700;margin:10px 0 6px}input,selec
 .listbox{border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin-top:12px}.listline{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eee}.listline:last-child{border-bottom:0}
 .modal{display:none;position:fixed;inset:0;background:#0008;align-items:end;justify-content:center;z-index:20}.modal-box{background:white;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:19px;max-height:90vh;overflow:auto}.row{display:flex;gap:9px;margin-top:14px}.row button{flex:1}.cancel{background:#e5e7eb}
 footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:white;border-top:1px solid #e5e7eb;padding:9px;text-align:center;color:#64748b;font-size:12px;z-index:6}
+
+.icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:#eef2f7;margin-right:7px;font-size:17px;vertical-align:middle}
+.navicon{width:24px;height:24px;background:transparent;margin-right:4px;font-size:15px}
+.card-icon{float:right;font-size:22px;opacity:.85}
+.section-title{display:flex;align-items:center}
+.quick-icon{font-size:19px;margin-right:6px}
 </style>
 </head>
 <body>
 <div class="app">
-<header><h1>MoneyMate</h1><p>Simple Personal Finance Tracker • V1.1</p></header>
+<header><h1>💰 MoneyMate</h1><p>Simple Personal Finance Tracker • V1.1</p></header>
 <nav>
-<button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
-<button onclick="showTab('transactions',this)">Transactions</button>
-<button onclick="showTab('budget',this)">Budget</button>
-<button onclick="showTab('reports',this)">Reports</button>
+<button class="active" onclick="showTab('dashboard',this)">🏠 Dashboard</button>
+<button onclick="showTab('transactions',this)">💳 Transactions</button>
+<button onclick="showTab('budget',this)">🎯 Budget</button>
+<button onclick="showTab('reports',this)">📊 Reports</button>
 </nav>
 <main>
 <section id="dashboard" class="tab active">
-<div class="monthbar"><select id="monthFilter" onchange="renderAll()"></select><button onclick="setCurrentMonth()">Today</button></div>
+<div class="monthbar"><select id="monthFilter" onchange="renderAll()"></select><button onclick="setCurrentMonth()">📅 Today</button></div>
 <div class="cards">
-<div class="card full"><small>Balance</small><b id="balance">₹0</b></div>
-<div class="card"><small>Income</small><b id="income">₹0</b></div>
-<div class="card"><small>Expense</small><b id="expense">₹0</b></div>
-<div class="card"><small>Transactions</small><b id="count">0</b></div>
+<div class="card full"><span class="card-icon">💰</span><small>Balance</small><b id="balance">₹0</b></div>
+<div class="card"><span class="card-icon">📥</span><small>Income</small><b id="income">₹0</b></div>
+<div class="card"><span class="card-icon">📤</span><small>Expense</small><b id="expense">₹0</b></div>
+<div class="card"><span class="card-icon">🧾</span><small>Transactions</small><b id="count">0</b></div>
 </div>
-<div class="actions"><button class="income" onclick="openModal('income')">＋ Add Income</button><button class="expense" onclick="openModal('expense')">－ Add Expense</button></div>
-<div class="section"><h2>Budget Status</h2><div id="budgetMini"></div></div>
+<div class="actions"><button class="income" onclick="openModal('income')">💵 ＋ Add Income</button><button class="expense" onclick="openModal('expense')">💸 － Add Expense</button></div>
+<div class="section"><h2 class="section-title">🎯 Budget Status</h2><div id="budgetMini"></div></div>
 </section>
 
 <section id="transactions" class="tab">
-<div class="monthbar"><select id="txMonth" onchange="renderTransactions()"></select><button onclick="openModal('income')">＋ Add</button></div>
+<div class="monthbar"><select id="txMonth" onchange="renderTransactions()"></select><button onclick="openModal('income')">➕ Add</button></div>
 <div id="list"></div>
 </section>
 
 <section id="budget" class="tab">
-<h2>Monthly Budget</h2>
+<h2 class="section-title">🎯 Monthly Budget</h2>
 <label>Selected Month</label><select id="budgetMonth" onchange="renderBudget()"></select>
-<label>Overall Monthly Budget (₹)</label><input id="budgetAmount" type="number" min="0" placeholder="e.g. 30000" oninput="saveBudget()">
+<label>💰 Overall Monthly Budget (₹)</label><input id="budgetAmount" type="number" min="0" placeholder="e.g. 30000" oninput="saveBudget()">
 <div id="budgetBox" class="listbox"></div>
 </section>
 
 <section id="reports" class="tab">
-<h2>Monthly Report</h2>
+<h2 class="section-title">📊 Monthly Report</h2>
 <select id="reportMonth" onchange="renderReports()"></select>
 <div id="reportBox" class="listbox"></div>
 </section>
 </main>
-<footer>MoneyMate V1.1 • Offline • Data stays on this device</footer>
+<footer>💰 MoneyMate V1.2 • 🔒 Offline • Data stays on this device</footer>
 </div>
 
 <div class="modal" id="modal"><div class="modal-box">
-<h2 id="modalTitle">Add Transaction</h2>
+<h2 id="modalTitle">🧾 Add Transaction</h2>
 <input type="hidden" id="editId">
-<label>Type</label><select id="type"><option value="income">Income</option><option value="expense">Expense</option></select>
-<label>Category</label><select id="category"></select>
-<label>Amount (₹)</label><input id="amount" type="number" min="0" placeholder="0">
-<label>Date</label><input id="date" type="date">
-<label>Note</label><input id="note" maxlength="80" placeholder="Optional">
-<div class="row"><button class="cancel" onclick="closeModal()">Cancel</button><button onclick="saveTx()">Save</button></div>
+<label>🔄 Type</label><select id="type"><option value="income">Income</option><option value="expense">Expense</option></select>
+<label>🏷️ Category</label><select id="category"></select>
+<label>💰 Amount (₹)</label><input id="amount" type="number" min="0" placeholder="0">
+<label>📅 Date</label><input id="date" type="date">
+<label>📝 Note</label><input id="note" maxlength="80" placeholder="Optional">
+<div class="row"><button class="cancel" onclick="closeModal()">✖️ Cancel</button><button onclick="saveTx()">💾 Save</button></div>
 </div></div>
 
 <script>
@@ -105,8 +111,8 @@ function showTab(id,btn){document.querySelectorAll('.tab').forEach(x=>x.classLis
 function setCurrentMonth(){['monthFilter','txMonth','budgetMonth','reportMonth'].forEach(id=>document.getElementById(id).value=currentYM());renderAll()}
 function openModal(type,id=null){
  document.getElementById('modal').style.display='flex';document.getElementById('editId').value=id||'';document.getElementById('type').value=type;updateCats();
- if(id){let x=transactions.find(t=>t.id==id);document.getElementById('modalTitle').textContent='Edit Transaction';document.getElementById('category').value=x.category;document.getElementById('amount').value=x.amount;document.getElementById('date').value=x.date;document.getElementById('note').value=x.note||''}
- else{document.getElementById('modalTitle').textContent=type==='income'?'Add Income':'Add Expense';document.getElementById('date').value=new Date().toISOString().slice(0,10);document.getElementById('amount').value='';document.getElementById('note').value=''}
+ if(id){let x=transactions.find(t=>t.id==id);document.getElementById('modalTitle').textContent='✏️ Edit Transaction';document.getElementById('category').value=x.category;document.getElementById('amount').value=x.amount;document.getElementById('date').value=x.date;document.getElementById('note').value=x.note||''}
+ else{document.getElementById('modalTitle').textContent=type==='income'?'💵 Add Income':'💸 Add Expense';document.getElementById('date').value=new Date().toISOString().slice(0,10);document.getElementById('amount').value='';document.getElementById('note').value=''}
 }
 function closeModal(){document.getElementById('modal').style.display='none'}
 document.getElementById('type').addEventListener('change',updateCats);
@@ -129,11 +135,11 @@ function renderDashboard(){
 function renderTransactions(){
  let m=document.getElementById('txMonth').value,t=monthTx(m),list=document.getElementById('list');
  if(!t.length){list.innerHTML='<div class="empty">No transactions for this month.</div>';return}
- list.innerHTML=t.map(x=>`<div class="tx"><div><b>${esc(x.category)}</b><small>${esc(x.date)}${x.note?' • '+esc(x.note):''}</small></div><div style="text-align:right"><div class="amt ${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</div><button onclick="openModal('${x.type}',${x.id})" style="padding:4px 7px;font-size:11px;background:#e2e8f0">Edit</button> <button onclick="delTx(${x.id})" style="padding:4px 7px;font-size:11px;background:#f1f5f9">Delete</button></div></div>`).join('');
+ list.innerHTML=t.map(x=>`<div class="tx"><div><b>${esc(x.category)}</b><small>${esc(x.date)}${x.note?' • '+esc(x.note):''}</small></div><div style="text-align:right"><div class="amt ${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</div><button onclick="openModal('${x.type}',${x.id})" style="padding:4px 7px;font-size:11px;background:#e2e8f0">✏️ Edit</button> <button onclick="delTx(${x.id})" style="padding:4px 7px;font-size:11px;background:#f1f5f9">🗑️ Delete</button></div></div>`).join('');
 }
 function saveBudget(){let m=document.getElementById('budgetMonth').value;budgets[m]=Number(document.getElementById('budgetAmount').value)||0;localStorage.setItem('moneymate_budgets',JSON.stringify(budgets));renderBudget();renderDashboard()}
 function renderBudget(){let m=budgetMonth.value,b=Number(budgets[m]||0),t=monthTx(m),exp=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);budgetAmount.value=b||'';budgetBox.innerHTML=b?`<b>Spent: ${money(exp)}</b><div class="progress"><i style="width:${Math.min(100,exp/b*100)}%"></i></div><b>${money(Math.max(0,b-exp))}</b> remaining<br><small>${exp>b?'Budget exceeded':'Budget available'}</small>`:'<div class="empty">Enter a budget amount above.</div>'}
-function renderReports(){let m=reportMonth.value,t=monthTx(m),inc=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),exp=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0), cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);let rows=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="listline"><span>${esc(k)}</span><b>${money(v)}</b></div>`).join('');reportBox.innerHTML=`<div class="listline"><span>Total Income</span><b class="plus">${money(inc)}</b></div><div class="listline"><span>Total Expense</span><b class="minus">${money(exp)}</b></div><div class="listline"><span>Net Balance</span><b>${money(inc-exp)}</b></div><h3>Expense by Category</h3>${rows||'<small>No expenses.</small>'}`}
+function renderReports(){let m=reportMonth.value,t=monthTx(m),inc=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),exp=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0), cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);let rows=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="listline"><span>${esc(k)}</span><b>${money(v)}</b></div>`).join('');reportBox.innerHTML=`<div class="listline"><span>Total Income</span><b class="plus">${money(inc)}</b></div><div class="listline"><span>Total Expense</span><b class="minus">${money(exp)}</b></div><div class="listline"><span>Net Balance</span><b>${money(inc-exp)}</b></div><h3>🏷️ Expense by Category</h3>${rows||'<small>No expenses.</small>'}`}
 function renderAll(){renderDashboard();renderTransactions();renderBudget();renderReports()}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 fillMonths();renderAll();
