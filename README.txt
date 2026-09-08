@@ -1,6 +1,7 @@
-MoneyMate V2.5 Final Stable
-
-Offline personal finance tracker.
-Features: transactions, budgets, EMI tracker/reminders, savings goals, calendar, reports, financial health, smart insights, backup/restore, PIN lock and dark mode.
-
-Replace the existing GitHub Pages files with all files in this ZIP. Keep the same folder structure.
+MoneyMate V2.4 Premium
+New:
+- EMI due/today/overdue reminder status
+- Salary / Quick Income
+- Automatic processing of due recurring transactions
+- Financial Health Score
+- V2.3 reports, calendar, recurring, savings, PIN, backup/restore retained
