@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V3.9 Simple & Clean</title>
+<title>MoneyMate V4.0 Simple & Smart</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -59,7 +59,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </style></head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V3.9 Simple & Clean</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.0 Simple & Smart</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
@@ -197,8 +197,8 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <p id="lockMsg" style="font-size:12px;color:#fca5a5"></p></div></div>
 
 <script>
-// MoneyMate V3.9 Simple & Clean
-const IC=['Salary','Freelance','Business','Interest','Other'],EC=['Food','Travel','Shopping','Bills','Rent','EMI','Medical','Education','Entertainment','Other'];
+// MoneyMate V4.0 Simple & Smart
+const IC=['Salary','Freelance','Business','Interest','Bonus','Other'],EC=['Food','Petrol','Travel','Shopping','Credit Card Bill','Mobile Recharge','Bills','Rent','EMI','Medical','Education','Entertainment','Subscriptions','Insurance','Other'];
 let customCats=safeJSON('moneymate_custom_categories',{income:[],expense:[]});
 if(!customCats||typeof customCats!=='object')customCats={income:[],expense:[]};
 if(!Array.isArray(customCats.income))customCats.income=[]; if(!Array.isArray(customCats.expense))customCats.expense=[];
@@ -222,7 +222,7 @@ if(!Array.isArray(txs))txs=[]; if(!bud||typeof bud!=='object'||Array.isArray(bud
 emis=emis.map(e=>{let o={...e};if(o.principalPaid==null)o.principalPaid=Number(o.paid||0);if(o.interestPaid==null)o.interestPaid=0;if(o.rate==null)o.rate=Number(o.interestRate||0);if(o.years==null)o.years=Number(o.tenureYears||0);return o;});
 const DB_NAME='MoneyMateDB',DB_STORE='state',DB_KEY='main';
 function openDB(){return new Promise((resolve,reject)=>{try{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(DB_STORE))r.result.createObjectStore(DB_STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)}catch(e){reject(e)}})}
-function statePayload(){return {version:'3.8',updatedAt:Date.now(),transactions:txs,budgets:bud,emis,savings:saves,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')}}
+function statePayload(){return {version:'4.0',updatedAt:Date.now(),transactions:txs,budgets:bud,emis,savings:saves,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')}}
 let saveQueue=Promise.resolve();
 function persistLocal(){
   const data={transactions:txs,budgets:bud,emis,savings:saves,updatedAt:Date.now()};
@@ -461,7 +461,7 @@ function renderSixMonths(m){
 function renderReport(){let m=$('reportMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);$('reportBox').innerHTML=`<div class="listline"><span>📥 Income</span><b class="plus">${money(i)}</b></div><div class="listline"><span>📤 Expense</span><b class="minus">${money(e)}</b></div><div class="listline"><span>💰 Net</span><b>${money(i-e)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${i?Math.round((i-e)/i*100):0}%</b></div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>`<div class="listline"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join('');chart(i,e);renderCategoryChart(t);renderSixMonths(m)}
 function chart(i,e){let max=Math.max(i,e,1),ib=Math.max(8,i/max*100),eb=Math.max(8,e/max*100);$('chart').innerHTML=`<div class="barwrap"><div class="bar" style="height:${ib}%"><em>${money(i)}</em></div><div class="bar" style="height:${eb}%"><em>${money(e)}</em></div></div><div class="chartlabels"><span>📥 Income</span><span>📤 Expense</span></div>`}
 function dark(){document.body.classList.toggle('dark');localStorage.setItem('moneymate_dark',document.body.classList.contains('dark'));mirrorSave()}
-function backup(){let d={version:'3.8',transactions:txs,budgets:bud,emis,savings:saves,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays()};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function backup(){let d={version:'4.0',transactions:txs,budgets:bud,emis,savings:saves,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays()};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];if(d.customCats&&typeof d.customCats==='object'){customCats={income:Array.isArray(d.customCats.income)?d.customCats.income:[],expense:Array.isArray(d.customCats.expense)?d.customCats.expense:[]};saveCustomCats();}localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring||[]));if(d.emiLeadDays!=null)localStorage.setItem('moneymate_emi_lead',d.emiLeadDays);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
 function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];mirrorSave();renderAll()}}
 

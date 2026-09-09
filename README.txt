@@ -1,12 +1,11 @@
-MoneyMate V3.9 Simple & Clean
+MoneyMate V4.0 Simple & Smart
 
-Changes:
-- Transactions page is simplified to Month, Add, Search, Filters and transaction list.
-- Quick Salary and Recurring Transactions moved to More > Quick Tools.
-- More menu now contains Savings Goals, Reports, Calendar, Quick Tools and Settings.
-- EMI Calculator and clear EMI breakdown retained.
-- Financial Health shows no score until there is actual income, expense, budget or EMI data.
-- Six-month report chart is kept within the mobile screen.
-- LocalStorage + IndexedDB persistence retained.
-
-Upload index.html, manifest.json, sw.js, icon.svg and README.txt to the GitHub Pages root.
+Updates:
+- Simple EMI Calculator: Loan Amount, Interest Rate, Tenure (Years), Monthly EMI, Total Interest, Total Payment.
+- EMI tracker uses reducing-balance interest and reduces outstanding principal by principal portion only.
+- Default expense categories: Food, Petrol, Travel, Shopping, Credit Card Bill, Mobile Recharge, Bills, Rent, EMI, Medical, Education, Entertainment, Subscriptions, Insurance, Other.
+- Default income categories include Salary, Freelance, Business, Interest, Bonus, Other.
+- Custom Category: Add New Category lets the user create their own income/expense category.
+- Budget Save button included.
+- Financial Health shows No Data Yet when there is no financial data.
+- LocalStorage + IndexedDB persistence and refresh-safe service worker.

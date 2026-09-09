@@ -1,11 +1,11 @@
 {
-  "name": "MoneyMate V3.9 Simple & Clean",
+  "name": "MoneyMate V4.0 Simple & Smart",
   "short_name": "MoneyMate",
-  "start_url": "./?v=3.9.0",
+  "start_url": "./?v=4.0.0",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
-  "description": "Offline personal finance tracker with custom categories, refresh-safe storage, and reducing-balance EMI calculator • V3.9",
+  "description": "Offline personal finance tracker with custom categories, refresh-safe storage, and reducing-balance EMI calculator • V4.0",
   "icons": [
     {
       "src": "./icon.svg",
