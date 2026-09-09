@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V3.0 Real Save Fix</title>
+<title>MoneyMate V3.2 No-Alert + Refresh Safe</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -53,7 +53,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </style></head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V3.0 Real Save Fix</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V3.2 No-Alert + Refresh Safe</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
@@ -169,7 +169,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <p id="lockMsg" style="font-size:12px;color:#fca5a5"></p></div></div>
 
 <script>
-// MoneyMate V3.0 Real Save Fix
+// MoneyMate V3.2 No-Alert + Refresh Safe
 const IC=['Salary','Freelance','Business','Interest','Other'],EC=['Food','Travel','Shopping','Bills','Rent','EMI','Medical','Education','Entertainment','Other'];
 function safeJSON(key,fallback){try{const raw=localStorage.getItem(key);return raw==null?fallback:JSON.parse(raw)}catch(e){console.warn('Invalid local data for',key);return fallback}}
 let txs=safeJSON('moneymate_transactions',[]),bud=safeJSON('moneymate_budgets',{}),emis=safeJSON('moneymate_emis',[]),saves=safeJSON('moneymate_savings',[]);
@@ -246,20 +246,24 @@ function saveTx(){
   const idEl=$('txId'),amtEl=$('txAmt'),typeEl=$('txType'),catEl=$('txCat'),dateEl=$('txDate'),noteEl=$('txNote');
   const a=Number(amtEl.value);
   if(!a||a<=0){alert('Amount enter pannunga');return}
-  const o={id:idEl.value?Number(idEl.value):Date.now(),type:typeEl.value,category:catEl.value,amount:a,date:dateEl.value||new Date().toISOString().slice(0,10),note:noteEl.value.trim()};
+  const date=dateEl.value||new Date().toISOString().slice(0,10);
+  const o={id:idEl.value?Number(idEl.value):Date.now(),type:typeEl.value,category:catEl.value,amount:a,date,note:noteEl.value.trim()};
   try{
     const idx=idEl.value?txs.findIndex(x=>x.id==idEl.value):-1;
     if(idx>=0)txs[idx]=o;else txs.unshift(o);
-    // Save the transaction first. Rendering or backup must never turn a successful save into “Save failed”.
     persistLocal();
+    // Keep every view on the month of the transaction just saved.
+    const month=ym(date);
+    ['homeMonth','txMonth','reportMonth','calMonth'].forEach(id=>{if($(id))$(id).value=month});
   }catch(e){
     console.error('Primary storage save failed',e);
-    // Keep the transaction in memory and try IndexedDB independently.
+    alert('Save failed. Please try again.');
+    return;
   }
   closeTx();
   try{renderAll()}catch(e){console.error('Render after save failed',e)}
+  // Backup asynchronously; never block the user or show a success popup.
   mirrorSave().catch(e=>console.warn('Backup failed',e));
-  alert(o.type==='income'?'Income added ✅':'Expense added ✅');
 }
 
 function delTx(id){if(confirm('Delete this transaction?')){txs=txs.filter(x=>x.id!==id);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));mirrorSave();renderAll()}}
@@ -286,7 +290,7 @@ function saveGoal(){
  saved=Math.max(0,Math.min(target,saved));let id=$('saveId').value;
  let o={id:id?Number(id):Date.now(),name,target,saved};
  if(id){let idx=saves.findIndex(x=>x.id==id);if(idx>=0)saves[idx]=o;else saves.push(o)}else saves.push(o);
- localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();closeSave();renderAll();alert('Savings goal saved ✅');
+ localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();closeSave();renderAll();
 }
 function delSave(id){if(confirm('Delete this savings goal?')){saves=saves.filter(x=>x.id!==id);localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();renderAll()}}
 function renderSavings(){
@@ -308,7 +312,7 @@ function applyRecurring(id){
 function delRecurring(id){if(confirm('Delete recurring transaction?')){let a=recurringData().filter(x=>x.id!==id);saveRecurring(a);renderRecurring()}}
 
 function getEmiLeadDays(){return Number(localStorage.getItem('moneymate_emi_lead')||3)}
-function saveEmiReminder(){let n=Math.max(0,Math.min(30,Number($('emiLeadDays').value||3)));localStorage.setItem('moneymate_emi_lead',n);renderEmi();alert('EMI reminder setting saved 🔔')}
+function saveEmiReminder(){let n=Math.max(0,Math.min(30,Number($('emiLeadDays').value||3)));localStorage.setItem('moneymate_emi_lead',n);renderEmi()}
 function emiStatus(e){
  let due=e.due||e.nextDue||e.date; if(!due)return {cls:'upcoming',text:'No due date'};
  let today=new Date();today.setHours(0,0,0,0),d=new Date(due+'T00:00:00');let diff=Math.round((d-today)/86400000);
@@ -387,8 +391,8 @@ function backup(){let d={version:'2.3',transactions:txs,budgets:bud,emis,savings
 function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring||[]));if(d.emiLeadDays!=null)localStorage.setItem('moneymate_emi_lead',d.emiLeadDays);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
 function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];mirrorSave();renderAll()}}
 
-function payEmi(id){let e=emis.find(x=>x.id===id);if(!e)return;let amount=Number(prompt('Enter EMI payment amount',e.monthly));if(!amount||amount<=0)return;e.paid=Math.min(e.total,e.paid+amount);localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave();renderAll();alert('EMI payment recorded ✅')}
-function addSaving(id){let s=saves.find(x=>x.id===id);if(!s)return;let amount=Number(prompt('How much did you save?','500'));if(!amount||amount<=0)return;s.saved=Math.min(s.target,s.saved+amount);localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();renderAll();alert(s.saved>=s.target?'🎉 Goal completed!':'Savings added successfully ✅')}
+function payEmi(id){let e=emis.find(x=>x.id===id);if(!e)return;let amount=Number(prompt('Enter EMI payment amount',e.monthly));if(!amount||amount<=0)return;e.paid=Math.min(e.total,e.paid+amount);localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave();renderAll()}
+function addSaving(id){let s=saves.find(x=>x.id===id);if(!s)return;let amount=Number(prompt('How much did you save?','500'));if(!amount||amount<=0)return;s.saved=Math.min(s.target,s.saved+amount);localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();renderAll()}
 async function hashPin(pin){let data=new TextEncoder().encode(pin),buf=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 async function setPin(){let p=prompt('Create a 4–6 digit PIN');if(!/^\d{4,6}$/.test(p||'')){alert('PIN must be 4–6 digits');return}let p2=prompt('Confirm your PIN');if(p!==p2){alert('PINs do not match');return}localStorage.setItem('moneymate_pin',await hashPin(p));alert('PIN lock enabled 🔐')}
 async function unlock(){let p=$('unlockPin').value;if(await hashPin(p)===localStorage.getItem('moneymate_pin')){$('lockScreen').style.display='none';$('unlockPin').value='';$('lockMsg').textContent=''}else $('lockMsg').textContent='Incorrect PIN'}

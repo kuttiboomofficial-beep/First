@@ -1,11 +1,11 @@
 {
-  "name": "MoneyMate V2.8 Refresh-Proof",
+  "name": "MoneyMate V3.2 No-Alert + Refresh Safe",
   "short_name": "MoneyMate",
-  "start_url": "./?v=3.0.0.0",
+  "start_url": "./?v=3.2.0.0",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#111827",
-  "description": "Offline personal finance tracker • V3.1 Show Saved Fix",
+  "description": "Offline personal finance tracker • V3.2 No-Alert + Refresh Safe",
   "icons": [
     {
       "src": "icon.svg",
