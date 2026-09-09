@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V3.5 Financial Health Fix</title>
+<title>MoneyMate V3.6 Budget Save Button</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -55,7 +55,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </style></head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V3.5 Financial Health Fix</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V3.6 Budget Save Button</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
@@ -93,7 +93,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 
 <section id="budget" class="tab">
 <h2>🎯 Monthly Budget</h2><label>📅 Month</label><select id="budgetMonth" onchange="renderBudget()"></select>
-<label>💰 Overall Budget (₹)</label><input id="budgetAmount" type="number" oninput="saveBudget()"><div id="budgetBox" class="listbox"></div>
+<label>💰 Overall Budget (₹)</label><div class="row"><input id="budgetAmount" type="number" placeholder="Enter budget amount" style="flex:1"><button onclick="saveBudget()">💾 Save Budget</button></div><div id="budgetBox" class="listbox"></div>
 </section>
 
 <section id="emi" class="tab">
@@ -171,7 +171,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <p id="lockMsg" style="font-size:12px;color:#fca5a5"></p></div></div>
 
 <script>
-// MoneyMate V3.5 Financial Health Fix
+// MoneyMate V3.6 Budget Save Button
 const IC=['Salary','Freelance','Business','Interest','Other'],EC=['Food','Travel','Shopping','Bills','Rent','EMI','Medical','Education','Entertainment','Other'];
 let customCats=safeJSON('moneymate_custom_categories',{income:[],expense:[]});
 if(!customCats||typeof customCats!=='object')customCats={income:[],expense:[]};
@@ -313,7 +313,7 @@ function renderHome(){reloadCombinedStateIfNeeded();let m=$('homeMonth').value,t
 function emiCard(e){let due=e.due?new Date(e.due+'T00:00:00'):null,todayD=new Date();todayD.setHours(0,0,0,0);let days=due?Math.ceil((due-todayD)/86400000):null;let badge=days!==null?(days<0?'⚠️ Overdue':days<=7?'⏰ Due in '+days+' day(s)':'📅 '+days+' days'):'No due date';return `<div class="listbox"><div class="listline"><b>🏦 ${esc(e.name)}</b><span class="badge ${days!==null&&days<=7?'warn':'good'}">${badge}</span></div><small>EMI ${money(e.monthly)} • Remaining ${money(Math.max(0,e.total-e.paid))}</small></div>`}
 function saveCard(s){let p=s.target?Math.min(100,s.saved/s.target*100):0,rem=Math.max(0,Number(s.target||0)-Number(s.saved||0));return `<div class="listbox"><b>🎯 ${esc(s.name)}</b><div class="progress"><i style="width:${p}%"></i></div><small>${money(s.saved)} / ${money(s.target)} • ${Math.round(p)}%</small>${rem>0?`<div style="margin-top:5px;color:#64748b;font-size:12px">💰 ${money(rem)} remaining</div>`:'<div style="margin-top:5px;color:#166534;font-weight:700;font-size:12px">🎉 Goal completed!</div>'}</div>`}
 function renderTx(){let m=$('txMonth').value,q=$('search').value.toLowerCase(),tf=$('tf').value,old=$('cf').value,c=[...new Set(mt(m).map(x=>x.category))];$('cf').innerHTML='<option value="all">All Categories</option>'+c.map(x=>`<option>${esc(x)}</option>`).join('');$('cf').value=old;let a=mt(m).filter(x=>(tf==='all'||x.type===tf)&&(old==='all'||x.category===old)&&((x.category+' '+x.note).toLowerCase().includes(q)));$('txList').innerHTML=a.length?a.map(x=>`<div class="tx"><div><b>${esc(x.category)}</b><small>${esc(x.date)}${x.note?' • '+esc(x.note):''}</small></div><div style="text-align:right"><b class="${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</b><br><button onclick="openTx('${x.type}',${x.id})">✏️</button> <button onclick="delTx(${x.id})">🗑️</button></div></div>`).join(''):'<div class="empty">No matching transactions.</div>'}
-function saveBudget(){let m=$('budgetMonth').value;bud[m]=Number($('budgetAmount').value)||0;localStorage.setItem('moneymate_budgets',JSON.stringify(bud));mirrorSave();renderBudget();renderHome()}
+function saveBudget(){let m=$('budgetMonth').value,a=Number($('budgetAmount').value)||0;if(a<=0){$('budgetAmount').focus();return}bud[m]=a;persistLocal();mirrorSave().catch(e=>console.warn('Budget backup failed',e));renderBudget();renderHome()}
 function renderBudget(){let m=$('budgetMonth').value,b=Number(bud[m]||0),e=mt(m).filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);$('budgetAmount').value=b||'';$('budgetBox').innerHTML=b?`<b>💸 Spent ${money(e)}</b><div class="progress"><i style="width:${Math.min(100,e/b*100)}%"></i></div><b>💰 ${money(Math.max(0,b-e))}</b> remaining<br><small>${e>b?'⚠️ Budget exceeded':'✅ Budget available'}</small>`:'<div class="empty">Enter a budget amount above.</div>'}
 function openEmi(id=null){$('emiModal').style.display='flex';$('emiId').value=id||'';if(id){let e=emis.find(x=>x.id==id);$('emiName').value=e.name;$('emiTotal').value=e.total;$('emiMonthly').value=e.monthly;$('emiPaid').value=e.paid;$('emiDue').value=e.due||''}else{$('emiName').value='';$('emiTotal').value='';$('emiMonthly').value='';$('emiPaid').value=0;$('emiDue').value=''}}
 function closeEmi(){$('emiModal').style.display='none'}
