@@ -1,10 +1,10 @@
 {
-  "name": "MoneyMate V3.4 Custom Categories",
+  "name": "MoneyMate V3.5 Financial Health Fix",
   "short_name": "MoneyMate",
-  "start_url": "./?v=3.4.0",
+  "start_url": "./?v=3.5.0",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#111827",
-  "description": "Offline personal finance tracker with custom categories • V3.4",
+  "description": "Offline personal finance tracker with custom categories • V3.5",
   "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
