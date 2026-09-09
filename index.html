@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V3.8 EMI Calculator + Clarity</title>
+<title>MoneyMate V3.9 Simple & Clean</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -54,11 +54,12 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 .reminder{padding:10px 12px;border-radius:12px;margin-top:8px;border:1px solid #475569}
 .reminder.overdue{border-color:#ef4444}.reminder.today{border-color:#f59e0b}.reminder.upcoming{border-color:#22c55e}
 
-.sixgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;height:180px;align-items:end;overflow:hidden}.sixgroup{min-width:0;text-align:center}.sixbars{height:125px;display:flex;align-items:end;justify-content:center;gap:3px;overflow:hidden}.sixbars .bar{min-width:0;width:42%;max-width:24px;flex:none}.sixbars .bar.income,.sixbars .bar.expense{height:max(6%,var(--h));}.sixlabel{font-size:10px;color:#64748b;margin-top:5px}.sixvalues{font-size:7px;color:#64748b;line-height:1.2;white-space:nowrap;overflow:hidden}.sixvalues span{display:block;overflow:hidden;text-overflow:ellipsis}
+.sixgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;height:180px;align-items:end;overflow:hidden}.sixgroup{min-width:0;text-align:center}.sixbars{height:125px;display:flex;align-items:end;justify-content:center;gap:3px;overflow:hidden}.sixbars .bar{min-width:0;width:42%;max-width:24px;flex:none}.sixbars .bar.income,.sixbars .bar.expense{height:max(6%,var(--h));}.sixlabel{font-size:10px;color:#64748b;margin-top:5px}.sixvalues{font-size:8px;color:#64748b;line-height:1.2;white-space:nowrap;overflow:hidden}.sixvalues span{display:block;overflow:hidden;text-overflow:ellipsis}
+.tool-note{font-size:12px;color:#64748b;margin-top:6px}.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 </style></head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V3.8 EMI Calculator + Clarity</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V3.9 Simple & Clean</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
@@ -78,19 +79,10 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </section>
 
 <section id="transactions" class="tab">
-<h2>💳 Transactions</h2><div class="monthbar"><select id="txMonth"></select><button onclick="openTx('income')">➕ Add</button></div>
+<h2>💳 Transactions</h2>
+<div class="monthbar"><select id="txMonth"></select><button onclick="openTx('income')">➕ Add</button></div>
 <input id="search" placeholder="🔍 Search category or note..." oninput="renderTx()">
 <div class="row"><select id="tf" onchange="renderTx()"><option value="all">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select><select id="cf" onchange="renderTx()"><option value="all">All Categories</option></select></div>
-
-<h3 style="margin:18px 0 8px">💼 Salary / Quick Income</h3>
-<div class="listbox"><div class="row"><input id="salaryAmt" type="number" placeholder="Monthly salary"><input id="salaryDate" type="date"></div>
-<div class="row"><input id="salaryNote" placeholder="Note e.g. September Salary"><button onclick="addSalary()">💰 Add Salary</button></div></div>
-<h3 style="margin:18px 0 8px">🔁 Recurring Transactions</h3>
-<div class="listbox">
-<div class="row"><select id="recType"><option value="income">📥 Income</option><option value="expense">📤 Expense</option></select><input id="recName" placeholder="Name e.g. Salary"></div>
-<div class="row"><input id="recAmt" type="number" placeholder="Amount"><select id="recFreq"><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></div>
-<div class="row"><input id="recNext" type="date"><button onclick="addRecurring()">➕ Add Recurring</button></div>
-</div><div id="recList"></div>
 <div id="txList"></div>
 </section>
 
@@ -141,6 +133,22 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <div id="calDay" class="listbox"><div class="empty">Tap a date to view transactions.</div></div>
 </section>
 
+<section id="tools" class="tab">
+<h2>🧰 Quick Tools</h2>
+<div class="listbox">
+<h3 style="margin:0 0 8px">💼 Quick Salary</h3>
+<div class="row"><input id="salaryAmt" type="number" placeholder="Monthly salary"><input id="salaryDate" type="date"></div>
+<div class="row"><input id="salaryNote" placeholder="Note e.g. September Salary"><button onclick="addSalary()">💰 Add Salary</button></div>
+</div>
+<h2>🔁 Recurring Transactions</h2>
+<div class="listbox">
+<div class="row"><select id="recType"><option value="income">📥 Income</option><option value="expense">📤 Expense</option></select><input id="recName" placeholder="Name e.g. Salary"></div>
+<div class="row"><input id="recAmt" type="number" placeholder="Amount"><select id="recFreq"><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></div>
+<div class="row"><input id="recNext" type="date"><button onclick="addRecurring()">➕ Add Recurring</button></div>
+</div>
+<div id="recList"></div>
+</section>
+
 <section id="settings" class="tab">
 <h2>⚙️ Settings</h2><div class="listbox">
 <button style="width:100%" onclick="dark()">🌙 Toggle Dark Mode</button>
@@ -163,8 +171,9 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 
 <div id="moreModal" class="modal"><div class="modal-box">
 <h2>⋯ More</h2>
-<div class="row"><button onclick="goFromMore('savings')">🎯 Savings</button><button onclick="goFromMore('reports')">📊 Reports</button></div>
-<div class="row"><button onclick="goFromMore('calendar')">📅 Calendar</button><button onclick="goFromMore('settings')">⚙️ Settings</button></div>
+<div class="row"><button onclick="goFromMore('savings')">🎯 Savings Goals</button><button onclick="goFromMore('reports')">📊 Reports</button></div>
+<div class="row"><button onclick="goFromMore('calendar')">📅 Calendar</button><button onclick="goFromMore('tools')">🧰 Quick Tools</button></div>
+<button style="width:100%;margin-top:8px" onclick="goFromMore('settings')">⚙️ Settings</button>
 <button style="width:100%;margin-top:8px;background:#e5e7eb" onclick="closeMore()">✖️ Close</button>
 </div></div>
 
@@ -188,7 +197,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <p id="lockMsg" style="font-size:12px;color:#fca5a5"></p></div></div>
 
 <script>
-// MoneyMate V3.8 EMI Calculator + Clarity
+// MoneyMate V3.9 Simple & Clean
 const IC=['Salary','Freelance','Business','Interest','Other'],EC=['Food','Travel','Shopping','Bills','Rent','EMI','Medical','Education','Entertainment','Other'];
 let customCats=safeJSON('moneymate_custom_categories',{income:[],expense:[]});
 if(!customCats||typeof customCats!=='object')customCats={income:[],expense:[]};

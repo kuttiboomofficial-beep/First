@@ -1,11 +1,11 @@
 {
-  "name": "MoneyMate V3.8 EMI Calculator + Clarity",
+  "name": "MoneyMate V3.9 Simple & Clean",
   "short_name": "MoneyMate",
-  "start_url": "./?v=3.8.0",
+  "start_url": "./?v=3.9.0",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
-  "description": "Offline personal finance tracker with custom categories, refresh-safe storage, and reducing-balance EMI calculator • V3.8",
+  "description": "Offline personal finance tracker with custom categories, refresh-safe storage, and reducing-balance EMI calculator • V3.9",
   "icons": [
     {
       "src": "./icon.svg",
