@@ -1,11 +1,11 @@
 {
-  "name": "MoneyMate V4.1 Date Fix",
+  "name": "MoneyMate V4.2 Select Fix",
   "short_name": "MoneyMate",
-  "start_url": "./?v=4.0.0",
+  "start_url": "./?v=4.2.0",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
-  "description": "Offline personal finance tracker with custom categories, refresh-safe storage, and reducing-balance EMI calculator • V4.0",
+  "description": "Simple personal finance tracker with reliable month selection and date handling.",
   "icons": [
     {
       "src": "./icon.svg",
