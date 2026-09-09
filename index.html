@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V4.2 Select Fix</title>
+<title>MoneyMate V4.3 EMI Save Button</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -33,6 +33,7 @@ input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px
 </style>
 <style>
 main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset-bottom)}
+#emi .listbox .row > button{flex:0 0 120px;width:120px;padding-left:18px;padding-right:18px}
 .lock-screen{display:none;position:fixed;inset:0;background:#111827;color:#fff;z-index:100;align-items:center;justify-content:center;padding:24px}
 .lock-card{width:100%;max-width:380px;text-align:center;background:#1e293b;border:1px solid #475569;border-radius:22px;padding:26px}
 .lock-card h2{margin-top:0}.lock-card input{text-align:center;font-size:22px;letter-spacing:8px;background:#0f172a;color:#fff;border-color:#475569}
@@ -197,7 +198,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <p id="lockMsg" style="font-size:12px;color:#fca5a5"></p></div></div>
 
 <script>
-// MoneyMate V4.2 Select Fix
+// MoneyMate V4.3 EMI Save Button
 const IC=['Salary','Freelance','Business','Interest','Bonus','Other'],EC=['Food','Petrol','Travel','Shopping','Credit Card Bill','Mobile Recharge','Bills','Rent','EMI','Medical','Education','Entertainment','Subscriptions','Insurance','Other'];
 let customCats=safeJSON('moneymate_custom_categories',{income:[],expense:[]});
 if(!customCats||typeof customCats!=='object')customCats={income:[],expense:[]};
