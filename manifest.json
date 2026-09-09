@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#111827",
-  "description": "Offline personal finance tracker • V3.0 Real Save Fix",
+  "description": "Offline personal finance tracker • V3.1 Show Saved Fix",
   "icons": [
     {
       "src": "icon.svg",
