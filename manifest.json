@@ -1,10 +1,17 @@
 {
-  "name": "MoneyMate V3.7 EMI Interest Calculation",
+  "name": "MoneyMate V3.8 EMI Calculator + Clarity",
   "short_name": "MoneyMate",
-  "start_url": "./?v=3.7.0",
+  "start_url": "./?v=3.8.0",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
-  "description": "Offline personal finance tracker with custom categories and interest-based EMI calculation • V3.7",
-  "icons": [{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+  "description": "Offline personal finance tracker with custom categories, refresh-safe storage, and reducing-balance EMI calculator • V3.8",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

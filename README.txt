@@ -1,1 +1,3 @@
-MoneyMate V3.3 Final Stable\n\nFixes: reliable startup restore, refresh-safe local state, silent saves, and responsive six-month chart.\n
+MoneyMate V3.8 EMI Calculator + Clarity
+
+Includes a standalone reducing-balance EMI calculator, clear mobile EMI breakdown, refresh-safe local storage, custom categories, budget save button, and silent transaction saves.
