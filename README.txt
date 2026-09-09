@@ -1,11 +1,5 @@
-MoneyMate V4.0 Simple & Smart
+MoneyMate V4.1 Date Fix
 
-Updates:
-- Simple EMI Calculator: Loan Amount, Interest Rate, Tenure (Years), Monthly EMI, Total Interest, Total Payment.
-- EMI tracker uses reducing-balance interest and reduces outstanding principal by principal portion only.
-- Default expense categories: Food, Petrol, Travel, Shopping, Credit Card Bill, Mobile Recharge, Bills, Rent, EMI, Medical, Education, Entertainment, Subscriptions, Insurance, Other.
-- Default income categories include Salary, Freelance, Business, Interest, Bonus, Other.
-- Custom Category: Add New Category lets the user create their own income/expense category.
-- Budget Save button included.
-- Financial Health shows No Data Yet when there is no financial data.
-- LocalStorage + IndexedDB persistence and refresh-safe service worker.
+Fix: When viewing a previous month (for example August) and tapping Add Expense/Income, the new transaction date now defaults to the selected month instead of today's current month. Local date handling is also used to avoid timezone date shifts.
+
+Replace index.html, manifest.json, sw.js, icon.svg and README.txt in your GitHub Pages root.

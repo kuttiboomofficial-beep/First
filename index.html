@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V4.0 Simple & Smart</title>
+<title>MoneyMate V4.1 Date Fix</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -59,7 +59,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </style></head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.0 Simple & Smart</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.1 Date Fix</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
@@ -197,7 +197,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <p id="lockMsg" style="font-size:12px;color:#fca5a5"></p></div></div>
 
 <script>
-// MoneyMate V4.0 Simple & Smart
+// MoneyMate V4.1 Date Fix
 const IC=['Salary','Freelance','Business','Interest','Bonus','Other'],EC=['Food','Petrol','Travel','Shopping','Credit Card Bill','Mobile Recharge','Bills','Rent','EMI','Medical','Education','Entertainment','Subscriptions','Insurance','Other'];
 let customCats=safeJSON('moneymate_custom_categories',{income:[],expense:[]});
 if(!customCats||typeof customCats!=='object')customCats={income:[],expense:[]};
@@ -299,8 +299,8 @@ async function restoreMirror(){
 }
 
 
-const $=id=>document.getElementById(id),money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2}),cur=()=>new Date().toISOString().slice(0,7),ym=d=>String(d).slice(0,7);
-function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.push(d.toISOString().slice(0,7));d.setMonth(d.getMonth()-1)}return a}
+const $=id=>document.getElementById(id),money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2}),localDate=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')},cur=()=>localDate().slice(0,7),ym=d=>String(d).slice(0,7);
+function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));d.setMonth(d.getMonth()-1)}return a}
 function mn(s){let [y,m]=s.split('-');return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
 function fill(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{let e=$(id),v=e.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=v})}
 function go(id,btn){if(id==='more'){$('moreModal').style.display='flex';return}document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAll()}
@@ -309,13 +309,13 @@ function closeMore(){$('moreModal').style.display='none'}
 function today(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>$(id).value=cur());renderAll()}
 function mt(m){return txs.filter(x=>ym(x.date)===m)}
 function cats(selected=''){let type=$('txType').value,a=allCats(type);$('txCat').innerHTML=a.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')+'<option value="__add__">➕ Add New Category...</option>';if(selected&&a.includes(selected))$('txCat').value=selected}
-function openTx(type,id=null){$('txModal').style.display='flex';$('txId').value=id||'';$('txType').value=type;if(id){let x=txs.find(t=>t.id==id);$('txTitle').textContent='✏️ Edit Transaction';cats(x.category);$('txAmt').value=x.amount;$('txDate').value=x.date;$('txNote').value=x.note||''}else{$('txTitle').textContent=type==='income'?'💵 Add Income':'💸 Add Expense';cats();$('txDate').value=new Date().toISOString().slice(0,10);$('txAmt').value='';$('txNote').value=''}}
+function openTx(type,id=null){$('txModal').style.display='flex';$('txId').value=id||'';$('txType').value=type;if(id){let x=txs.find(t=>t.id==id);$('txTitle').textContent='✏️ Edit Transaction';cats(x.category);$('txAmt').value=x.amount;$('txDate').value=x.date;$('txNote').value=x.note||''}else{$('txTitle').textContent=type==='income'?'💵 Add Income':'💸 Add Expense';cats();let selectedMonth=$('txMonth')?.value||cur();let [yy,mm]=selectedMonth.split('-').map(Number);let now=new Date();let day=Math.min(now.getDate(),new Date(yy,mm,0).getDate());$('txDate').value=yy+'-'+String(mm).padStart(2,'0')+'-'+String(day).padStart(2,'0');$('txAmt').value='';$('txNote').value=''}}
 function closeTx(){$('txModal').style.display='none'}
 function saveTx(){
   const idEl=$('txId'),amtEl=$('txAmt'),typeEl=$('txType'),catEl=$('txCat'),dateEl=$('txDate'),noteEl=$('txNote');
   const a=Number(amtEl.value);
   if(!a||a<=0){alert('Amount enter pannunga');return}
-  const date=dateEl.value||new Date().toISOString().slice(0,10);
+  const date=dateEl.value||localDate();
   if(catEl.value==='__add__'){addCustomCategory();return;}
   const o={id:idEl.value?Number(idEl.value):Date.now(),type:typeEl.value,category:catEl.value,amount:a,date,note:noteEl.value.trim()};
   try{
@@ -398,7 +398,7 @@ function emiStatus(e){
  return {cls:'upcoming',text:`Due in ${diff} day${diff==1?'':'s'}`};
 }
 async function addSalary(){
- let amt=Number($('salaryAmt').value),date=$('salaryDate').value||new Date().toISOString().slice(0,10),note=$('salaryNote').value.trim()||'Salary';
+ let amt=Number($('salaryAmt').value),date=$('salaryDate').value||localDate(),note=$('salaryNote').value.trim()||'Salary';
  if(!amt||amt<=0){alert('Enter salary amount');return}
  txs.unshift({id:Date.now(),type:'income',category:'Salary',amount:amt,date,note});
  persistLocal();await mirrorSave();renderAll();alert('Salary added 💰');
@@ -442,7 +442,7 @@ function renderCalendar(){
  $('calendarGrid').innerHTML=out;
 }
 function showCalDay(ds){let a=txs.filter(x=>x.date===ds);$('calDay').dataset.date=ds;$('calDay').innerHTML=a.length?`<b>📅 ${ds}</b>`+a.map(x=>`<div class="tx"><span>${x.type==='income'?'📥':'📤'} ${esc(x.category)}<small>${esc(x.note||'')}</small></span><b class="${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</b></div>`).join(''):'<div class="empty">No transactions on this date.</div>';renderCalendar()}
-function todayCal(){$('calMonth').value=cur();renderCalendar();showCalDay(new Date().toISOString().slice(0,10))}
+function todayCal(){$('calMonth').value=cur();renderCalendar();showCalDay(localDate())}
 
 
 function renderCategoryChart(t){
@@ -452,7 +452,7 @@ function renderCategoryChart(t){
 }
 function renderSixMonths(m){
  let d=new Date(m+'-01T00:00:00'),vals=[];
- for(let n=5;n>=0;n--){let x=new Date(d);x.setMonth(d.getMonth()-n);let mm=x.toISOString().slice(0,7),t=mt(mm),i=t.filter(z=>z.type==='income').reduce((a,z)=>a+z.amount,0),e=t.filter(z=>z.type==='expense').reduce((a,z)=>a+z.amount,0);vals.push({m:mm,i,e})}
+ for(let n=5;n>=0;n--){let x=new Date(d);x.setMonth(d.getMonth()-n);let mm=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0'),t=mt(mm),i=t.filter(z=>z.type==='income').reduce((a,z)=>a+z.amount,0),e=t.filter(z=>z.type==='expense').reduce((a,z)=>a+z.amount,0);vals.push({m:mm,i,e})}
  let max=Math.max(1,...vals.flatMap(x=>[x.i,x.e]));
  $('sixChart').innerHTML=`<div class="sixgrid">${vals.map(x=>`<div class="sixgroup"><div class="sixbars"><div class="bar income" style="height:${Math.max(6,x.i/max*100)}%" title="${mn(x.m)} income ${money(x.i)}"></div><div class="bar expense" style="height:${Math.max(6,x.e/max*100)}%" title="${mn(x.m)} expense ${money(x.e)}"></div></div><div class="sixlabel">${mn(x.m).split(' ')[0].slice(0,3)}</div><div class="sixvalues"><span>${money(x.i)}</span><span>${money(x.e)}</span></div></div>`).join('')}</div><div style="text-align:center;font-size:11px;color:#64748b;margin-top:8px">📥 Income &nbsp;&nbsp; 📤 Expense</div>`;
 }
