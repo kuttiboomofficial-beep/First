@@ -22,7 +22,7 @@ main{padding:15px 16px 88px}.tab{display:none}.tab.active{display:block}
 h2{font-size:18px;margin:20px 0 10px}.section-title{display:flex;align-items:center}.listbox{border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin-top:10px}.listline{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eee}.listline:last-child{border-bottom:0}
 .progress{height:9px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:9px 0}.progress i{display:block;height:100%;background:#334155}
 .tx{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}.tx small{display:block;color:#64748b;margin-top:4px}.plus{color:#15803d}.minus{color:#b91c1c}.empty{text-align:center;color:#94a3b8;padding:25px 8px}
-input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;background:#fff;color:#111827}label{display:block;font-size:13px;font-weight:700;margin:10px 0 6px}.row{display:flex;gap:8px;margin-top:12px}.row>*{flex:1}
+input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;background:#fff;color:#111827}label{display:block;font-size:13px;font-weight:700;margin:10px 0 6px}.row{display:flex;gap:8px;margin-top:12px}.row>*{flex:1}.emi-reminder-row{align-items:stretch}.emi-reminder-row>label{flex:1;margin:0}.emi-reminder-row>button{flex:0 0 120px;width:120px;min-width:120px}
 .chart{width:100%;height:210px;border:1px solid #e5e7eb;border-radius:14px;padding:10px;background:#fafafa}.barwrap{height:155px;display:flex;align-items:end;gap:10px;padding:10px 5px}.bar{flex:1;min-width:28px;border-radius:7px 7px 2px 2px;background:#334155;position:relative}.bar em{position:absolute;top:-18px;width:100%;text-align:center;font-size:10px;font-style:normal}.chartlabels{display:flex;gap:10px;padding:0 5px}.chartlabels span{flex:1;text-align:center;font-size:10px;color:#64748b}
 .badge{display:inline-block;padding:5px 8px;border-radius:99px;font-size:11px;background:#e2e8f0}.warn{background:#fee2e2;color:#991b1b}.good{background:#dcfce7;color:#166534}
 .modal{display:none;position:fixed;inset:0;background:#0008;align-items:end;justify-content:center;z-index:30}.modal-box{background:#fff;width:100%;max-width:540px;border-radius:22px 22px 0 0;padding:19px;max-height:90vh;overflow:auto}
@@ -109,7 +109,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </div>
 <button onclick="openEmi()">➕ Add Loan / EMI</button>
 <div class="listbox" style="margin-bottom:12px">
-<div class="row"><label style="flex:1">🔔 Reminder lead days <input id="emiLeadDays" type="number" min="0" max="30" value="3"></label><button onclick="saveEmiReminder()">💾 Save</button></div>
+<div class="row emi-reminder-row"><label>🔔 Reminder lead days<input id="emiLeadDays" type="number" min="0" max="30" value="3"></label><button type="button" onclick="saveEmiReminder()">💾 Save</button></div>
 <small>Shows upcoming, today and overdue EMI status.</small></div>
 <div id="emiList"></div>
 </section>
