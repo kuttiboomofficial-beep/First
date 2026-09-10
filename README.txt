@@ -1,3 +1,9 @@
-MoneyMate V4.3 - EMI Save Button Fixed
+MoneyMate V4.4 EMI Calculator
 
-Reminder Save button is now compact (120px) and the reminder input gets the remaining width. Replace index.html, manifest.json, sw.js, icon.svg, README.txt in GitHub Pages.
+Updates:
+- Added Loan Amount / Monthly EMI calculation mode.
+- Loan Amount mode calculates monthly EMI, total interest and total payment.
+- Monthly EMI mode calculates the corresponding loan amount using reducing-balance EMI math.
+- Years-based tenure remains simple and clear.
+- Compact EMI reminder Save button retained.
+- Service worker/cache version updated.

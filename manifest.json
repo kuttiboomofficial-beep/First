@@ -1,7 +1,7 @@
 {
-  "name": "MoneyMate V4.3 EMI Save Button",
+  "name": "MoneyMate V4.4 EMI Calculator",
   "short_name": "MoneyMate",
-  "start_url": "./?v=4.2.0",
+  "start_url": "./?v=4.4.0",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
