@@ -1,4 +1,4 @@
-MoneyMate V4.4 EMI Calculator
+MoneyMate V4.6 EMI Calculator
 
 Updates:
 - Added Loan Amount / Monthly EMI calculation mode.
@@ -7,3 +7,5 @@ Updates:
 - Years-based tenure remains simple and clear.
 - Compact EMI reminder Save button retained.
 - Service worker/cache version updated.
+
+V4.6: EMI due date repeats monthly, default reminder is 6 days before due date, and browser notification permission is requested. Notifications are shown when the app is opened/active; automatic bank debit is not performed.
