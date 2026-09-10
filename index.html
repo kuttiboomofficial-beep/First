@@ -60,7 +60,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </style></head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.1 Date Fix</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.5 EMI Calculator Fix</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
@@ -224,7 +224,7 @@ if(!Array.isArray(txs))txs=[]; if(!bud||typeof bud!=='object'||Array.isArray(bud
 emis=emis.map(e=>{let o={...e};if(o.principalPaid==null)o.principalPaid=Number(o.paid||0);if(o.interestPaid==null)o.interestPaid=0;if(o.rate==null)o.rate=Number(o.interestRate||0);if(o.years==null)o.years=Number(o.tenureYears||0);return o;});
 const DB_NAME='MoneyMateDB',DB_STORE='state',DB_KEY='main';
 function openDB(){return new Promise((resolve,reject)=>{try{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(DB_STORE))r.result.createObjectStore(DB_STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)}catch(e){reject(e)}})}
-function statePayload(){return {version:'4.0',updatedAt:Date.now(),transactions:txs,budgets:bud,emis,savings:saves,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')}}
+function statePayload(){return {version:'4.5',updatedAt:Date.now(),transactions:txs,budgets:bud,emis,savings:saves,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')}}
 let saveQueue=Promise.resolve();
 function persistLocal(){
   const data={transactions:txs,budgets:bud,emis,savings:saves,updatedAt:Date.now()};
@@ -350,6 +350,7 @@ let emiMonthlyManual=false;
 let calcMode='loan';
 let lastCalcPrincipal=0,lastCalcEmi=0;
 function setCalcMode(mode){calcMode=mode==='emi'?'emi':'loan';let loanBtn=$('calcModeLoan'),emiBtn=$('calcModeEmi');loanBtn.classList.toggle('active',calcMode==='loan');emiBtn.classList.toggle('active',calcMode==='emi');$('calcValueLabel').textContent=calcMode==='loan'?'💰 Loan Amount (₹)':'💵 Monthly EMI (₹)';$('calcPrincipal').placeholder=calcMode==='loan'?'e.g. 2000000':'e.g. 21030';$('calcPrincipal').step=calcMode==='loan'?'1000':'0.01';$('calcResults').style.display='none';$('calcActions').style.display='none'}
+function calcMonthlyEmi(P,annualRate,years){P=Number(P)||0;let r=(Number(annualRate)||0)/100/12,n=(Number(years)||0)*12;if(P<=0||n<=0)return 0;if(r===0)return P/n;return P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1)}
 function calcLoanFromEmi(emi,annualRate,years){let E=Number(emi)||0,r=(Number(annualRate)||0)/100/12,n=(Number(years)||0)*12;if(E<=0||n<=0)return 0;if(r===0)return E*n;return E*(1-Math.pow(1+r,-n))/r}
 function calculateEmiTool(){let value=Number($('calcPrincipal').value)||0,r=Number($('calcRate').value)||0,y=Number($('calcYears').value)||0;if(value<=0||y<=0){$('calcResults').style.display='none';$('calcActions').style.display='none';$('calcPrincipal').focus();return}let n=y*12,P,emi;if(calcMode==='emi'){emi=value;P=calcLoanFromEmi(emi,r,y)}else{P=value;emi=calcMonthlyEmi(P,r,y)}if(P<=0||emi<=0){$('calcResults').style.display='none';$('calcActions').style.display='none';return}lastCalcPrincipal=P;lastCalcEmi=emi;let total=emi*n,interest=Math.max(0,total-P),monthlyRate=r/100/12,firstInterest=P*monthlyRate,firstPrincipal=Math.max(0,emi-firstInterest);$('calcResults').style.display='grid';$('calcActions').style.display='flex';$('calcResults').innerHTML=`<div class="calc-result"><small>💰 ${calcMode==='emi'?'Loan Amount':'Loan Amount'}</small><b>${money(P)}</b></div><div class="calc-result"><small>💵 Monthly EMI</small><b>${money(emi)}</b></div><div class="calc-result"><small>📈 Total Interest</small><b>${money(interest)}</b></div><div class="calc-result"><small>💳 Total Payment</small><b>${money(total)}</b></div><div class="calc-result"><small>📅 Tenure</small><b>${y} years / ${n} months</b></div><div class="calc-result" style="grid-column:1/-1"><small>📊 First EMI split</small><b>Interest ${money(firstInterest)} • Principal ${money(firstPrincipal)}</b></div>`}
 function resetEmiCalculator(){setCalcMode('loan');$('calcPrincipal').value='';$('calcRate').value='';$('calcYears').value='';$('calcResults').style.display='none';$('calcActions').style.display='none';lastCalcPrincipal=0;lastCalcEmi=0}
