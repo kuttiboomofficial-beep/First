@@ -1,17 +1,10 @@
 {
-  "name": "MoneyMate V4.6 Monthly EMI Reminder",
+  "name": "MoneyMate V4.7 Date + EMI Stable",
   "short_name": "MoneyMate",
-  "start_url": "./?v=4.4.0",
+  "start_url": "./?v=4.7",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0f172a",
-  "description": "Simple personal finance tracker with reliable month selection and date handling.",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+  "theme_color": "#111827",
+  "description": "Personal finance tracker with correct monthly transaction dates and recurring EMI reminders.",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }

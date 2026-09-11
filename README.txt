@@ -1,11 +1,13 @@
-MoneyMate V4.6 EMI Calculator
+MoneyMate V4.7 Date + EMI Stable
 
-Updates:
-- Added Loan Amount / Monthly EMI calculation mode.
-- Loan Amount mode calculates monthly EMI, total interest and total payment.
-- Monthly EMI mode calculates the corresponding loan amount using reducing-balance EMI math.
-- Years-based tenure remains simple and clear.
-- Compact EMI reminder Save button retained.
-- Service worker/cache version updated.
+Fixes:
+- Transaction Month selector is shown inside Add/Edit Transaction.
+- Selected month and transaction date are kept synchronized.
+- August transactions stay in August; September transactions stay in September.
+- Reports, Budget, Calendar and Transactions use the saved transaction date month.
+- EMI repeats monthly on the selected due-date day.
+- Mark Paid advances the EMI due date using local calendar dates (no UTC date shift).
+- EMI reminder lead days remain configurable (default 6 days).
+- Service worker cache updated to v4.7 with network-first index.html.
 
-V4.6: EMI due date repeats monthly, default reminder is 6 days before due date, and browser notification permission is requested. Notifications are shown when the app is opened/active; automatic bank debit is not performed.
+Upload all files to the GitHub Pages root and replace the old versions.
