@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V4.13 Goal History</title>
+<title>MoneyMate V4.27 Goal Month Editor</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -64,7 +64,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.26 Compact Goals</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.27 Goal Month Editor</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
@@ -405,8 +405,41 @@ function updateGoalPreview(){let target=parseGoalAmount($('saveTarget').value),s
 function goalMonthKey(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 function currentMonthInput(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 function addMonthsKey(key,n){let [y,m]=String(key||goalMonthKey()).split('-').map(Number);let d=new Date(y,m-1+n,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
-function goalMonthStats(s){let key=goalMonthKey(), arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[], saved=arr.filter(x=>x.month===key).reduce((a,x)=>a+Number(x.amount||0),0), target=Number(s.target||0), totalSaved=Math.min(target,Number(s.saved||0)), years=Number(s.years||0), monthly=goalMonthly(target,totalSaved,years), rem=Math.max(0,target-totalSaved);return {key,saved,monthly,rem,monthsLeft:Math.max(0,Math.round(years*12))}}
+function goalBaseSaved(s){
+ let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
+ if(Number.isFinite(Number(s.baseSaved))) return Math.max(0,Number(s.baseSaved));
+ let monthlyTotal=arr.reduce((a,x)=>a+Number(x.amount||0),0);
+ return Math.max(0,Number(s.saved||0)-monthlyTotal);
+}
+function goalMonthlyTotal(s){
+ let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
+ return arr.reduce((a,x)=>a+Math.max(0,Number(x.amount||0)),0);
+}
+function recalcGoalSaved(s){
+ let target=Number(s.target||0),base=goalBaseSaved(s),total=goalMonthlyTotal(s);
+ s.baseSaved=base;
+ s.saved=Math.min(target,Math.max(0,base+total));
+ return s.saved;
+}
+function goalMonthStats(s){let key=goalMonthKey(),arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[],saved=arr.filter(x=>x.month===key).reduce((a,x)=>a+Number(x.amount||0),0),target=Number(s.target||0),totalSaved=Math.min(target,Number(s.saved||0)),years=Number(s.years||0),monthly=goalMonthly(target,totalSaved,years),rem=Math.max(0,target-totalSaved);return {key,saved,monthly,rem,monthsLeft:Math.max(0,Math.round(years*12))}}
 function monthLabel(key){let d=new Date(key+'-01T00:00:00');return d.toLocaleString('en-IN',{month:'long',year:'numeric'})}
+function setGoalMonthAmount(id,key,mode='edit'){
+ let s=saves.find(x=>x.id==id);if(!s)return;
+ if(!Array.isArray(s.monthlySavings))s.monthlySavings=[];
+ if(!Number.isFinite(Number(s.baseSaved)))s.baseSaved=goalBaseSaved(s);
+ let existing=s.monthlySavings.filter(x=>x.month===key).reduce((a,x)=>a+Number(x.amount||0),0);
+ let label=mode==='add'?'Add savings for ':'Update savings for ';
+ let raw=prompt(label+monthLabel(key)+'\nEnter the total amount saved for this month:',existing?String(Math.round(existing)):'0');
+ if(raw===null)return;
+ let amount=Number(String(raw).replace(/[^0-9.]/g,''));
+ if(!Number.isFinite(amount)||amount<0){alert('Please enter a valid amount.');return}
+ s.monthlySavings=s.monthlySavings.filter(x=>x.month!==key);
+ if(amount>0)s.monthlySavings.push({month:key,amount,date:new Date().toISOString()});
+ recalcGoalSaved(s);
+ localStorage.setItem('moneymate_savings',JSON.stringify(saves));
+ mirrorSave();
+ renderAll();
+}
 function goalHistoryHtml(s){
  let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
  let by={}; arr.forEach(x=>{let k=String(x.month||'');if(!/^\d{4}-\d{2}$/.test(k))return;by[k]=(by[k]||0)+Number(x.amount||0)});
@@ -415,9 +448,13 @@ function goalHistoryHtml(s){
  let count=years*12;
  let target=Number(s.target||0), overallSaved=Math.min(target,Number(s.saved||0)), monthly=goalMonthly(target,overallSaved,years);
  let keys=[];for(let i=0;i<count;i++)keys.push(addMonthsKey(start,i));
- let running=0;
- let rows=keys.map(k=>{let saved=Number(by[k]||0);running=Math.min(target,running+saved);let req=monthly;let reached=saved>=req&&req>0;let status=reached?'✅ Monthly target reached':saved>0?'⚠️ Below monthly target':'⏳ Pending';return `<div class="history-row"><div class="history-main"><b>📅 ${monthLabel(k)}</b><span class="history-status">${status}</span><span class="history-total">Cumulative saved: ${money(running)}</span></div><div style="text-align:right"><b>${money(saved)}</b><small style="display:block;color:#64748b">Target ${money(req)}</small></div></div>`}).join('');
- return `<div id="goalHistory_${s.id}" class="goal-history" style="display:none"><div style="font-weight:800;margin-bottom:4px">📊 Monthly History</div><small style="color:#64748b">📅 ${monthLabel(start)} → ${monthLabel(addMonthsKey(start,count-1))}</small>${rows}</div>`;
+ let running=goalBaseSaved(s);
+ let rows=keys.map(k=>{
+   let saved=Number(by[k]||0);running=Math.min(target,running+saved);let req=monthly;let reached=saved>=req&&req>0;let status=reached?'✅ Monthly target reached':saved>0?'⚠️ Below monthly target':'⏳ Pending';
+   let action=saved>0?`<button class="action-small history-edit" onclick="setGoalMonthAmount(${s.id},'${k}','edit')">✏️ Edit</button>`:`<button class="action-small history-edit" onclick="setGoalMonthAmount(${s.id},'${k}','add')">➕ Add</button>`;
+   return `<div class="history-row"><div class="history-main"><b>📅 ${monthLabel(k)}</b><span class="history-status">${status}</span><span class="history-total">Cumulative saved: ${money(running)}</span><div style="margin-top:5px">${action}</div></div><div style="text-align:right"><b>${money(saved)}</b><small style="display:block;color:#64748b">Target ${money(req)}</small></div></div>`
+ }).join('');
+ return `<div id="goalHistory_${s.id}" class="goal-history" style="display:none"><div style="font-weight:800;margin-bottom:4px">📊 Monthly History</div><small style="color:#64748b">📅 ${monthLabel(start)} → ${monthLabel(addMonthsKey(start,count-1))}</small><div style="margin:8px 0;padding:8px;border-radius:9px;background:#f1f5f9;color:#475569;font-size:12px">💡 ஒவ்வொரு மாதத்திற்கும் <b>Add / Edit</b> செய்து அந்த மாதம் சேமித்த தொகையை update செய்யலாம்.</div>${rows}</div>`;
 }
 function toggleGoalHistory(id){let el=$('goalHistory_'+id);if(!el)return;let hidden=el.style.display==='none';el.style.display=hidden?'block':'none';let btn=$('historyBtn_'+id);if(btn)btn.textContent=hidden?'📊 Hide History':'📊 History'}
 function toggleGoalDetails(id){let el=$('goalDetails_'+id);if(!el)return;let hidden=el.style.display==='none';el.style.display=hidden?'block':'none';let btn=$('detailsBtn_'+id);if(btn)btn.textContent=hidden?'🔼 Hide Details':'👁️ View Details'}
@@ -435,7 +472,12 @@ function saveGoal(){
  if(!name||target<=0){alert('Goal name and target required');return}
  if(years<=0){alert('Please enter how many years you want to take to achieve this goal.');$('saveYears').focus();return}
  saved=Math.max(0,Math.min(target,saved));let id=$('saveId').value;
- let old=id?saves.find(x=>x.id==id):null;let o={id:id?Number(id):Date.now(),name,target,saved,years,startMonth,monthlySavings:Array.isArray(old?.monthlySavings)?old.monthlySavings:[]};
+ let old=id?saves.find(x=>x.id==id):null;
+ let oldMonthly=Array.isArray(old?.monthlySavings)?old.monthlySavings:[];
+ let monthlyTotal=oldMonthly.reduce((a,x)=>a+Number(x.amount||0),0);
+ let base=old?Math.max(0,saved-monthlyTotal):saved;
+ let o={id:id?Number(id):Date.now(),name,target,saved,baseSaved:base,years,startMonth,monthlySavings:oldMonthly};
+ recalcGoalSaved(o);
  if(id){let idx=saves.findIndex(x=>x.id==id);if(idx>=0)saves[idx]=o;else saves.push(o)}else saves.push(o);
  localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();closeSave();renderAll();
 }
@@ -538,7 +580,7 @@ function restore(){$('file').click()}$('file').addEventListener('change',e=>{let
 function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];mirrorSave();renderAll()}}
 
 function payEmi(id){let e=emis.find(x=>x.id===id);if(!e)return;let m=emiMath(e);if(m.remaining<=0)return;let amount=Number(prompt(`EMI payment amount (₹${Number(m.monthly||0).toFixed(2)})`,m.monthly));if(!amount||amount<=0)return;if(m.rate>0&&amount<m.interest){alert(`This payment is below this month's interest of ${money(m.interest)}.`);return}let interest=Math.min(m.remaining, m.interest);let principal=Math.min(m.remaining,Math.max(0,amount-interest));if(principal+interest>m.remaining){principal=m.remaining-interest}e.principalPaid=m.principalPaid+principal;e.interestPaid=m.interestPaid+interest;e.paid=(Number(e.paid)||0)+amount;let d=e.due?new Date(e.due+'T00:00:00'):null;if(d){d.setMonth(d.getMonth()+1);e.due=localYMD(d)}localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave().catch(err=>console.warn(err));renderAll()}
-function addSaving(id){let s=saves.find(x=>x.id===id);if(!s)return;let amount=Number(prompt('How much did you save this month?','500'));if(!amount||amount<=0)return;let key=goalMonthKey();if(!Array.isArray(s.monthlySavings))s.monthlySavings=[];s.monthlySavings.push({month:key,amount:Number(amount),date:new Date().toISOString()});s.saved=Math.min(Number(s.target||0),Number(s.saved||0)+Number(amount));localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();renderAll()}
+function addSaving(id){let key=goalMonthKey();setGoalMonthAmount(id,key,'edit')}
 async function hashPin(pin){let data=new TextEncoder().encode(pin),buf=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 async function setPin(){let p=prompt('Create a 4–6 digit PIN');if(!/^\d{4,6}$/.test(p||'')){alert('PIN must be 4–6 digits');return}let p2=prompt('Confirm your PIN');if(p!==p2){alert('PINs do not match');return}localStorage.setItem('moneymate_pin',await hashPin(p));alert('PIN lock enabled 🔐')}
 async function unlock(){let p=$('unlockPin').value;if(await hashPin(p)===localStorage.getItem('moneymate_pin')){$('lockScreen').style.display='none';$('unlockPin').value='';$('lockMsg').textContent=''}else $('lockMsg').textContent='Incorrect PIN'}
