@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V4.9 Date + EMI Stable</title>
+<title>MoneyMate V4.10 Date + EMI Stable</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -199,7 +199,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 <p id="lockMsg" style="font-size:12px;color:#fca5a5"></p></div></div>
 
 <script>
-// MoneyMate V4.9 Date + EMI Stable
+// MoneyMate V4.10 Date + EMI Stable
 const IC=['Salary','Freelance','Business','Interest','Bonus','Other'],EC=['Food','Petrol','Travel','Shopping','Credit Card Bill','Mobile Recharge','Bills','Rent','EMI','Medical','Education','Entertainment','Subscriptions','Insurance','Other'];
 let customCats=safeJSON('moneymate_custom_categories',{income:[],expense:[]});
 if(!customCats||typeof customCats!=='object')customCats={income:[],expense:[]};
@@ -307,12 +307,31 @@ function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.pus
 function mn(s){let [y,m]=s.split('-');return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
 function fill(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{let e=$(id),v=localStorage.getItem('moneymate_view_'+id)||e.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=months().includes(v)?v:cur()})}
 function rememberView(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{if($(id))localStorage.setItem('moneymate_view_'+id,$(id).value)})}
-function activatePage(id){if(!$(id))id='home';document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));const idx={home:0,transactions:1,budget:2,emi:3}[id];if(idx!==undefined){document.querySelectorAll('.bottom button')[idx]?.classList.add('active')}else{document.querySelectorAll('.bottom button')[4]?.classList.add('active')}localStorage.setItem('moneymate_page',id); try{history.replaceState(null,'','#'+id)}catch(e){} }
+function activatePage(id){
+  if(!$(id)) id='home';
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));
+  const idx={home:0,transactions:1,budget:2,emi:3}[id];
+  if(idx!==undefined) document.querySelectorAll('.bottom button')[idx]?.classList.add('active');
+  else document.querySelectorAll('.bottom button')[4]?.classList.add('active');
+  try{localStorage.setItem('moneymate_page',id);sessionStorage.setItem('moneymate_page',id)}catch(e){}
+  try{const u=new URL(location.href);u.searchParams.set('page',id);history.replaceState({page:id},'',u.pathname+'?'+u.searchParams.toString()+(u.hash||''))}catch(e){}
+}
 function go(id,btn){if(id==='more'){$('moreModal').style.display='flex';return}activatePage(id);if(btn){document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}renderAll()}
 function goFromMore(id){closeMore();activatePage(id);document.querySelectorAll('.bottom button')[4]?.classList.add('active');renderAll()}
 function closeMore(){$('moreModal').style.display='none'}
 function today(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>$(id).value=cur());rememberView();renderAll()}
-function restoreView(){const hash=(location.hash||'').replace(/^#/,'');const saved=localStorage.getItem('moneymate_page');const page=$(hash)?hash:(saved&&$(saved)?saved:'home');activatePage(page);}
+function restoreView(){
+  let page='';
+  try{page=new URL(location.href).searchParams.get('page')||''}catch(e){}
+  if(!page){try{page=(location.hash||'').replace(/^#/,'')}catch(e){}}
+  if(!page){try{page=sessionStorage.getItem('moneymate_page')||''}catch(e){}}
+  if(!page){try{page=localStorage.getItem('moneymate_page')||''}catch(e){}}
+  if(!$(page)) page='home';
+  activatePage(page);
+}
+window.addEventListener('hashchange',restoreView);
 function mt(m){return txs.filter(x=>ym(x.date)===m)}
 function cats(selected=''){let type=$('txType').value,a=allCats(type);$('txCat').innerHTML=a.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')+'<option value="__add__">➕ Add New Category...</option>';if(selected&&a.includes(selected))$('txCat').value=selected}
 function populateTxMonthPick(selected){let e=$('txMonthPick');if(!e)return;let v=selected||$('txMonth')?.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=v}
@@ -513,8 +532,10 @@ async function boot(){
  if(!restored || txs.length || Object.keys(bud).length || emis.length || saves.length) await mirrorSave();
  lockNow();
 }
+window.addEventListener('pagehide',()=>{try{const a=document.querySelector('.tab.active');if(a){localStorage.setItem('moneymate_page',a.id);sessionStorage.setItem('moneymate_page',a.id)}}catch(e){}});
+window.addEventListener('beforeunload',()=>{try{const a=document.querySelector('.tab.active');if(a){localStorage.setItem('moneymate_page',a.id);sessionStorage.setItem('moneymate_page',a.id)}}catch(e){}});
 boot();
-window.addEventListener('pageshow',()=>{reloadCombinedStateIfNeeded();renderAll();checkEmiAlerts()});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){reloadCombinedStateIfNeeded();renderAll();checkEmiAlerts()}});
+window.addEventListener('pageshow',()=>{restoreView();reloadCombinedStateIfNeeded();renderAll();checkEmiAlerts()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){restoreView();reloadCombinedStateIfNeeded();renderAll();checkEmiAlerts()}});
 </script>
 </body></html>
