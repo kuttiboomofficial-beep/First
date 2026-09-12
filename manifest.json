@@ -1,7 +1,7 @@
 {
-  "name": "MoneyMate V4.11 Savings Goal Planner",
+  "name": "MoneyMate V4.14 Savings Goal + Monthly History",
   "short_name": "MoneyMate",
-  "start_url": "./?v=4.11",
+  "start_url": "./?v=4.14",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#111827",

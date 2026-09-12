@@ -1,3 +1,2 @@
-MoneyMate V4.8 Refresh Navigation Fix
-
-Fixes refresh returning to Dashboard: the last opened page and selected month are now persisted and restored after refresh. Service worker cache is bumped to v4.8.
+MoneyMate V4.14
+Fixed missing renderTx function that caused navigation and list rendering to stop after renderAll(). Savings Goal monthly history is retained.
