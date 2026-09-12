@@ -60,10 +60,10 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </style></head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.5 EMI Calculator Fix</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.8 Refresh Navigation Fix</p></header>
 <main>
 <section id="home" class="tab active">
-<div class="monthbar"><select id="homeMonth" onchange="renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
+<div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
 <div class="cards">
 <div class="card full"><span class="card-icon">💰</span><small>Balance</small><b id="bal">₹0</b></div>
 <div class="card"><span class="card-icon">📥</span><small>Income</small><b id="inc">₹0</b></div>
@@ -81,14 +81,14 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 
 <section id="transactions" class="tab">
 <h2>💳 Transactions</h2>
-<div class="monthbar"><select id="txMonth" onchange="renderTx()"></select><button onclick="openTx('income')">➕ Add</button></div>
+<div class="monthbar"><select id="txMonth" onchange="rememberView();renderTx()"></select><button onclick="openTx('income')">➕ Add</button></div>
 <input id="search" placeholder="🔍 Search category or note..." oninput="renderTx()">
 <div class="row"><select id="tf" onchange="renderTx()"><option value="all">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select><select id="cf" onchange="renderTx()"><option value="all">All Categories</option></select></div>
 <div id="txList"></div>
 </section>
 
 <section id="budget" class="tab">
-<h2>🎯 Monthly Budget</h2><label>📅 Month</label><select id="budgetMonth" onchange="renderBudget()"></select>
+<h2>🎯 Monthly Budget</h2><label>📅 Month</label><select id="budgetMonth" onchange="rememberView();renderBudget()"></select>
 <label>💰 Overall Budget (₹)</label><div class="row"><input id="budgetAmount" type="number" placeholder="Enter budget amount" style="flex:1"><button onclick="saveBudget()">💾 Save Budget</button></div><div id="budgetBox" class="listbox"></div>
 </section>
 
@@ -120,7 +120,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </section>
 
 <section id="reports" class="tab">
-<h2>📊 Reports</h2><select id="reportMonth" onchange="renderReport()"></select>
+<h2>📊 Reports</h2><select id="reportMonth" onchange="rememberView();renderReport()"></select>
 <div id="reportBox" class="listbox"></div>
 <h3>📈 Income vs Expense</h3><div id="chart" class="chart"></div>
 <h3>🥧 Expense by Category</h3><div id="catChart" class="listbox"></div>
@@ -130,7 +130,7 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 
 <section id="calendar" class="tab">
 <h2>📅 Calendar</h2>
-<div class="monthbar"><select id="calMonth" onchange="renderCalendar()"></select><button onclick="todayCal()">📅 Today</button></div>
+<div class="monthbar"><select id="calMonth" onchange="rememberView();renderCalendar()"></select><button onclick="todayCal()">📅 Today</button></div>
 <div id="calendarGrid" class="calgrid"></div>
 <div id="calDay" class="listbox"><div class="empty">Tap a date to view transactions.</div></div>
 </section>
@@ -305,11 +305,14 @@ const $=id=>document.getElementById(id),money=n=>'₹'+Number(n||0).toLocaleStri
 const localYMD=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));d.setMonth(d.getMonth()-1)}return a}
 function mn(s){let [y,m]=s.split('-');return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
-function fill(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{let e=$(id),v=e.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=v})}
-function go(id,btn){if(id==='more'){$('moreModal').style.display='flex';return}document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAll()}
-function goFromMore(id){closeMore();document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.bottom button')[4].classList.add('active');renderAll()}
+function fill(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{let e=$(id),v=localStorage.getItem('moneymate_view_'+id)||e.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=months().includes(v)?v:cur()})}
+function rememberView(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{if($(id))localStorage.setItem('moneymate_view_'+id,$(id).value)})}
+function activatePage(id){if(!$(id))id='home';document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));const idx={home:0,transactions:1,budget:2,emi:3}[id];if(idx!==undefined){document.querySelectorAll('.bottom button')[idx]?.classList.add('active')}else{document.querySelectorAll('.bottom button')[4]?.classList.add('active')}localStorage.setItem('moneymate_page',id)}
+function go(id,btn){if(id==='more'){$('moreModal').style.display='flex';return}activatePage(id);if(btn){document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}renderAll()}
+function goFromMore(id){closeMore();activatePage(id);document.querySelectorAll('.bottom button')[4]?.classList.add('active');renderAll()}
 function closeMore(){$('moreModal').style.display='none'}
-function today(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>$(id).value=cur());renderAll()}
+function today(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>$(id).value=cur());rememberView();renderAll()}
+function restoreView(){rememberView();const page=localStorage.getItem('moneymate_page')||'home';activatePage(page)}
 function mt(m){return txs.filter(x=>ym(x.date)===m)}
 function cats(selected=''){let type=$('txType').value,a=allCats(type);$('txCat').innerHTML=a.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')+'<option value="__add__">➕ Add New Category...</option>';if(selected&&a.includes(selected))$('txCat').value=selected}
 function populateTxMonthPick(selected){let e=$('txMonthPick');if(!e)return;let v=selected||$('txMonth')?.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=v}
@@ -502,7 +505,9 @@ async function boot(){
  try{restored=await restoreMirror()}catch(e){console.warn('Restore failed',e)}
  if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');
  processDueRecurring();
+ restoreView();
  renderAll();
+ rememberView();
  checkEmiAlerts();
  // Never let an empty startup state overwrite an existing IndexedDB backup.
  if(!restored || txs.length || Object.keys(bud).length || emis.length || saves.length) await mirrorSave();

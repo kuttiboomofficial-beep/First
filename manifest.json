@@ -1,10 +1,10 @@
 {
-  "name": "MoneyMate V4.7 Date + EMI Stable",
+  "name": "MoneyMate V4.8 Refresh Navigation Fix",
   "short_name": "MoneyMate",
-  "start_url": "./?v=4.7",
+  "start_url": "./?v=4.8",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#111827",
-  "description": "Personal finance tracker with correct monthly transaction dates and recurring EMI reminders.",
+  "description": "Personal finance tracker with correct monthly transaction dates, EMI reminders, and refresh-safe navigation.",
   "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
