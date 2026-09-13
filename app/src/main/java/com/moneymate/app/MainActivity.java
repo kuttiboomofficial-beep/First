@@ -47,37 +47,13 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(true);
         settings.setMediaPlaybackRequiresUserGesture(true);
 
-        // Android 15/16 safe screen-fit
-webView.setFitsSystemWindows(false);
-
+        // Safe screen-fit for Android 15/16
 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-
-    webView.setOnApplyWindowInsetsListener((v, insets) -> {
-
-        android.graphics.Insets systemBars =
-                insets.getInsets(
-                        android.view.WindowInsets.Type.systemBars()
-                );
-
-        v.setPadding(
-                0,
-                systemBars.top,
-                0,
-                systemBars.bottom
-        );
-
-        return insets;
-    });
-
-} else {
-
-    webView.setPadding(
-            0,
-            24,
-            0,
-            24
-    );
+    window.setDecorFitsSystemWindows(true);
 }
+
+webView.setFitsSystemWindows(true);
+webView.setPadding(0, 0, 0, 0);
         
 
         webView.setWebViewClient(new WebViewClient());
