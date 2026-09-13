@@ -32,19 +32,44 @@ jobs:
         with:
           gradle-version: '9.6.0'
 
+      - name: Prepare signing keystore
+        run: |
+          mkdir -p app/keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore/moneymate-upload-key.jks
+
       - name: Build Debug APK and AAB
+        env:
+          KEYSTORE_FILE: ${{ github.workspace }}/app/keystore/moneymate-upload-key.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           gradle --version
           gradle assembleDebug bundleDebug
 
-      - name: Upload APK
+      - name: Build Signed Release AAB
+        env:
+          KEYSTORE_FILE: ${{ github.workspace }}/app/keystore/moneymate-upload-key.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          gradle bundleRelease
+
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: MoneyMate-debug-apk
           path: app/build/outputs/apk/debug/*.apk
 
-      - name: Upload AAB
+      - name: Upload Debug AAB
         uses: actions/upload-artifact@v4
         with:
           name: MoneyMate-debug-aab
           path: app/build/outputs/bundle/debug/*.aab
+
+      - name: Upload Signed Release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoneyMate-release-aab
+          path: app/build/outputs/bundle/release/*.aab
