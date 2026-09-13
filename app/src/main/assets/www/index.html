@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MoneyMate V4.43 Play Store Prep</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
+.app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
+h1{margin:0;font-size:25px}header p{margin:5px 0 0;color:#cbd5e1;font-size:13px}
+main{padding:15px 16px 88px}.tab{display:none}.tab.active{display:block}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:540px;height:70px;background:#fff;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(5,1fr);z-index:10}
+.bottom button{background:transparent;border-radius:0;padding:5px 2px;font-size:11px;color:#64748b}.bottom button.active{color:#111827;font-weight:800}.bottom span{display:block;font-size:21px;margin-bottom:2px}
+.monthbar{display:flex;gap:8px;margin-bottom:12px}.monthbar select{flex:1}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{padding:15px;border-radius:16px;background:#f8fafc;border:1px solid #e5e7eb}.full{grid-column:1/-1;background:#e2e8f0}.card small{color:#64748b}.card b{display:block;font-size:20px;margin-top:6px}.full b{font-size:28px}.card-icon{float:right;font-size:22px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}button{border:0;border-radius:11px;padding:12px;font-size:14px;font-weight:700}.income{background:#dcfce7}.expense{background:#fee2e2}
+h2{font-size:18px;margin:20px 0 10px}.section-title{display:flex;align-items:center}.listbox{border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin-top:10px}.listline{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eee}.listline:last-child{border-bottom:0}
+.progress{height:9px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:9px 0}.progress i{display:block;height:100%;background:#334155}
+.tx{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}.tx small{display:block;color:#64748b;margin-top:4px}.plus{color:#15803d}.minus{color:#b91c1c}.empty{text-align:center;color:#94a3b8;padding:25px 8px}
+input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;background:#fff;color:#111827}label{display:block;font-size:13px;font-weight:700;margin:10px 0 6px}.row{display:flex;gap:8px;margin-top:12px}.row>*{flex:1}.emi-reminder-row{align-items:stretch}.emi-reminder-row>label{flex:1;margin:0}.emi-reminder-row>button{flex:0 0 120px;width:120px;min-width:120px}
+.chart{width:100%;height:210px;border:1px solid #e5e7eb;border-radius:14px;padding:10px;background:#fafafa}.barwrap{height:155px;display:flex;align-items:end;gap:10px;padding:10px 5px}.bar{flex:1;min-width:28px;border-radius:7px 7px 2px 2px;background:#334155;position:relative}.bar em{position:absolute;top:-18px;width:100%;text-align:center;font-size:10px;font-style:normal}.chartlabels{display:flex;gap:10px;padding:0 5px}.chartlabels span{flex:1;text-align:center;font-size:10px;color:#64748b}
+.badge{display:inline-block;padding:5px 8px;border-radius:99px;font-size:11px;background:#e2e8f0}.warn{background:#fee2e2;color:#991b1b}.good{background:#dcfce7;color:#166534}
+.modal{display:none;position:fixed;inset:0;background:#0008;align-items:end;justify-content:center;z-index:30}.modal-box{background:#fff;width:100%;max-width:540px;border-radius:22px 22px 0 0;padding:19px;max-height:90vh;overflow:auto}
+.goal-preview{margin-top:10px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb}.goal-preview .gp-row{display:flex;justify-content:space-between;gap:8px;padding:4px 0;font-size:13px}.goal-preview .gp-main{font-size:20px;font-weight:800;margin-top:3px}.goal-preview small{color:#64748b}.dark .goal-preview{background:#172033;border-color:#334155}.goal-month{margin-top:8px;padding:10px;border-radius:10px;background:#f8fafc;border:1px dashed #cbd5e1}.dark .goal-month{background:#172033;border-color:#475569}.goal-month b{font-size:15px}.goal-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.goal-history{margin-top:8px;padding:10px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}.dark .goal-history{background:#111827;border-color:#334155}.history-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #e5e7eb}.dark .history-row{border-color:#334155}.history-row:last-child{border-bottom:0}.history-main{display:flex;flex-direction:column;gap:3px}.history-status{font-size:12px;color:#64748b}.history-total{font-size:12px;color:#475569}.dark .history-total,.dark .history-status{color:#94a3b8}
+.dark{background:#0f172a;color:#e5e7eb}.dark .app,.dark .bottom,.dark .modal-box{background:#111827;color:#e5e7eb}.dark .card{background:#1e293b;border-color:#334155}.dark .full{background:#273449}.dark .listbox,.dark .chart{border-color:#334155;background:#172033}.dark .listline,.dark .tx{border-color:#334155}.dark input,.dark select{background:#0f172a;color:#e5e7eb;border-color:#475569}.dark .bottom{border-color:#334155}.dark .bottom button{color:#94a3b8}.dark .bottom button.active{color:#fff}
+</style>
+<style>
+.emi-calc{border:1px solid #e5e7eb;border-radius:16px;padding:14px;margin:12px 0 14px;background:#f8fafc}.emi-calc h3{margin:0 0 8px;font-size:17px}.calc-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0 4px}.calc-mode-btn{background:#e2e8f0;color:#334155;padding:9px 8px;font-size:13px}.calc-mode-btn.active{background:#0ea5e9;color:#fff}.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.calc-grid label{margin:7px 0 3px}.calc-results{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.calc-result{padding:10px;border-radius:12px;background:#fff;border:1px solid #e5e7eb}.calc-result small{display:block;color:#64748b;font-size:11px}.calc-result b{display:block;font-size:17px;margin-top:3px}.emi-detail{margin-top:10px;border-top:1px solid #e5e7eb;padding-top:9px}.emi-detail-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:13px}.emi-detail-row span{color:#64748b}.emi-note{font-size:11px;color:#64748b;line-height:1.4;margin-top:8px}.dark .emi-calc{background:#172033;border-color:#334155}.dark .calc-result{background:#111827;border-color:#334155}.dark .emi-detail{border-color:#334155}
+</style>
+<style>
+main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset-bottom)}
+#emi .listbox .row > button{flex:0 0 120px;width:120px;padding-left:18px;padding-right:18px}
+.lock-screen{display:none;position:fixed;inset:0;background:#111827;color:#fff;z-index:100;align-items:center;justify-content:center;padding:24px}
+.lock-card{width:100%;max-width:380px;text-align:center;background:#1e293b;border:1px solid #475569;border-radius:22px;padding:26px}
+.lock-card h2{margin-top:0}.lock-card input{text-align:center;font-size:22px;letter-spacing:8px;background:#0f172a;color:#fff;border-color:#475569}
+.action-small{padding:8px 10px;font-size:12px}
+</style>
+<style>
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:10px 0}
+.calgrid div{min-height:48px;border:1px solid #e5e7eb;border-radius:9px;padding:5px;font-size:11px}
+.calgrid .wd{min-height:auto;border:0;text-align:center;font-weight:800;color:#64748b}
+.calgrid .day{cursor:pointer;position:relative}.calgrid .day.selected{outline:2px solid #334155;outline-offset:-2px}.calgrid .dots{display:flex;gap:3px;margin-top:5px}.calgrid .dot{width:8px;height:8px;border-radius:50%;display:inline-block}.calgrid .incdot{background:#22c55e}.calgrid .expdot{background:#ef4444}.calgrid .day strong{display:block;font-size:13px}.calgrid .hasinc{box-shadow:inset 0 -3px 0 #22c55e}.calgrid .hasexp{box-shadow:inset 0 -3px 0 #ef4444}
+.insight{padding:11px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;margin:7px 0}
+.chip{display:inline-block;padding:5px 8px;border-radius:99px;background:#e2e8f0;margin:3px;font-size:11px}
+.dark .calgrid div{border-color:#334155}.dark .calgrid .wd{border:0}.dark .insight{background:#1e293b;border-color:#334155}.dark .chip{background:#334155}
+</style>
+<style>
+.health{display:grid;grid-template-columns:105px 1fr;gap:14px;align-items:center}
+.healthscore{width:105px;height:105px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:10px solid #334155;font-size:25px;font-weight:800}
+.health-breakdown{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:9px;font-size:11px;color:#64748b}.healthbar{height:10px;border-radius:99px;background:#334155;overflow:hidden}.healthbar i{display:block;height:100%;background:#22c55e}
+.reminder{padding:10px 12px;border-radius:12px;margin-top:8px;border:1px solid #475569}
+.reminder.overdue{border-color:#ef4444}.reminder.today{border-color:#f59e0b}.reminder.upcoming{border-color:#22c55e}
+
+.sixgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;height:180px;align-items:end;overflow:hidden}.sixgroup{min-width:0;text-align:center}.sixbars{height:125px;display:flex;align-items:end;justify-content:center;gap:3px;overflow:hidden}.sixbars .bar{min-width:0;width:42%;max-width:24px;flex:none}.sixbars .bar.income,.sixbars .bar.expense{height:max(6%,var(--h));}.sixlabel{font-size:10px;color:#64748b;margin-top:5px}.sixvalues{font-size:8px;color:#64748b;line-height:1.2;white-space:nowrap;overflow:hidden}.sixvalues span{display:block;overflow:hidden;text-overflow:ellipsis}
+.tool-note{font-size:12px;color:#64748b;margin-top:6px}.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+</style><style>
+.goal-card{padding:12px}.goal-summary{cursor:pointer}.goal-detail-page{margin-top:10px}.goal-detail-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}.goal-detail-head button{margin-left:auto}.goal-detail-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}.goal-detail-stat>div{padding:9px;border:1px solid #e5e7eb;border-radius:11px;background:#f8fafc}.goal-detail-stat b{display:block;font-size:16px;margin-top:3px}.dark .goal-detail-stat>div{background:#172033;border-color:#334155}.goal-detail-actions{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}.goal-detail-actions button{flex:1 1 120px}.goal-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:18px}.goal-status{font-size:11px;font-weight:700;padding:4px 8px;border-radius:999px;background:#f1f5f9;color:#475569;white-space:nowrap}.goal-amounts{display:flex;align-items:baseline;gap:3px;margin-top:8px}.goal-amounts b{font-size:17px}.goal-amounts span{color:#64748b;font-size:13px}.goal-amounts strong{margin-left:auto;font-size:13px;color:#64748b}.goal-meta{font-size:12px;color:#64748b;margin-top:6px}.goal-details{margin-top:8px}.goal-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.goal-actions .action-small{flex:1 1 110px;min-height:40px}.month-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.month-editor-note{padding:9px;border-radius:10px;background:#f1f5f9;color:#475569;font-size:12px;margin:8px 0}.month-edit-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #e5e7eb}.month-edit-row:last-child{border-bottom:0}.month-edit-row small{display:block;color:#64748b;margin-top:3px}.month-edit-amt{text-align:right}.month-edit-amt b{display:block;font-size:15px}.month-editor-modal .modal-box{padding-bottom:calc(20px + env(safe-area-inset-bottom))}.dark .month-editor-note{background:#172033;color:#cbd5e1}.dark .month-edit-row{border-color:#334155}
+</style>
+
+<style>
+.goal-stats{margin-top:10px}.goal-stats-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.goal-stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:9px}.goal-stat-box{padding:10px;border:1px solid #e5e7eb;border-radius:11px;background:#f8fafc}.goal-stat-box small{display:block;color:#64748b;font-size:11px}.goal-stat-box b{display:block;margin-top:3px;font-size:15px}.goal-chart{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}.goal-chart-bars{height:150px;display:flex;align-items:end;gap:5px;overflow-x:auto;padding-top:8px}.goal-chart-col{height:100%;min-width:34px;display:flex;flex-direction:column;justify-content:end;align-items:center}.goal-chart-bar-wrap{height:112px;width:24px;display:flex;align-items:end;justify-content:center}.goal-chart-bar{width:20px;min-height:3px;border-radius:6px 6px 2px 2px;background:#2563eb}.goal-chart-label{font-size:9px;color:#64748b;margin-top:5px;white-space:nowrap}.goal-chart-value{font-size:8px;color:#475569;margin-bottom:3px;white-space:nowrap}.goal-milestones{margin-top:10px}.goal-milestone{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:12px}.goal-milestone-track{flex:1;height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden}.goal-milestone-track i{display:block;height:100%;background:#22c55e}.dark .goal-stat-box,.dark .goal-chart{background:#172033;border-color:#334155}.dark .goal-chart-label,.dark .goal-chart-value{color:#94a3b8}.dark .goal-milestone-track{background:#334155}
+</style>
+<style>
+.money-dashboard{margin-top:10px}.money-dash-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.money-dash-head small{color:#64748b}.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dash-tile{padding:11px;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;min-width:0}.dash-tile small{display:block;color:#64748b;font-size:11px}.dash-tile b{display:block;font-size:16px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dash-tile .sub{font-size:10px;color:#64748b;margin-top:3px}.dash-positive{color:#15803d}.dash-negative{color:#dc2626}.dash-section{margin-top:9px;padding-top:9px;border-top:1px solid #e5e7eb}.dash-line{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:12px}.dash-line b{white-space:nowrap}.dash-progress{height:8px;border-radius:99px;background:#e5e7eb;overflow:hidden;margin-top:5px}.dash-progress i{display:block;height:100%;background:#22c55e}.dash-note{padding:8px 10px;border-radius:10px;background:#f1f5f9;color:#475569;font-size:11px;margin-top:8px}.dark .dash-tile{background:#172033;border-color:#334155}.dark .dash-section{border-color:#334155}.dark .dash-progress{background:#334155}.dark .dash-note{background:#172033;color:#cbd5e1}
+</style>
+
+<style>
+.debt-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.debt-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.debt-summary .dash-tile{padding:10px}.debt-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}.debt-method{padding:10px;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;cursor:pointer}.debt-method.active{border:2px solid #2563eb}.debt-method small{display:block;color:#64748b;font-size:10px}.debt-list{margin-top:9px}.debt-row{padding:10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;margin-top:7px}.debt-row-head{display:flex;align-items:center;gap:7px}.debt-row-head b{margin-right:auto}.debt-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px;font-size:11px}.debt-meta span{padding:7px;border-radius:9px;background:#f8fafc}.debt-progress{height:7px;border-radius:99px;background:#e5e7eb;overflow:hidden;margin-top:7px}.debt-progress i{display:block;height:100%;background:#22c55e}.debt-result{margin-top:9px;padding:10px;border-radius:12px;background:#f1f5f9}.debt-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.debt-result-grid>div{padding:8px;background:#fff;border-radius:10px}.debt-result-grid small{display:block;color:#64748b;font-size:10px}.debt-result-grid b{display:block;margin-top:2px}.debt-order{margin-top:8px}.debt-order-row{display:flex;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid #e5e7eb;font-size:12px}.debt-order-row:last-child{border-bottom:0}.debt-badge{font-size:10px;padding:3px 7px;border-radius:999px;background:#e0f2fe;white-space:nowrap}.debt-note{margin-top:8px;font-size:11px;color:#64748b}.dark .debt-method,.dark .debt-row,.dark .debt-result-grid>div{background:#172033;border-color:#334155}.dark .debt-meta span{background:#0f172a}.dark .debt-result{background:#172033}.dark .debt-order-row{border-color:#334155}
+</style>
+
+<style>
+/* V4.38 Clean & Simple UX */
+body{background:#eef2f7} header{padding:17px 18px 15px;box-shadow:0 2px 10px rgba(15,23,42,.08)} header p{letter-spacing:.1px} main{padding-left:14px;padding-right:14px}
+h2{letter-spacing:-.2px}.cards{gap:8px}.card{padding:13px;border-radius:14px}.full{background:#f1f5f9}.full b{font-size:27px}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}.quick-actions button{min-height:68px;text-align:left;padding:10px 11px;background:#f8fafc;border:1px solid #e2e8f0;display:grid;grid-template-columns:25px 1fr;grid-template-rows:auto auto;column-gap:7px;align-items:center}.quick-actions button span{grid-row:1/3;font-size:20px;align-self:center}.quick-actions button b{font-size:13px}.quick-actions button small{font-size:10px;color:#64748b;font-weight:500}.quick-actions .income{background:#f0fdf4;border-color:#bbf7d0}.quick-actions .expense{background:#fff7ed;border-color:#fed7aa}
+button{min-height:44px;transition:transform .08s ease,opacity .08s ease}button:active{transform:scale(.98);opacity:.9}input,select{min-height:44px}
+.listbox,.dash-tile,.debt-row,.debt-result,.debt-method{box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.section-help{font-size:11px;color:#64748b;margin:-4px 0 8px}
+@media(max-width:380px){.quick-actions button{grid-template-columns:22px 1fr;padding:9px}.quick-actions button b{font-size:12px}}
+.dark body{background:#0f172a}.dark .quick-actions button{background:#172033;border-color:#334155}.dark .quick-actions .income{background:#163225;border-color:#24563b}.dark .quick-actions .expense{background:#3a2520;border-color:#65423a}
+
+/* V4.39 Customer Home UX */
+.snapshot-box{padding:12px}.snapshot-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.snapshot-head b{display:block;font-size:15px}.snapshot-head small{display:block;color:#64748b;margin-top:3px}.status-pill{font-size:11px;padding:5px 8px;border-radius:999px;white-space:nowrap;background:#f1f5f9}.status-pill.good{color:#166534;background:#dcfce7}.status-pill.danger{color:#991b1b;background:#fee2e2}.snapshot-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.snapshot-grid>div{padding:9px;border:1px solid #e5e7eb;border-radius:11px;background:#f8fafc}.snapshot-grid small{display:block;color:#64748b;font-size:10px}.snapshot-grid b{display:block;font-size:14px;margin-top:3px}.mini-section{padding-top:9px;margin-top:9px;border-top:1px solid #e5e7eb}.mini-title{display:flex;justify-content:space-between;gap:8px;font-size:12px}.mini-title b:last-child{white-space:nowrap}.muted{display:block;color:#64748b;margin-top:4px;font-size:11px}.home-subhead{font-size:16px;margin:14px 2px 7px}.attention-list{display:grid;gap:7px}.attention-item{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc}.attention-item>span{font-size:20px}.attention-item b,.attention-item small{display:block}.attention-item small{color:#64748b;font-size:10px;margin-top:2px}.attention-item.good{background:#f0fdf4;border-color:#bbf7d0}.attention-item.warn{background:#fffbeb;border-color:#fde68a}.attention-item.danger{background:#fef2f2;border-color:#fecaca}.progress-box{padding:11px}.progress-row{display:flex;justify-content:space-between;align-items:center;gap:8px}.progress-row>div{min-width:0}.progress-row b{display:block;font-size:13px}.progress-row small{display:block;color:#64748b;font-size:10px;margin-top:3px}.progress-row>strong{font-size:12px;white-space:nowrap}.divider{height:1px;background:#e5e7eb;margin:10px 0}.health-mini{display:flex;justify-content:space-between;gap:8px;font-size:12px}.health-mini b{white-space:nowrap}.compact-empty{padding:8px 0;font-size:11px}.dark .snapshot-grid>div,.dark .attention-item{background:#172033;border-color:#334155}.dark .mini-section,.dark .divider{border-color:#334155;background:#334155}.dark .status-pill{background:#334155}.dark .status-pill.good{background:#163225;color:#bbf7d0}.dark .status-pill.danger{background:#3a2520;color:#fecaca}.dark .attention-item.good{background:#163225;border-color:#24563b}.dark .attention-item.warn{background:#332b16;border-color:#66551f}.dark .attention-item.danger{background:#3a2520;border-color:#65423a}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V1.0 Android Play Store Build</p></header>
+<main>
+<section id="home" class="tab active">
+<div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome()"></select><button onclick="today()">📅 Today</button></div>
+<div class="cards">
+<div class="card full"><span class="card-icon">💰</span><small>Available Balance</small><b id="bal">₹0</b><small id="balSub" style="display:block;margin-top:6px;color:#64748b"></small></div>
+<div class="card"><span class="card-icon">📥</span><small>Income</small><b id="inc">₹0</b></div>
+<div class="card"><span class="card-icon">📤</span><small>Expense</small><b id="exp">₹0</b></div>
+<div class="card"><span class="card-icon">🧾</span><small>Transactions</small><b id="cnt">0</b></div>
+<div class="card"><span class="card-icon">📈</span><small>Savings Rate</small><b id="rate">0%</b></div>
+</div>
+<h2>⚡ Quick Actions</h2>
+<div class="quick-actions"><button class="income" onclick="openTx('income')"><span>💵</span><b>Add Income</b><small>Money received</small></button><button class="expense" onclick="openTx('expense')"><span>💸</span><b>Add Expense</b><small>Record spending</small></button><button onclick="openSave()"><span>🎯</span><b>Add Goal</b><small>Save for something</small></button><button onclick="openDebt()"><span>🚀</span><b>Add Debt</b><small>Plan payoff</small></button></div>
+<h2>📊 Money Snapshot</h2><div id="homeDashboard"></div>
+</section>
+
+<section id="transactions" class="tab">
+<h2>💳 Transactions</h2>
+<div class="monthbar"><select id="txMonth" onchange="rememberView();renderTx()"></select><button onclick="openTx('income')">➕ Add</button></div>
+<input id="search" placeholder="🔍 Search category or note..." oninput="renderTx()">
+<div class="row"><select id="tf" onchange="renderTx()"><option value="all">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select><select id="cf" onchange="renderTx()"><option value="all">All Categories</option></select></div>
+<div id="txList"></div>
+</section>
+
+<section id="budget" class="tab">
+<h2>🎯 Monthly Budget</h2><label>📅 Month</label><select id="budgetMonth" onchange="rememberView();renderBudget()"></select>
+<label>💰 Overall Budget (₹)</label><div class="row"><input id="budgetAmount" type="number" placeholder="Enter budget amount" style="flex:1"><button onclick="saveBudget()">💾 Save Budget</button></div><div id="budgetBox" class="listbox"></div>
+</section>
+
+<section id="emi" class="tab">
+<h2>🏦 EMI Tracker</h2>
+<div class="emi-calc">
+<h3>🧮 EMI Calculator</h3>
+<small style="color:#64748b">Calculate your monthly EMI before adding the loan.</small>
+<div class="calc-mode"><button type="button" id="calcModeLoan" class="calc-mode-btn active" onclick="setCalcMode('loan')">💰 Loan Amount</button><button type="button" id="calcModeEmi" class="calc-mode-btn" onclick="setCalcMode('emi')">📅 Monthly EMI</button></div>
+<div class="calc-grid">
+<div><label id="calcValueLabel">💰 Loan Amount (₹)</label><input id="calcPrincipal" type="number" min="0" step="1000" placeholder="e.g. 2000000"></div>
+<div><label>📈 Interest Rate (% p.a.)</label><input id="calcRate" type="number" min="0" step="0.01" placeholder="e.g. 10.5"></div>
+<div><label>📅 Tenure (Years)</label><input id="calcYears" type="number" min="1" step="1" placeholder="e.g. 17"></div>
+<div style="display:flex;align-items:end"><button style="width:100%" onclick="calculateEmiTool()">🧮 Calculate EMI</button></div>
+</div>
+<div id="calcResults" class="calc-results" style="display:none"></div>
+<div class="row" id="calcActions" style="display:none"><button onclick="useCalcForLoan()">➕ Use in Add Loan</button><button onclick="resetEmiCalculator()">↺ Reset</button></div>
+<div class="emi-note">Formula uses reducing-balance EMI. Total interest is estimated for the full tenure; each paid EMI is split into that month's interest and principal.</div>
+</div>
+<button onclick="openEmi()">➕ Add Loan / EMI</button>
+<div class="listbox" style="margin-bottom:12px">
+<div class="row emi-reminder-row"><label>🔔 Reminder lead days<input id="emiLeadDays" type="number" min="0" max="30" value="6"></label><button type="button" onclick="saveEmiReminder()">💾 Save</button></div>
+<small>Shows upcoming, today and overdue EMI status.</small></div>
+<div id="emiList"></div>
+</section>
+
+<section id="savings" class="tab">
+<div style="display:flex;align-items:center;gap:8px"><h2 style="margin-right:auto">🎯 Savings Goals</h2><button id="goalAddBtn" onclick="openSave()">➕ Add Goal</button></div><div id="saveList"></div><div id="goalDetailView" style="display:none"></div>
+</section>
+
+<section id="debts" class="tab">
+<div class="debt-head"><h2 style="margin:0">🚀 Debt Freedom Planner</h2><button onclick="openDebt()">➕ Add Debt</button></div>
+<div class="debt-summary"><div class="dash-tile"><small>Total Debt</small><b id="debtTotal">₹0</b></div><div class="dash-tile"><small>Monthly Minimums</small><b id="debtMinimum">₹0</b></div><div class="dash-tile"><small>Extra Payment</small><b id="debtExtraView">₹0</b></div><div class="dash-tile"><small>Debt-Free Date</small><b id="debtFreeDate">—</b></div></div>
+<div class="row" style="margin-top:8px"><label style="flex:1">💰 Extra Monthly Payment (₹)<input id="debtExtra" type="number" min="0" step="100" placeholder="e.g. 5000" oninput="renderDebtPlanner()"></label><button style="align-self:end" onclick="importEmisToDebts()">🏦 Import EMI</button></div>
+<div class="debt-methods"><div id="debtSnowball" class="debt-method active" onclick="setDebtMethod('snowball')"><b>❄️ Snowball</b><small>Smallest balance first</small></div><div id="debtAvalanche" class="debt-method" onclick="setDebtMethod('avalanche')"><b>⚡ Avalanche</b><small>Highest interest first</small></div></div>
+<div id="debtPlan"></div>
+<div class="debt-note">Minimum payment continues on every debt. When one debt is cleared, its freed payment rolls into the next target. Projections assume a fixed APR and exclude fees/rate changes. Verify lender statements before making extra payments.</div>
+</section>
+
+<section id="reports" class="tab">
+<h2>📊 Reports</h2><select id="reportMonth" onchange="rememberView();renderReport()"></select>
+<div id="reportBox" class="listbox"></div>
+<h3>📈 Income vs Expense</h3><div id="chart" class="chart"></div>
+<h3>🥧 Expense by Category</h3><div id="catChart" class="listbox"></div>
+<h3>📆 Last 6 Months</h3><div id="sixChart" class="chart"></div>
+</section>
+
+
+<section id="calendar" class="tab">
+<h2>📅 Calendar</h2>
+<div class="monthbar"><select id="calMonth" onchange="rememberView();renderCalendar()"></select><button onclick="todayCal()">📅 Today</button></div>
+<div id="calendarGrid" class="calgrid"></div>
+<div id="calDay" class="listbox"><div class="empty">Tap a date to view transactions.</div></div>
+</section>
+
+<section id="tools" class="tab">
+<h2>🧰 Quick Tools</h2>
+<div class="listbox">
+<h3 style="margin:0 0 8px">💼 Quick Salary</h3>
+<div class="row"><input id="salaryAmt" type="number" placeholder="Monthly salary"><input id="salaryDate" type="date"></div>
+<div class="row"><input id="salaryNote" placeholder="Note e.g. September Salary"><button onclick="addSalary()">💰 Add Salary</button></div>
+</div>
+<h2>🔁 Recurring Transactions</h2>
+<div class="listbox">
+<div class="row"><select id="recType"><option value="income">📥 Income</option><option value="expense">📤 Expense</option></select><input id="recName" placeholder="Name e.g. Salary"></div>
+<div class="row"><input id="recAmt" type="number" placeholder="Amount"><select id="recFreq"><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></div>
+<div class="row"><input id="recNext" type="date"><button onclick="addRecurring()">➕ Add Recurring</button></div>
+</div>
+<div id="recList"></div>
+</section>
+
+<section id="settings" class="tab">
+<h2>⚙️ Settings</h2><div class="listbox">
+<button style="width:100%" onclick="dark()">🌙 Toggle Dark Mode</button>
+<div class="row"><button onclick="backup()">💾 Backup</button><button onclick="restore()">📥 Restore</button></div>
+<div class="row"><button onclick="setPin()">🔐 Set PIN</button><button onclick="removePin()">🔓 Disable PIN</button></div>
+<button style="width:100%;margin-top:8px" onclick="lockNow()">🔒 Lock Now</button>
+<button style="width:100%;margin-top:8px" onclick="clearAll()">🗑️ Clear All Data</button>
+<p style="font-size:12px;color:#64748b">Your finance data is stored locally on this device. Backup regularly before changing phones or browsers.</p>
+</div></section>
+</main>
+
+<nav class="bottom">
+<button onclick="go('home',this)"><span>🏠</span>Home</button>
+<button onclick="go('transactions',this)"><span>💳</span>Transactions</button>
+<button onclick="go('budget',this)"><span>🎯</span>Budget</button>
+<button onclick="go('emi',this)"><span>🏦</span>EMI</button>
+<button onclick="go('more',this)"><span>⋯</span>More</button>
+</nav>
+</div>
+
+<div id="moreModal" class="modal"><div class="modal-box">
+<h2>⋯ More</h2>
+<div class="row"><button onclick="goFromMore('savings')">🎯 Savings Goals</button><button onclick="goFromMore('debts')">🚀 Debt Planner</button></div><div class="row"><button onclick="goFromMore('reports')">📊 Reports</button><button onclick="goFromMore('calendar')">📅 Calendar</button></div>
+<div class="row"><button onclick="goFromMore('tools')">🧰 Quick Tools</button><button onclick="goFromMore('settings')">⚙️ Settings</button></div>
+<button style="width:100%;margin-top:8px;background:#e5e7eb" onclick="closeMore()">✖️ Close</button>
+</div></div>
+
+<div id="txModal" class="modal"><div class="modal-box"><h2 id="txTitle">🧾 Transaction</h2><input type="hidden" id="txId">
+<label>🔄 Type</label><select id="txType" onchange="cats()"><option value="income">Income</option><option value="expense">Expense</option></select>
+<label>🏷️ Category</label><select id="txCat" onchange="if(this.value==='__add__'){addCustomCategory()}"></select><label>💰 Amount</label><input id="txAmt" type="number">
+<label>📅 Transaction Month</label><select id="txMonthPick" onchange="syncTxMonthDate()"></select><label>📅 Date</label><input id="txDate" type="date" onchange="syncTxDateMonth()"><label>📝 Note</label><input id="txNote">
+<div class="row"><button onclick="closeTx()" style="background:#e5e7eb">✖️ Cancel</button><button onclick="saveTx()">💾 Save</button></div></div></div>
+
+<div id="emiModal" class="modal"><div class="modal-box"><h2>🏦 EMI / Loan</h2><input type="hidden" id="emiId">
+<label>🏷️ Loan Name</label><input id="emiName" placeholder="e.g. Home Loan"><label>💰 Total Loan / Principal</label><input id="emiTotal" type="number" min="0" step="0.01" oninput="calcEmiPreview()"><label>📈 Annual Interest Rate (%)</label><input id="emiRate" type="number" min="0" step="0.01" placeholder="e.g. 9" oninput="calcEmiPreview()"><label>📅 Tenure (Years)</label><input id="emiYears" type="number" min="1" step="1" placeholder="e.g. 20" oninput="calcEmiPreview()"><label>💵 Monthly EMI</label><input id="emiMonthly" type="number" min="0" step="0.01" oninput="emiMonthlyManual=true"><small id="emiCalcHint" style="display:block;margin:6px 0 10px;color:#64748b">Enter loan, interest and tenure to calculate EMI.</small><label>📅 First / Next Due Date</label><input id="emiDue" type="date"><small id="emiDueHint" style="display:block;margin:6px 0 10px;color:#64748b">EMI repeats every month on this date. Reminder starts 6 days before due date.</small>
+<div class="row"><button onclick="closeEmi()" style="background:#e5e7eb">✖️ Cancel</button><button onclick="saveEmi()">💾 Save</button></div></div></div>
+
+<div id="debtModal" class="modal"><div class="modal-box"><h2 id="debtModalTitle">🚀 Debt</h2><input type="hidden" id="debtId"><label>🏷️ Debt / Loan Name</label><input id="debtName" placeholder="e.g. Personal Loan"><label>💰 Current Outstanding Balance (₹)</label><input id="debtBalance" type="number" min="0" step="0.01"><label>📈 Interest Rate (% p.a.)</label><input id="debtRate" type="number" min="0" step="0.01" placeholder="e.g. 12"><label>💵 Minimum Monthly Payment (₹)</label><input id="debtPayment" type="number" min="0" step="0.01" placeholder="e.g. 5000"><div class="row"><button onclick="closeDebt()" style="background:#e5e7eb">✖️ Cancel</button><button onclick="saveDebt()">💾 Save</button></div></div></div>
+<div id="monthEditorModal" class="modal month-editor-modal"><div class="modal-box"><h2>📅 Monthly Savings</h2><input type="hidden" id="monthEditorGoalId"><div class="month-editor-grid"><div><label>📅 Month</label><select id="monthEditorMonth" onchange="loadMonthEditorAmount()"></select></div><div><label>💰 Saved Amount</label><input id="monthEditorAmount" type="text" inputmode="numeric" placeholder="0" oninput="formatGoalInput(this)"></div></div><div id="monthEditorSummary" class="month-editor-note"></div><div class="row"><button onclick="closeMonthEditor()" style="background:#e5e7eb">✖️ Cancel</button><button onclick="saveMonthEditor()">💾 Save Month</button></div></div></div>
+
+<div id="saveModal" class="modal"><div class="modal-box"><h2>🎯 Savings Goal</h2><input type="hidden" id="saveId">
+<label>🎯 Goal Name</label><input id="saveName" placeholder="e.g. Car"><label>💰 Target Amount</label><input id="saveTarget" type="text" inputmode="numeric" placeholder="e.g. 1,00,000" oninput="formatGoalInput(this);updateGoalPreview()"><label>💵 Already Saved</label><input id="saveSaved" type="text" inputmode="numeric" value="0" oninput="formatGoalInput(this);updateGoalPreview()"><label>📅 Start Month</label><input id="saveStartMonth" type="month" oninput="updateGoalPreview()"><label>⏳ How many years to achieve this goal?</label><input id="saveYears" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 1" oninput="updateGoalPreview()"><div id="goalPreview" class="goal-preview"><small>Enter target and years to see the monthly amount.</small></div>
+<div class="row"><button onclick="closeSave()" style="background:#e5e7eb">✖️ Cancel</button><button onclick="saveGoal()">💾 Save</button></div></div></div>
+<input id="file" type="file" accept="application/json" style="display:none"><div id="lockScreen" class="lock-screen"><div class="lock-card">
+<div style="font-size:42px">🔐</div><h2>MoneyMate Locked</h2><p>Enter your PIN to continue</p>
+<input id="unlockPin" type="password" inputmode="numeric" maxlength="6" placeholder="••••">
+<button onclick="unlock()" style="width:100%;margin-top:14px">🔓 Unlock</button>
+<p id="lockMsg" style="font-size:12px;color:#fca5a5"></p></div></div>
+
+<script>
+// MoneyMate V4.43 • Play Store Prep
+const IC=['Salary','Freelance','Business','Interest','Bonus','Other'],EC=['Food','Petrol','Travel','Shopping','Credit Card Bill','Mobile Recharge','Bills','Rent','EMI','Medical','Education','Entertainment','Subscriptions','Insurance','Other'];
+let customCats=safeJSON('moneymate_custom_categories',{income:[],expense:[]});
+if(!customCats||typeof customCats!=='object')customCats={income:[],expense:[]};
+if(!Array.isArray(customCats.income))customCats.income=[]; if(!Array.isArray(customCats.expense))customCats.expense=[];
+function saveCustomCats(){localStorage.setItem('moneymate_custom_categories',JSON.stringify(customCats));}
+function allCats(type){return [...new Set((type==='income'?IC:EC).concat(customCats[type]||[]))];}
+function addCustomCategory(){
+  const type=$('txType').value;
+  const label=type==='income'?'Income':'Expense';
+  const name=prompt(`Enter new ${label} category:`);
+  if(name===null)return;
+  const n=name.trim().replace(/\s+/g,' ');
+  if(!n){alert('Category name enter pannunga');return;}
+  const exists=allCats(type).some(x=>x.toLowerCase()===n.toLowerCase());
+  if(exists){$('txCat').value=allCats(type).find(x=>x.toLowerCase()===n.toLowerCase())||n;return;}
+  customCats[type].push(n); saveCustomCats(); mirrorSave(); cats(); $('txCat').value=n;
+}
+function safeJSON(key,fallback){try{const raw=localStorage.getItem(key);return raw==null?fallback:JSON.parse(raw)}catch(e){console.warn('Invalid local data for',key);return fallback}}
+let txs=safeJSON('moneymate_transactions',[]),bud=safeJSON('moneymate_budgets',{}),emis=safeJSON('moneymate_emis',[]),saves=safeJSON('moneymate_savings',[]),debts=safeJSON('moneymate_debts',[]);
+let debtMethod=localStorage.getItem('moneymate_debt_method')||'snowball';
+if(!Array.isArray(debts))debts=[];
+let activeGoalId=null;
+if(!Array.isArray(txs))txs=[]; if(!bud||typeof bud!=='object'||Array.isArray(bud))bud={}; if(!Array.isArray(emis))emis=[]; if(!Array.isArray(saves))saves=[];
+// Migrate older EMI records to principal/interest fields without changing existing balances.
+emis=emis.map(e=>{let o={...e};if(o.principalPaid==null)o.principalPaid=Number(o.paid||0);if(o.interestPaid==null)o.interestPaid=0;if(o.rate==null)o.rate=Number(o.interestRate||0);if(o.years==null)o.years=Number(o.tenureYears||0);return o;});
+const DB_NAME='MoneyMateDB',DB_STORE='state',DB_KEY='main';
+function openDB(){return new Promise((resolve,reject)=>{try{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(DB_STORE))r.result.createObjectStore(DB_STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)}catch(e){reject(e)}})}
+function statePayload(){return {version:'4.44',updatedAt:Date.now(),transactions:txs,budgets:bud,emis,savings:saves,debts,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')}}
+let saveQueue=Promise.resolve();
+function persistLocal(){
+  const data={transactions:txs,budgets:bud,emis,savings:saves,debts,updatedAt:Date.now()};
+  const raw=JSON.stringify(data);
+  localStorage.setItem('moneymate_state',raw);
+  localStorage.setItem('moneymate_transactions',JSON.stringify(txs));
+  localStorage.setItem('moneymate_budgets',JSON.stringify(bud));
+  localStorage.setItem('moneymate_emis',JSON.stringify(emis));
+  localStorage.setItem('moneymate_savings',JSON.stringify(saves));
+  localStorage.setItem('moneymate_updated_at',String(data.updatedAt));
+}
+function mirrorSave(){
+  let payload;
+  try{persistLocal();payload=statePayload()}catch(e){console.warn('Local save failed',e);payload=statePayload()}
+  saveQueue=saveQueue.then(()=>openDB().then(db=>new Promise((resolve,reject)=>{
+    try{const t=db.transaction(DB_STORE,'readwrite');t.objectStore(DB_STORE).put(payload,DB_KEY);t.oncomplete=resolve;t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error||new Error('IDB transaction aborted'))}
+    catch(e){reject(e)}
+  })).catch(e=>{console.warn('IndexedDB save failed',e)}));
+  return saveQueue;
+}
+function loadLocalState(){
+  try{
+    // Prefer the individual stores when they contain data; use combined state only
+    // to fill missing sections. This prevents an older combined snapshot from
+    // wiping a newer Budget / EMI / Goal / Debt record on startup.
+    const raw=localStorage.getItem('moneymate_state');
+    let d=null;
+    if(raw){try{d=JSON.parse(raw)}catch(e){d=null}}
+    const txRaw=safeJSON('moneymate_transactions',null),budRaw=safeJSON('moneymate_budgets',null),emiRaw=safeJSON('moneymate_emis',null),saveRaw=safeJSON('moneymate_savings',null),debtRaw=safeJSON('moneymate_debts',null);
+    if(Array.isArray(txRaw))txs=txRaw; else if(d&&Array.isArray(d.transactions))txs=d.transactions;
+    if(budRaw&&typeof budRaw==='object'&&!Array.isArray(budRaw))bud=budRaw; else if(d&&d.budgets&&typeof d.budgets==='object')bud=d.budgets;
+    if(Array.isArray(emiRaw))emis=emiRaw; else if(d&&Array.isArray(d.emis))emis=d.emis;
+    if(Array.isArray(saveRaw))saves=saveRaw; else if(d&&Array.isArray(d.savings))saves=d.savings;
+    if(Array.isArray(debtRaw))debts=debtRaw; else if(d&&Array.isArray(d.debts))debts=d.debts;
+    localStorage.setItem('moneymate_debts',JSON.stringify(debts));
+    return !!d;
+  }catch(e){console.warn('Combined local state unavailable',e);return false}
+}
+
+function reloadCombinedStateIfNeeded(){
+  try{
+    const raw=localStorage.getItem('moneymate_state');
+    if(!raw)return false;
+    const d=JSON.parse(raw);
+    if(!d||!Array.isArray(d.transactions))return false;
+    const hasMemory=txs.length||Object.keys(bud).length||emis.length||saves.length||debts.length;
+    if(!hasMemory || (d.updatedAt && Number(d.updatedAt)>Number(localStorage.getItem('moneymate_updated_at')||0))){
+      txs=d.transactions;
+      bud=d.budgets&&typeof d.budgets==='object'?d.budgets:{};
+      emis=Array.isArray(d.emis)?d.emis:[];
+      saves=Array.isArray(d.savings)?d.savings:[];debts=Array.isArray(d.debts)?d.debts:[];
+      localStorage.setItem('moneymate_debts',JSON.stringify(debts));
+      localStorage.setItem('moneymate_transactions',JSON.stringify(txs));
+      localStorage.setItem('moneymate_budgets',JSON.stringify(bud));
+      localStorage.setItem('moneymate_emis',JSON.stringify(emis));
+      localStorage.setItem('moneymate_savings',JSON.stringify(saves));
+      localStorage.setItem('moneymate_updated_at',String(d.updatedAt||Date.now()));
+      return true;
+    }
+  }catch(e){console.warn('Combined state reload failed',e)}
+  return false;
+}
+
+async function restoreMirror(){
+ try{
+  const db=await openDB();
+  const d=await new Promise((resolve,reject)=>{
+   const t=db.transaction(DB_STORE,'readonly'); const r=t.objectStore(DB_STORE).get(DB_KEY);
+   r.onsuccess=()=>resolve(r.result||null); r.onerror=()=>reject(r.error); t.onerror=()=>reject(t.error);
+  });
+  if(!d)return false;
+  const localHasData=txs.length||Object.keys(bud).length||emis.length||saves.length||debts.length;
+  const idbHasData=(Array.isArray(d.transactions)&&d.transactions.length)||(d.budgets&&Object.keys(d.budgets).length)||(Array.isArray(d.emis)&&d.emis.length)||(Array.isArray(d.savings)&&d.savings.length)||(Array.isArray(d.debts)&&d.debts.length);
+  if(!localHasData && idbHasData){
+   txs=Array.isArray(d.transactions)?d.transactions:[]; bud=d.budgets&&typeof d.budgets==='object'?d.budgets:{};
+   emis=Array.isArray(d.emis)?d.emis:[]; saves=Array.isArray(d.savings)?d.savings:[];debts=Array.isArray(d.debts)?d.debts:[];
+   localStorage.setItem('moneymate_debts',JSON.stringify(debts));
+   localStorage.setItem('moneymate_transactions',JSON.stringify(txs)); localStorage.setItem('moneymate_budgets',JSON.stringify(bud));
+   localStorage.setItem('moneymate_emis',JSON.stringify(emis)); localStorage.setItem('moneymate_savings',JSON.stringify(saves));
+   if(d.customCats&&typeof d.customCats==='object'){customCats={income:Array.isArray(d.customCats.income)?d.customCats.income:[],expense:Array.isArray(d.customCats.expense)?d.customCats.expense:[]};saveCustomCats();}
+   if(d.recurring!=null)localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring));
+   if(d.emiLeadDays!=null)localStorage.setItem('moneymate_emi_lead',String(d.emiLeadDays));
+   if(d.dark==='true')localStorage.setItem('moneymate_dark','true');
+   localStorage.setItem('moneymate_updated_at',String(d.updatedAt||Date.now())); return true;
+  }
+  return false;
+ }catch(e){console.warn('Restore failed',e);return false}
+}
+
+
+const $=id=>document.getElementById(id),money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2}),localDate=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')},cur=()=>localDate().slice(0,7),ym=d=>String(d).slice(0,7);
+const localYMD=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function months(){let a=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){a.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));d.setMonth(d.getMonth()-1)}return a}
+function mn(s){let [y,m]=s.split('-');return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
+function fill(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{let e=$(id),v=localStorage.getItem('moneymate_view_'+id)||e.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=months().includes(v)?v:cur()})}
+function rememberView(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>{if($(id))localStorage.setItem('moneymate_view_'+id,$(id).value)})}
+function activatePage(id){
+  if(!$(id)) id='home';
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));
+  const idx={home:0,transactions:1,budget:2,emi:3}[id];
+  if(idx!==undefined) document.querySelectorAll('.bottom button')[idx]?.classList.add('active');
+  else document.querySelectorAll('.bottom button')[4]?.classList.add('active');
+  try{localStorage.setItem('moneymate_page',id);sessionStorage.setItem('moneymate_page',id)}catch(e){}
+  try{const u=new URL(location.href);u.searchParams.set('page',id);history.replaceState({page:id},'',u.pathname+'?'+u.searchParams.toString()+(u.hash||''))}catch(e){}
+}
+function go(id,btn){if(id==='more'){$('moreModal').style.display='flex';return}activatePage(id);if(btn){document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}renderAll()}
+function goFromMore(id){closeMore();activatePage(id);document.querySelectorAll('.bottom button')[4]?.classList.add('active');renderAll()}
+function closeMore(){$('moreModal').style.display='none'}
+function today(){['homeMonth','txMonth','budgetMonth','reportMonth','calMonth'].forEach(id=>$(id).value=cur());rememberView();renderAll()}
+function restoreView(){
+  let page='';
+  try{page=new URL(location.href).searchParams.get('page')||''}catch(e){}
+  if(!page){try{page=(location.hash||'').replace(/^#/,'')}catch(e){}}
+  if(!page){try{page=sessionStorage.getItem('moneymate_page')||''}catch(e){}}
+  if(!page){try{page=localStorage.getItem('moneymate_page')||''}catch(e){}}
+  if(!$(page)) page='home';
+  activatePage(page);
+}
+window.addEventListener('hashchange',restoreView);
+function mt(m){return txs.filter(x=>ym(x.date)===m)}
+function cats(selected=''){let type=$('txType').value,a=allCats(type);$('txCat').innerHTML=a.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')+'<option value="__add__">➕ Add New Category...</option>';if(selected&&a.includes(selected))$('txCat').value=selected}
+function populateTxMonthPick(selected){let e=$('txMonthPick');if(!e)return;let v=selected||$('txMonth')?.value||cur();e.innerHTML=months().map(m=>`<option value="${m}">${mn(m)}</option>`).join('');e.value=v}
+function syncTxMonthDate(){let m=$('txMonthPick').value||cur(),[yy,mm]=m.split('-').map(Number),d=$('txDate').value?Number($('txDate').value.slice(8,10)):new Date().getDate(),day=Math.min(d,new Date(yy,mm,0).getDate());$('txDate').value=`${yy}-${String(mm).padStart(2,'0')}-${String(day).padStart(2,'0')}`}
+function syncTxDateMonth(){let d=$('txDate').value;if(d&&$('txMonthPick')){$('txMonthPick').value=d.slice(0,7)}}
+function openTx(type,id=null){$('txModal').style.display='flex';$('txId').value=id||'';$('txType').value=type;if(id){let x=txs.find(t=>t.id==id);$('txTitle').textContent='✏️ Edit Transaction';cats(x.category);$('txAmt').value=x.amount;$('txDate').value=x.date;$('txNote').value=x.note||'';populateTxMonthPick(x.date.slice(0,7))}else{$('txTitle').textContent=type==='income'?'💵 Add Income':'💸 Add Expense';cats();let selectedMonth=$('txMonth')?.value||cur();populateTxMonthPick(selectedMonth);$('txDate').value='';syncTxMonthDate();$('txAmt').value='';$('txNote').value=''}}
+function closeTx(){$('txModal').style.display='none'}
+function saveTx(){
+  const idEl=$('txId'),amtEl=$('txAmt'),typeEl=$('txType'),catEl=$('txCat'),dateEl=$('txDate'),noteEl=$('txNote');
+  const a=Number(amtEl.value);
+  if(!a||a<=0){alert('Amount enter pannunga');return}
+  const date=dateEl.value||localDate();
+  const selectedMonth=$('txMonthPick')?.value;
+  if(selectedMonth && date.slice(0,7)!==selectedMonth){
+    alert('Transaction date and selected month do not match. Please select the correct date.');
+    syncTxMonthDate();
+    return;
+  }
+  if(catEl.value==='__add__'){addCustomCategory();return;}
+  const o={id:idEl.value?Number(idEl.value):Date.now(),type:typeEl.value,category:catEl.value,amount:a,date,note:noteEl.value.trim()};
+  try{
+    const idx=idEl.value?txs.findIndex(x=>x.id==idEl.value):-1;
+    if(idx>=0)txs[idx]=o;else txs.unshift(o);
+    persistLocal();
+    // Keep every view on the month of the transaction just saved.
+    const month=ym(date);
+    ['homeMonth','txMonth','reportMonth','calMonth'].forEach(id=>{if($(id))$(id).value=month});
+  }catch(e){
+    console.error('Primary storage save failed',e);
+    alert('Save failed. Please try again.');
+    return;
+  }
+  closeTx();
+  try{renderAll()}catch(e){console.error('Render after save failed',e)}
+  // Backup asynchronously; never block the user or show a success popup.
+  mirrorSave().catch(e=>console.warn('Backup failed',e));
+}
+
+function delTx(id){if(confirm('Delete this transaction?')){txs=txs.filter(x=>x.id!==id);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));mirrorSave();renderAll()}}
+function renderTx(){let m=$('txMonth').value,q=$('search').value.toLowerCase(),tf=$('tf').value,old=$('cf').value,c=[...new Set(mt(m).map(x=>x.category))];$('cf').innerHTML='<option value="all">All Categories</option>'+c.map(x=>`<option>${esc(x)}</option>`).join('');$('cf').value=old;let a=mt(m).filter(x=>(tf==='all'||x.type===tf)&&(old==='all'||x.category===old)&&((x.category+' '+x.note).toLowerCase().includes(q)));$('txList').innerHTML=a.length?a.map(x=>`<div class="tx"><div><b>${esc(x.category)}</b><small>${esc(x.date)}${x.note?' • '+esc(x.note):''}</small></div><div style="text-align:right"><b class="${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</b><br><button onclick="openTx('${x.type}',${x.id})">✏️</button> <button onclick="delTx(${x.id})">🗑️</button></div></div>`).join(''):'<div class="empty">No matching transactions.</div>'}
+function saveBudget(){let m=$('budgetMonth').value,a=Number($('budgetAmount').value)||0;if(a<=0){$('budgetAmount').focus();return}bud[m]=a;persistLocal();mirrorSave().catch(e=>console.warn('Budget backup failed',e));renderBudget();renderHome()}
+function renderBudget(){let m=$('budgetMonth').value,b=Number(bud[m]||0),e=mt(m).filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);$('budgetAmount').value=b||'';$('budgetBox').innerHTML=b?`<b>💸 Spent ${money(e)}</b><div class="progress"><i style="width:${Math.min(100,e/b*100)}%"></i></div><b>💰 ${money(Math.max(0,b-e))}</b> remaining<br><small>${e>b?'⚠️ Budget exceeded':'✅ Budget available'}</small>`:'<div class="empty">Enter a budget amount above.</div>'}
+let emiMonthlyManual=false;
+let calcMode='loan';
+let lastCalcPrincipal=0,lastCalcEmi=0;
+function setCalcMode(mode){calcMode=mode==='emi'?'emi':'loan';let loanBtn=$('calcModeLoan'),emiBtn=$('calcModeEmi');loanBtn.classList.toggle('active',calcMode==='loan');emiBtn.classList.toggle('active',calcMode==='emi');$('calcValueLabel').textContent=calcMode==='loan'?'💰 Loan Amount (₹)':'💵 Monthly EMI (₹)';$('calcPrincipal').placeholder=calcMode==='loan'?'e.g. 2000000':'e.g. 21030';$('calcPrincipal').step=calcMode==='loan'?'1000':'0.01';$('calcResults').style.display='none';$('calcActions').style.display='none'}
+function calcMonthlyEmi(P,annualRate,years){P=Number(P)||0;let r=(Number(annualRate)||0)/100/12,n=(Number(years)||0)*12;if(P<=0||n<=0)return 0;if(r===0)return P/n;return P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1)}
+function calcLoanFromEmi(emi,annualRate,years){let E=Number(emi)||0,r=(Number(annualRate)||0)/100/12,n=(Number(years)||0)*12;if(E<=0||n<=0)return 0;if(r===0)return E*n;return E*(1-Math.pow(1+r,-n))/r}
+function calculateEmiTool(){let value=Number($('calcPrincipal').value)||0,r=Number($('calcRate').value)||0,y=Number($('calcYears').value)||0;if(value<=0||y<=0){$('calcResults').style.display='none';$('calcActions').style.display='none';$('calcPrincipal').focus();return}let n=y*12,P,emi;if(calcMode==='emi'){emi=value;P=calcLoanFromEmi(emi,r,y)}else{P=value;emi=calcMonthlyEmi(P,r,y)}if(P<=0||emi<=0){$('calcResults').style.display='none';$('calcActions').style.display='none';return}lastCalcPrincipal=P;lastCalcEmi=emi;let total=emi*n,interest=Math.max(0,total-P),monthlyRate=r/100/12,firstInterest=P*monthlyRate,firstPrincipal=Math.max(0,emi-firstInterest);$('calcResults').style.display='grid';$('calcActions').style.display='flex';$('calcResults').innerHTML=`<div class="calc-result"><small>💰 ${calcMode==='emi'?'Loan Amount':'Loan Amount'}</small><b>${money(P)}</b></div><div class="calc-result"><small>💵 Monthly EMI</small><b>${money(emi)}</b></div><div class="calc-result"><small>📈 Total Interest</small><b>${money(interest)}</b></div><div class="calc-result"><small>💳 Total Payment</small><b>${money(total)}</b></div><div class="calc-result"><small>📅 Tenure</small><b>${y} years / ${n} months</b></div><div class="calc-result" style="grid-column:1/-1"><small>📊 First EMI split</small><b>Interest ${money(firstInterest)} • Principal ${money(firstPrincipal)}</b></div>`}
+function resetEmiCalculator(){setCalcMode('loan');$('calcPrincipal').value='';$('calcRate').value='';$('calcYears').value='';$('calcResults').style.display='none';$('calcActions').style.display='none';lastCalcPrincipal=0;lastCalcEmi=0}
+function useCalcForLoan(){let P=lastCalcPrincipal||0,r=Number($('calcRate').value)||0,y=Number($('calcYears').value)||0,emi=lastCalcEmi||calcMonthlyEmi(P,r,y);if(!P||!y||!emi)return;openEmi();$('emiTotal').value=Math.round(P);$('emiRate').value=r;$('emiYears').value=y;$('emiMonthly').value=emi.toFixed(2);$('emiCalcHint').textContent=`Calculated EMI at ${r}% p.a.: ${money(emi)} • ${y} years = ${y*12} months.`}
+function calcEmiPreview(){let P=Number($('emiTotal').value)||0,r=Number($('emiRate').value)||0,y=Number($('emiYears').value)||0;if(P>0&&y>0&&!emiMonthlyManual){let emi=calcMonthlyEmi(P,r,y);$('emiMonthly').value=emi?emi.toFixed(2):'';}$('emiCalcHint').textContent=(P>0&&y>0)?`Calculated EMI${r?` at ${r}% p.a.`:''}: ${money(Number($('emiMonthly').value)||0)} • ${y} year(s) = ${y*12} months.`:'Enter loan, interest and tenure to calculate EMI.'}
+function openEmi(id=null){emiMonthlyManual=false;$('emiModal').style.display='flex';$('emiId').value=id||'';if(id){let e=emis.find(x=>x.id==id);$('emiName').value=e.name||'';$('emiTotal').value=e.total||'';$('emiRate').value=e.rate??e.interestRate??'';$('emiYears').value=e.years??e.tenureYears??'';$('emiMonthly').value=e.monthly||'';$('emiDue').value=e.due||'';$('emiDueHint').textContent='Every month on this date • reminder '+getEmiLeadDays()+' day(s) before due date.';$('emiCalcHint').textContent='Edit loan details. Principal reduction is calculated from outstanding balance and monthly interest.'}else{$('emiName').value='';$('emiTotal').value='';$('emiRate').value='';$('emiYears').value='';$('emiMonthly').value='';$('emiDue').value='';$('emiDueHint').textContent='EMI repeats every month on this date. Reminder starts '+getEmiLeadDays()+' days before due date.';$('emiCalcHint').textContent='Enter loan, interest and tenure to calculate EMI.'}}
+function closeEmi(){$('emiModal').style.display='none'}
+function saveEmi(){let name=$('emiName').value.trim(),total=Number($('emiTotal').value),rate=Math.max(0,Number($('emiRate').value)||0),years=Math.max(0,Number($('emiYears').value)||0),monthly=Number($('emiMonthly').value)||0,due=$('emiDue').value;if(!name||total<=0||monthly<=0){alert('Loan name, total loan and monthly EMI required');return}if(!due){alert('Please select the first / next EMI due date.');$('emiDue').focus();return}let id=$('emiId').value?Number($('emiId').value):Date.now(),old=emis.find(x=>x.id===id),o={id,name,total,rate,interestRate:rate,years,tenureYears:years,monthly,principalPaid:old?Number(old.principalPaid||0):Number(old?.paid||0),interestPaid:old?Number(old.interestPaid||0):0,due,frequency:'monthly'};if(o.principalPaid>o.total)o.principalPaid=o.total;if($('emiId').value){let idx=emis.findIndex(x=>x.id===id);emis[idx]=o}else emis.push(o);localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave().catch(e=>console.warn(e));requestEmiNotificationPermission();closeEmi();renderAll()}
+function delEmi(id){if(confirm('Delete this EMI?')){emis=emis.filter(x=>x.id!==id);localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave();renderAll()}}
+function renderEmi(){let lead=getEmiLeadDays();if($('emiLeadDays'))$('emiLeadDays').value=lead;$('emiList').innerHTML=emis.length?emis.map(e=>{let rem=emiMath(e).remaining,s=emiStatus(e);return `<div class="listbox">${emiCard(e)}<div class="reminder ${s.cls}">🔔 <b>${s.text}</b>${e.due||e.nextDue?` • ${esc(e.due||e.nextDue)}`:''}</div><div class="row"><button class="action-small" onclick="payEmi(${e.id})">✅ Mark Paid</button><button class="action-small" onclick="openEmi(${e.id})">✏️ Edit</button><button class="action-small" onclick="delEmi(${e.id})">🗑️ Delete</button></div><small>Remaining ${money(rem)}</small></div>`}).join(''):'<div class="empty">No EMI added yet.</div>'}
+
+function renderHome(){
+ reloadCombinedStateIfNeeded();
+ let m=$('homeMonth').value;
+ let t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
+ let cashFlow=i-e;
+ let currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0);
+ let monthlyEmi=emis.reduce((a,e)=>a+Number(e.monthly||0),0);
+ let available=cashFlow-currentGoalSaved-monthlyEmi;
+ $('inc').textContent=money(i);
+ $('exp').textContent=money(e);
+ $('bal').textContent=money(available);
+ $('bal').className=available<0?'dash-negative':'';
+ $('balSub').textContent=`Cash flow ${money(cashFlow)} • Goals ${money(currentGoalSaved)} • EMI ${money(monthlyEmi)}`;
+ $('cnt').textContent=t.length;
+ $('rate').textContent=(i?Math.round((cashFlow)/i*100):0)+'%';
+ renderDashboard(m,t,i,e,Number(bud[m]||0));
+}
+function renderDashboard(m,t,income,expense,budget){
+ let net=income-expense,rate=income?Math.round(net/income*100):0,cats={};
+ t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+Number(x.amount||0));
+ let top=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,1);
+ let goalTarget=saves.reduce((a,s)=>a+Number(s.target||0),0),goalSaved=saves.reduce((a,s)=>a+Math.min(Number(s.target||0),Number(s.saved||0)),0),goalRem=Math.max(0,goalTarget-goalSaved),goalPct=goalTarget?Math.min(100,goalSaved/goalTarget*100):0,currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0);
+ let outstanding=emis.reduce((a,e)=>a+emiMath(e).remaining,0),emiMonthly=emis.reduce((a,e)=>a+Number(e.monthly||0),0),available=net-currentGoalSaved-emiMonthly;
+ let nextEmi=null,nextDays=null;
+ emis.forEach(e=>{if(!e.due)return;let d=new Date(e.due+'T00:00:00'),todayD=new Date();todayD.setHours(0,0,0,0);if(d<todayD){let day=d.getDate();let cand=new Date(todayD.getFullYear(),todayD.getMonth(),day);if(cand<todayD)cand.setMonth(cand.getMonth()+1);d=cand}let days=Math.ceil((d-todayD)/86400000);if(nextDays===null||days<nextDays){nextDays=days;nextEmi={e,d}}});
+ let budgetPct=budget?Math.min(100,expense/budget*100):0;
+ let health=financialHealth();
+ let attention=[];
+ if(nextEmi && nextDays<=7) attention.push(`<div class="attention-item ${nextDays<0?'danger':'warn'}"><span>🏦</span><div><b>${nextDays<0?'EMI overdue':'EMI due '+(nextDays===0?'today':'in '+nextDays+' day(s)')}</b><small>${esc(nextEmi.e.name)} • ${money(Number(nextEmi.e.monthly||0))}</small></div></div>`);
+ if(budget && expense>budget) attention.push(`<div class="attention-item danger"><span>🎯</span><div><b>Budget exceeded</b><small>${money(expense-budget)} over this month</small></div></div>`);
+ else if(budget && budget-expense<=Math.max(1000,budget*.1)) attention.push(`<div class="attention-item warn"><span>🎯</span><div><b>Budget nearly used</b><small>${money(Math.max(0,budget-expense))} remaining</small></div></div>`);
+ if(saves.length && currentGoalSaved>0) attention.push(`<div class="attention-item good"><span>💰</span><div><b>Goal savings recorded</b><small>${money(currentGoalSaved)} saved this month</small></div></div>`);
+ if(!attention.length) attention.push(`<div class="attention-item good"><span>✅</span><div><b>You're all clear</b><small>No urgent money tasks for this month</small></div></div>`);
+ let topHtml=top.length?`<span>🏷️ ${esc(top[0][0])}</span><b>${money(top[0][1])}</b>`:'<span>🏷️ No spending yet</span><b>₹0</b>';
+ let goalProgress=saves.length?`<div class="progress-row"><div><b>🎯 Savings goals</b><small>${money(goalSaved)} / ${money(goalTarget)} saved</small></div><strong>${Math.round(goalPct)}%</strong></div><div class="dash-progress"><i style="width:${goalPct}%"></i></div>`:`<div class="empty compact-empty">Add a savings goal to start tracking progress.</div>`;
+ let debtExtra=Math.max(0,Number(localStorage.getItem('moneymate_debt_extra')||0)),debtSim=debts.length?simulateDebts(debts,debtMethod,debtExtra):null,debtMin=debts.reduce((a,d)=>a+Number(d.payment||0),0),debtTotal=debts.reduce((a,d)=>a+Number(d.balance||0),0),debtSaved=debts.length?Math.max(0,simulateDebts(debts,debtMethod,0).interest-debtSim.interest):0;
+ let debtHtml=debts.length?`<div class="progress-row"><div><b>🚀 Debt freedom</b><small>${money(debtTotal)} outstanding • ${debtSim.end}</small></div><strong>${money(debtSaved)} saved</strong></div>`:`<div class="empty compact-empty">Add a debt to see your payoff plan.</div>`;
+ $('homeDashboard').innerHTML=`<div class="listbox snapshot-box">
+ <div class="snapshot-head"><div><b>📅 ${monthLabel(m)}</b><small>Cash flow ${net>=0?'+':''}${money(net)}</small></div><span class="status-pill ${available>=0?'good':'danger'}">${available>=0?'🟢 Available':'🔴 Tight'}</span></div>
+ <div class="snapshot-grid"><div><small>💰 Cash flow</small><b class="${net>=0?'dash-positive':'dash-negative'}">${net>=0?'+':''}${money(net)}</b></div><div><small>💵 After commitments</small><b class="${available>=0?'dash-positive':'dash-negative'}">${available>=0?'+':''}${money(available)}</b></div><div><small>🎯 Goals this month</small><b>${money(currentGoalSaved)}</b></div><div><small>🏦 EMI / month</small><b>${money(emiMonthly)}</b></div></div>
+ <div class="mini-section"><div class="mini-title"><b>🎯 Budget</b><b>${budget?money(expense)+' / '+money(budget):'Not set'}</b></div>${budget?`<div class="dash-progress"><i style="width:${budgetPct}%"></i></div><small class="muted">${expense>budget?'⚠️ '+money(expense-budget)+' over budget':'✅ '+money(budget-expense)+' remaining'}</small>`:'<small class="muted">Set a monthly budget to track spending.</small>'}</div>
+ <div class="mini-section"><div class="mini-title"><b>🔎 Top spending</b>${topHtml}</div></div>
+ </div>
+ <h3 class="home-subhead">🔔 Needs Attention</h3><div class="attention-list">${attention.join('')}</div>
+ <h3 class="home-subhead">🏆 Progress</h3><div class="listbox progress-box">${goalProgress}<div class="divider"></div>${debtHtml}<div class="divider"></div><div class="health-mini"><span>🏆 Financial Health</span><b>${health.score} • ${health.label}</b></div></div>
+ <div class="dash-note">💡 Available Balance = cash flow − this month's goal savings − monthly EMI commitment.</div>`;
+}
+function emiMath(e){let total=Number(e.total||0),rate=Math.max(0,Number(e.rate||e.interestRate||0)),monthly=Number(e.monthly||0),remaining=Math.max(0,total-Number(e.principalPaid||0));let interest=remaining*(rate/100)/12;let principal=Math.max(0,monthly-interest);if(principal>remaining)principal=remaining;return {total,rate,monthly,remaining,interest,principal,interestPaid:Number(e.interestPaid||0),principalPaid:Number(e.principalPaid||0),years:Number(e.years||e.tenureYears||0)}}
+function emiCard(e){let due=e.due?new Date(e.due+'T00:00:00'):null,todayD=new Date();todayD.setHours(0,0,0,0);let days=due?Math.ceil((due-todayD)/86400000):null;let badge=days!==null?(days<0?'⚠️ Overdue':days<=7?'⏰ Due in '+days+' day(s)':'📅 '+days+' days'):'No due date';let m=emiMath(e);return `<div class="listbox"><div class="listline"><b>🏦 ${esc(e.name)}</b><span class="badge ${days!==null&&days<=7?'warn':'good'}">${badge}</span></div><div class="emi-detail"><div class="emi-detail-row"><span>💵 Monthly EMI</span><b>${money(m.monthly)}</b></div><div class="emi-detail-row"><span>📈 This month's interest</span><b>${money(m.interest)}</b></div><div class="emi-detail-row"><span>🏦 This month's principal</span><b>${money(m.principal)}</b></div><div class="emi-detail-row"><span>💳 Outstanding principal</span><b>${money(m.remaining)}</b></div><div class="emi-detail-row"><span>📊 Rate</span><b>${m.rate?m.rate+'% p.a.':'—'}</b></div><div class="emi-detail-row"><span>📅 Tenure</span><b>${m.years?m.years+' years ('+(m.years*12)+' months)':'—'}</b></div><div class="emi-detail-row"><span>🔁 Payment cycle</span><b>Every month${e.due?' • '+esc(e.due.slice(8,10).replace(/^0/,''))+'th':''}</b></div></div></div>`}
+function parseGoalAmount(v){return Number(String(v??'').replace(/[^0-9.]/g,''))||0}
+function formatGoalAmount(v){let n=parseGoalAmount(v);return n?Math.round(n).toLocaleString('en-IN'):''}
+function formatGoalInput(el){let raw=el.value.replace(/[^0-9]/g,'');el.value=raw?Number(raw).toLocaleString('en-IN'):''}
+function goalMonthly(target,saved,years){let rem=Math.max(0,target-saved),months=Math.max(0,Math.round(Number(years)||0)*12);return rem>0&&months>0?Math.ceil(rem/months):0}
+function goalPlannedMonthly(s){let fixed=Number(s?.monthlyTarget||0);if(fixed>0)return fixed;let target=Number(s?.target||0),saved=Math.min(target,Number(s?.saved||0)),years=Number(s?.years||0);return goalMonthly(target,saved,years)}
+function updateGoalPreview(){let target=parseGoalAmount($('saveTarget').value),saved=Math.min(target,parseGoalAmount($('saveSaved').value)),years=Math.max(0,Number($('saveYears').value)||0),rem=Math.max(0,target-saved),monthly=goalMonthly(target,saved,years);if(!$('goalPreview'))return;if(!target||!years){$('goalPreview').innerHTML='<small>Enter target and years to see the monthly amount.</small>';return}$('goalPreview').innerHTML=`<div class="gp-row"><span>🎯 Target</span><b>${money(target)}</b></div><div class="gp-row"><span>💵 Saved</span><b>${money(saved)}</b></div><div class="gp-row"><span>💰 Remaining</span><b>${money(rem)}</b></div><div class="gp-row"><span>⏳ Duration</span><b>${years} year${years===1?'':'s'} • ${years*12} months</b></div><div style="margin-top:7px;padding-top:8px;border-top:1px solid #e5e7eb"><small>📅 Monthly savings target</small><div class="gp-main">${monthly?money(monthly)+' / month':'🎉 Goal completed!'}</div></div>`}
+function goalMonthKey(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function currentMonthInput(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function addMonthsKey(key,n){let [y,m]=String(key||goalMonthKey()).split('-').map(Number);let d=new Date(y,m-1+n,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function goalBaseSaved(s){
+ let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
+ if(Number.isFinite(Number(s.baseSaved))) return Math.max(0,Number(s.baseSaved));
+ let monthlyTotal=arr.reduce((a,x)=>a+Number(x.amount||0),0);
+ return Math.max(0,Number(s.saved||0)-monthlyTotal);
+}
+function goalMonthlyTotal(s){
+ let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
+ return arr.reduce((a,x)=>a+Math.max(0,Number(x.amount||0)),0);
+}
+function recalcGoalSaved(s){
+ let target=Number(s.target||0),base=goalBaseSaved(s),arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[],nowKey=goalMonthKey();
+ let total=arr.filter(x=>String(x.month||'')<=nowKey).reduce((a,x)=>a+Number(x.amount||0),0);
+ s.baseSaved=base;
+ s.saved=Math.min(target,Math.max(0,base+total));
+ return s.saved;
+}
+function goalMonthStats(s){let key=goalMonthKey(),arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[],saved=arr.filter(x=>x.month===key).reduce((a,x)=>a+Number(x.amount||0),0),target=Number(s.target||0),totalSaved=Math.min(target,Number(s.saved||0)),years=Number(s.years||0),monthly=goalPlannedMonthly(s),rem=Math.max(0,target-totalSaved);return {key,saved,monthly,rem,monthsLeft:Math.max(0,Math.round(years*12))}}
+function monthLabel(key){let d=new Date(key+'-01T00:00:00');return d.toLocaleString('en-IN',{month:'long',year:'numeric'})}
+function monthKeysForGoal(s){let start=String(s.startMonth||currentMonthInput());let years=Math.max(1,Math.round(Number(s.years)||1));let count=years*12;let keys=[];for(let i=0;i<count;i++)keys.push(addMonthsKey(start,i));return keys}
+function monthSavedAmount(s,key){let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];return arr.filter(x=>x.month===key).reduce((a,x)=>a+Number(x.amount||0),0)}
+function openMonthEditor(id,key){
+ let s=saves.find(x=>x.id==id);if(!s)return;
+ if(!Array.isArray(s.monthlySavings))s.monthlySavings=[];
+ if(!Number.isFinite(Number(s.baseSaved)))s.baseSaved=goalBaseSaved(s);
+ let keys=monthKeysForGoal(s),nowKey=goalMonthKey(),requested=String(key||nowKey),selected=keys.includes(requested)?requested:(keys.includes(nowKey)?nowKey:(keys[0]||nowKey));
+ $('monthEditorGoalId').value=id;
+ $('monthEditorMonth').innerHTML=keys.map(k=>`<option value="${k}" ${k===selected?'selected':''} ${k>nowKey?'disabled':''}>${monthLabel(k)}${k>nowKey?' — Future':''}</option>`).join('');
+ loadMonthEditorAmount();
+ $('monthEditorModal').style.display='flex';
+}
+function loadMonthEditorAmount(){
+ let id=Number($('monthEditorGoalId').value),key=$('monthEditorMonth').value,s=saves.find(x=>x.id===id);if(!s)return;
+ let amount=monthSavedAmount(s,key);$('monthEditorAmount').value=amount?formatGoalAmount(amount):'';
+ let target=Number(s.target||0),saved=Math.min(target,Number(s.saved||0)),years=Number(s.years||0),planned=goalPlannedMonthly(s);
+ $('monthEditorSummary').innerHTML=`<b>🎯 ${esc(s.name)}</b><br>Current saved for <b>${monthLabel(key)}</b>: <b>${money(amount)}</b><br><small>Overall saved: ${money(saved)} • Remaining: ${money(Math.max(0,target-saved))} • Current planned monthly amount: ${money(planned)}</small>`;
+}
+function closeMonthEditor(){$('monthEditorModal').style.display='none'}
+function saveMonthEditor(){
+ let id=Number($('monthEditorGoalId').value),key=$('monthEditorMonth').value,s=saves.find(x=>x.id===id);if(!s)return;
+ let nowKey=goalMonthKey();
+ if(key>nowKey){alert('Future month savings cannot be entered yet. Update that month when it starts.');return}
+ let amount=parseGoalAmount($('monthEditorAmount').value);
+ if(!Number.isFinite(amount)||amount<0){alert('Please enter a valid amount.');return}
+ if(!Array.isArray(s.monthlySavings))s.monthlySavings=[];
+ if(!Number.isFinite(Number(s.baseSaved)))s.baseSaved=goalBaseSaved(s);
+ s.monthlySavings=s.monthlySavings.filter(x=>x.month!==key);
+ if(amount>0)s.monthlySavings.push({month:key,amount,date:new Date().toISOString()});
+ recalcGoalSaved(s);
+ localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();closeMonthEditor();renderAll();
+}
+function setGoalMonthAmount(id,key,mode='edit'){openMonthEditor(id,key)}
+
+function goalHistoryHtml(s){
+ let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
+ let by={}; arr.forEach(x=>{let k=String(x.month||'');if(!/^\d{4}-\d{2}$/.test(k))return;by[k]=(by[k]||0)+Number(x.amount||0)});
+ let startMonth=String(s.startMonth||currentMonthInput()),years=Math.max(1,Math.round(Number(s.years)||1)),count=years*12;
+ let monthly=goalPlannedMonthly(s),nowKey=goalMonthKey(),keys=[];
+ for(let i=0;i<count;i++)keys.push(addMonthsKey(startMonth,i));
+ let target=Number(s.target||0),running=goalBaseSaved(s);
+ let rows=keys.map(k=>{
+   let future=k>nowKey,saved=future?0:Number(by[k]||0);
+   if(!future)running=Math.min(target,running+saved);
+   let req=monthly,reached=!future&&saved>=req&&req>0;
+   let status=future?'⏳ Future month':reached?'✅ Monthly target reached':saved>0?'⚠️ Below monthly target':'⏳ Pending';
+   let action=future?`<button class="action-small history-edit" disabled style="opacity:.5;cursor:not-allowed">🔒 Available ${monthLabel(k)}</button>`:saved>0?`<button class="action-small history-edit" onclick="setGoalMonthAmount(${s.id},'${k}','edit')">✏️ Edit</button>`:`<button class="action-small history-edit" onclick="setGoalMonthAmount(${s.id},'${k}','add')">➕ Add</button>`;
+   return `<div class="history-row"><div class="history-main"><b>📅 ${monthLabel(k)}</b><span class="history-status">${status}</span>${future?'':`<span class="history-total">Cumulative saved: ${money(running)}</span>`}<div style="margin-top:5px">${action}</div></div><div style="text-align:right"><b>${future?'₹0':money(saved)}</b><small style="display:block;color:#64748b">${future?'Not started':'Target '+money(req)}</small></div></div>`;
+ }).join('');
+ return `<div class="goal-history"><div class="goal-history-head"><b>📊 Monthly History</b><button class="action-small" onclick="toggleGoalHistory(this)">Hide all months</button></div><small>📅 ${monthLabel(keys[0]||startMonth)} → ${monthLabel(keys[keys.length-1]||startMonth)}</small><div class="info">💡 Past & current months can be Add / Edit. Future months stay ₹0 until that month starts.</div>${rows}</div>`;
+}
+function goalStatsHtml(s){
+ let target=Number(s.target||0),saved=Math.min(target,Number(s.saved||0)),monthly=goalPlannedMonthly(s),start=String(s.startMonth||currentMonthInput()),now=goalMonthKey(),arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[],by={};
+ arr.forEach(x=>{let k=String(x.month||'');if(/^\d{4}-\d{2}$/.test(k))by[k]=(by[k]||0)+Math.max(0,Number(x.amount||0))});
+ let elapsed=[];let startD=new Date(start+'-01T00:00:00'),nowD=new Date(now+'-01T00:00:00');
+ if(startD<=nowD){let y=startD.getFullYear(),m=startD.getMonth();while(y<nowD.getFullYear()||(y===nowD.getFullYear()&&m<=nowD.getMonth())){let k=y+'-'+String(m+1).padStart(2,'0');elapsed.push(k);m++;if(m>=12){m=0;y++}if(elapsed.length>240)break}}
+ let vals=elapsed.map(k=>Number(by[k]||0)),monthsElapsed=elapsed.length,contrib=vals.reduce((a,v)=>a+v,0),avg=monthsElapsed?contrib/monthsElapsed:0,best=vals.length?Math.max(...vals):0,bestIdx=vals.length?vals.indexOf(best):-1;
+ let streak=0;for(let i=vals.length-1;i>=0;i--){if(vals[i]>=monthly&&monthly>0)streak++;else break}
+ let base=goalBaseSaved(s),expected=Math.min(target,base+monthly*monthsElapsed),status=saved>=target?'🎉 Completed':saved>=expected+monthly?'🟢 Ahead':saved>=expected?'🟢 On track':'🟡 Behind';
+ let rem=Math.max(0,target-saved),projected='—';
+ if(rem<=0)projected='Completed'; else if(avg>0){let addMonths=Math.ceil(rem/avg),d=new Date(now+'-01T00:00:00');d.setMonth(d.getMonth()+addMonths);projected=d.toLocaleString('en-IN',{month:'long',year:'numeric'})}
+ let chartKeys=elapsed.slice(-12),chartVals=chartKeys.map(k=>Number(by[k]||0)),maxChart=Math.max(monthly,...chartVals,1);
+ let bars=chartKeys.length?chartKeys.map((k,i)=>{let v=chartVals[i],h=Math.max(3,Math.min(100,v/maxChart*100));return `<div class="goal-chart-col"><span class="goal-chart-value">${v?money(v):'₹0'}</span><div class="goal-chart-bar-wrap"><i class="goal-chart-bar" style="height:${h}%"></i></div><span class="goal-chart-label">${monthLabel(k).split(' ')[0].slice(0,3)}</span></div>`}).join(''):'<small>No monthly savings recorded yet.</small>';
+ let milestones=[25,50,75,100].map(x=>{let have=Math.min(100,saved/target*100);let reached=have>=x;return `<div class="goal-milestone"><span>${reached?'✅':'⬜'} ${x}%</span><div class="goal-milestone-track"><i style="width:${Math.min(100,have/x*100)}%"></i></div><b>${money(Math.ceil(target*x/100))}</b></div>`}).join('');
+ return `<div class="listbox goal-stats"><div class="goal-stats-head"><b>📊 Goal Statistics</b><span class="goal-status">${status}</span></div><div class="goal-stats-grid"><div class="goal-stat-box"><small>💰 Total saved</small><b>${money(saved)}</b></div><div class="goal-stat-box"><small>🎯 Monthly target</small><b>${money(monthly)}</b></div><div class="goal-stat-box"><small>📈 Average / month</small><b>${money(Math.round(avg))}</b></div><div class="goal-stat-box"><small>🏆 Best month</small><b>${bestIdx>=0?money(best)+' • '+monthLabel(elapsed[bestIdx]):'—'}</b></div><div class="goal-stat-box"><small>🔥 Saving streak</small><b>${streak} month${streak===1?'':'s'}</b></div><div class="goal-stat-box"><small>🚀 Projected finish</small><b>${projected}</b></div></div><div class="goal-chart"><b>📈 Last 12 months</b><div class="goal-chart-bars">${bars}</div><small style="color:#64748b">Monthly target: ${money(monthly)}</small></div><div class="goal-milestones"><b>🏁 Milestones</b>${milestones}</div></div>`;
+}
+function openGoal(id){activeGoalId=id;renderSavings();window.scrollTo({top:0,behavior:'smooth'})}
+function closeGoal(){activeGoalId=null;renderSavings();window.scrollTo({top:0,behavior:'smooth'})}
+function goalDetailHtml(s){let target=Number(s.target||0),saved=Math.min(target,Number(s.saved||0)),p=target?Math.min(100,saved/target*100):0,rem=Math.max(0,target-saved),years=Number(s.years||0),monthly=goalPlannedMonthly(s),gm=goalMonthStats(s);return `<div class="goal-detail-page"><div class="goal-detail-head"><button class="action-small" onclick="closeGoal()">← Back to Goals</button><b style="font-size:18px">🎯 ${esc(s.name)}</b><button class="action-small" onclick="openSave(${s.id})">✏️ Edit</button></div><div class="listbox"><div class="goal-title"><b>${esc(s.name)}</b><span class="goal-status">${p>=100?'🎉 Completed':(gm.saved>=gm.monthly&&gm.monthly?'🟢 On track':'🟡 In progress')}</span></div><div class="goal-amounts"><b>${money(saved)}</b><span> / ${money(target)}</span><strong>${Math.round(p)}%</strong></div><div class="progress"><i style="width:${p}%"></i></div><div class="goal-detail-stat"><div><small>💰 Added</small><b>${money(saved)}</b></div><div><small>📊 Progress</small><b>${Math.round(p)}%</b></div><div><small>🎯 Still need</small><b>${money(rem)}</b></div></div><div class="goal-meta">⏳ ${years} year${years===1?'':'s'} • 📅 ${monthly?money(monthly)+' / month':'Goal completed'} • Start ${monthLabel(s.startMonth||currentMonthInput())}</div></div><div class="goal-detail-actions"><button class="action-small" onclick="addSaving(${s.id})">💰 Add Saved</button><button class="action-small" onclick="setGoalMonthAmount(${s.id},goalMonthKey(),'edit')">📅 Update This Month</button></div><div class="goal-month"><b>📊 Current Month — ${monthLabel(gm.key)}</b><div style="display:flex;justify-content:space-between;margin-top:7px"><span>Required</span><b>${money(gm.monthly)}</b></div><div style="display:flex;justify-content:space-between"><span>Saved this month</span><b>${money(gm.saved)}</b></div>${gm.monthly?`<small>${gm.saved>=gm.monthly?'✅ Monthly target reached':'⚠️ '+money(Math.max(0,gm.monthly-gm.saved))+' short this month'}</small>`:''}</div>${goalStatsHtml(s)}${goalHistoryHtml(s)}</div>`}
+function saveCard(s){let target=Number(s.target||0),saved=Math.min(target,Number(s.saved||0)),p=target?Math.min(100,saved/target*100):0,rem=Math.max(0,target-saved),years=Number(s.years||0),gm=goalMonthStats(s),status=rem<=0?'🎉 Completed':(gm.saved>=gm.monthly&&gm.monthly>0?'🟢 On track':gm.saved>0?'🟡 In progress':'⚪ Not started');return `<div class="listbox goal-card"><div class="goal-summary" onclick="openGoal(${s.id})"><div class="goal-title"><b>🎯 ${esc(s.name)}</b><span class="goal-status">${status}</span></div><div class="goal-amounts"><b>${money(saved)}</b><span> / ${money(target)}</span><strong>${Math.round(p)}%</strong></div><div class="progress"><i style="width:${p}%"></i></div><div class="goal-meta">💰 Added ${money(saved)} • 🎯 Need ${money(rem)}${years?` • ⏳ ${years} years`:''}</div></div></div>`}
+
+function openSave(id=null){
+ $('saveModal').style.display='flex';$('saveId').value=id||'';
+ if(id){let s=saves.find(x=>x.id==id);if(!s){closeSave();return}$('saveName').value=s.name||'';$('saveTarget').value=formatGoalAmount(s.target);$('saveSaved').value=formatGoalAmount(s.saved);$('saveStartMonth').value=s.startMonth||currentMonthInput();$('saveYears').value=s.years||''}
+ else{$('saveName').value='';$('saveTarget').value='';$('saveSaved').value='0';$('saveStartMonth').value=currentMonthInput();$('saveYears').value=''}
+ updateGoalPreview();
+}
+function closeSave(){$('saveModal').style.display='none'}
+function saveGoal(){
+ let name=$('saveName').value.trim(),target=parseGoalAmount($('saveTarget').value),saved=parseGoalAmount($('saveSaved').value),startMonth=$('saveStartMonth').value||currentMonthInput(),years=Math.max(0,Number($('saveYears').value)||0);
+ if(!name||target<=0){alert('Goal name and target required');return}
+ if(years<=0){alert('Please enter how many years you want to take to achieve this goal.');$('saveYears').focus();return}
+ saved=Math.max(0,Math.min(target,saved));let id=$('saveId').value;
+ let old=id?saves.find(x=>x.id==id):null;
+ let oldMonthly=Array.isArray(old?.monthlySavings)?old.monthlySavings:[];
+ let nowKey=goalMonthKey();
+ let monthlyTotal=oldMonthly.filter(x=>String(x.month||'')<=nowKey).reduce((a,x)=>a+Number(x.amount||0),0);
+ let base=old?Math.max(0,saved-monthlyTotal):saved;
+ let monthlyTarget=(old&&Number(old.monthlyTarget)>0&&Number(old.target)===target&&Number(old.years)===years)?Number(old.monthlyTarget):goalMonthly(target,saved,years);
+ let o={id:id?Number(id):Date.now(),name,target,saved,baseSaved:base,years,startMonth,monthlyTarget,monthlySavings:oldMonthly};
+ recalcGoalSaved(o);
+ if(id){let idx=saves.findIndex(x=>x.id==id);if(idx>=0)saves[idx]=o;else saves.push(o)}else saves.push(o);
+ localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();closeSave();renderAll();
+}
+function delSave(id){if(confirm('Delete this savings goal?')){saves=saves.filter(x=>x.id!==id);localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();renderAll()}}
+function ensureGoalMonthlyTargets(){let changed=false;saves.forEach(s=>{if(!(Number(s.monthlyTarget)>0)){let v=goalMonthly(Number(s.target||0),Math.min(Number(s.target||0),Number(s.saved||0)),Number(s.years||0));if(v>0){s.monthlyTarget=v;changed=true}}});if(changed)localStorage.setItem('moneymate_savings',JSON.stringify(saves));return changed}
+function renderSavings(){
+ ensureGoalMonthlyTargets();
+ let changed=false;saves.forEach(s=>{let before=Number(s.saved||0);recalcGoalSaved(s);if(before!==Number(s.saved||0))changed=true});
+ if(changed)localStorage.setItem('moneymate_savings',JSON.stringify(saves));
+ let list=$('saveList'),detail=$('goalDetailView'),addBtn=$('goalAddBtn');
+ if(activeGoalId){let s=saves.find(x=>x.id==activeGoalId);if(!s){activeGoalId=null;return renderSavings()} list.style.display='none';detail.style.display='block';if(addBtn)addBtn.style.display='none';detail.innerHTML=goalDetailHtml(s);return}
+ list.style.display='block';detail.style.display='none';if(addBtn)addBtn.style.display='inline-flex';
+ list.innerHTML=saves.length?saves.map(s=>`${saveCard(s)}<div class="goal-actions"><button class="action-small" onclick="openGoal(${s.id})">👁️ Open Goal</button><button class="action-small" onclick="addSaving(${s.id})">💰 Add Saved</button><button class="action-small" onclick="openSave(${s.id})">✏️ Edit</button><button class="action-small" onclick="delSave(${s.id})">🗑️ Delete</button></div>`).join(''):'<div class="empty">No savings goal.</div>'; 
+}
+function recurringData(){return JSON.parse(localStorage.getItem('moneymate_recurring')||'[]')}
+function saveRecurring(a){localStorage.setItem('moneymate_recurring',JSON.stringify(a))}
+function renderRecurring(){
+ let a=recurringData();
+ $('recList').innerHTML=a.length?a.map(r=>`<div class="listbox"><div class="listline"><span><b>${r.type==='income'?'📥':'📤'} ${esc(r.name)}</b><small>${r.freq==='monthly'?'Monthly':'Weekly'} • Next ${esc(r.next)}</small></span><b>${money(r.amount)}</b></div><button class="action-small" onclick="applyRecurring(${r.id})">⚡ Add Now</button> <button class="action-small" onclick="delRecurring(${r.id})">🗑️</button></div>`).join(''):'<div class="empty">No recurring transactions.</div>';
+}
+function applyRecurring(id){
+ let a=recurringData(),r=a.find(x=>x.id===id);if(!r)return;
+ txs.unshift({id:Date.now(),type:r.type,category:r.name,amount:r.amount,date:r.next,note:'Recurring'});
+ localStorage.setItem('moneymate_transactions',JSON.stringify(txs));
+ let d=new Date(r.next+'T00:00:00'); if(r.freq==='monthly') d.setMonth(d.getMonth()+1); else d.setDate(d.getDate()+7);
+ r.next=d.toISOString().slice(0,10);saveRecurring(a);renderAll();alert('Recurring transaction added ✅');
+}
+function delRecurring(id){if(confirm('Delete recurring transaction?')){let a=recurringData().filter(x=>x.id!==id);saveRecurring(a);renderRecurring()}}
+
+function getEmiLeadDays(){return Number(localStorage.getItem('moneymate_emi_lead')||6)}
+function saveEmiReminder(){let n=Math.max(0,Math.min(30,Number($('emiLeadDays').value||6)));localStorage.setItem('moneymate_emi_lead',n);renderEmi();alert('EMI reminder saved: '+n+' day(s) before due date. 🔔')}
+function requestEmiNotificationPermission(){if('Notification' in window&&Notification.permission==='default'){Notification.requestPermission().catch(()=>{})}}
+function checkEmiAlerts(){if(!('Notification' in window)||Notification.permission!=='granted')return;let lead=getEmiLeadDays(),today=new Date();today.setHours(0,0,0,0);emis.forEach(e=>{let due=e.due||e.nextDue||e.date;if(!due)return;let d=new Date(due+'T00:00:00'),diff=Math.round((d-today)/86400000);if(diff<0||diff>lead)return;let key='moneymate_emi_notified_'+e.id+'_'+due;if(localStorage.getItem(key))return;try{new Notification('MoneyMate • EMI Reminder',{body:`${e.name}: EMI ${money(Number(e.monthly)||0)} is due ${diff===0?'today':'in '+diff+' day(s)'}.`});localStorage.setItem(key,'1')}catch(_){} });}
+function emiStatus(e){
+ let due=e.due||e.nextDue||e.date; if(!due)return {cls:'upcoming',text:'No due date'};
+ let today=new Date();today.setHours(0,0,0,0),d=new Date(due+'T00:00:00');let diff=Math.round((d-today)/86400000);
+ if(diff<0)return {cls:'overdue',text:`Overdue by ${Math.abs(diff)} day${Math.abs(diff)==1?'':'s'}`};
+ if(diff===0)return {cls:'today',text:'Due today'};
+ return {cls:'upcoming',text:`Due in ${diff} day${diff==1?'':'s'}`};
+}
+async function addSalary(){
+ let amt=Number($('salaryAmt').value),date=$('salaryDate').value||localDate(),note=$('salaryNote').value.trim()||'Salary';
+ if(!amt||amt<=0){alert('Enter salary amount');return}
+ txs.unshift({id:Date.now(),type:'income',category:'Salary',amount:amt,date,note});
+ persistLocal();await mirrorSave();renderAll();alert('Salary added 💰');
+}
+function financialHealth(){
+ let m=$('homeMonth').value,t=mt(m),inc=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),exp=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
+ let budget=Number(bud[m]||0), savings=inc?Math.max(0,(inc-exp)/inc):0;
+ let savingPts=inc?Math.min(40,Math.round(savings*40)):0;
+ let budgetPts=budget?(exp<=budget?30:Math.max(0,30-Math.round((exp-budget)/Math.max(1,budget)*30))):0;
+ let emiCount=emis.reduce((a,e)=>a+(Number(e.total||0)-Number(e.paid||0)>0?1:0),0);
+ let emiPts=emiCount?15:0;
+ let hasData=inc>0||exp>0||budget>0||emis.length>0;
+ let score=hasData?Math.max(0,Math.min(100,savingPts+budgetPts+emiPts)):0;
+ let label=!hasData?'No Data Yet':score>=80?'Excellent':score>=60?'Good':score>=40?'Needs Attention':'Start Improving';
+ return {score,label,inc,exp,budget,savings,savingPts,budgetPts,emiPts,hasData};
+}
+function renderHealth(){
+ let h=financialHealth();
+ $('healthScore').innerHTML=`<div class="listbox health"><div class="healthscore">${h.score}</div><div><b>Financial Health: ${h.label}</b><div class="healthbar" style="margin:9px 0"><i style="width:${h.score}%"></i></div><small>${h.hasData?'Based on savings, budget and EMI load for '+mn(hm())+'.':'Add income, expenses, a budget or EMI to calculate your financial health.'}</small><div class="health-breakdown"><span>💰 Savings</span><b>${h.savingPts}/40</b><span>🎯 Budget</span><b>${h.budgetPts}/30</b><span>🏦 EMI load</span><b>${h.emiPts}/30</b></div></div></div>`;
+}
+function hm(){return $('homeMonth').value}
+
+function renderInsights(){
+ let m=$('homeMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
+ let b=Number(bud[m]||0),top={};t.filter(x=>x.type==='expense').forEach(x=>top[x.category]=(top[x.category]||0)+x.amount);
+ let best=Object.entries(top).sort((a,b)=>b[1]-a[1])[0],prev=new Date(m+'-01T00:00:00');prev.setMonth(prev.getMonth()-1);
+ let pm=prev.toISOString().slice(0,7),pe=mt(pm).filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),change=pe?Math.round((e-pe)/pe*100):null;
+ let arr=[]; if(i)arr.push(`💰 Net savings this month: <b>${money(i-e)}</b>`);
+ if(best)arr.push(`🏷️ Highest expense: <b>${esc(best[0])}</b> (${money(best[1])})`);
+ if(b)arr.push(e>b?`⚠️ Budget exceeded by <b>${money(e-b)}</b>`:`🎯 Budget remaining: <b>${money(b-e)}</b>`);
+ if(change!==null)arr.push(change>0?`📈 Expense is <b>${change}% higher</b> than last month`:`📉 Expense is <b>${Math.abs(change)}% lower</b> than last month`);
+ $('insights').innerHTML=arr.length?arr.map(x=>`<div class="insight">${x}</div>`).join(''):'<div class="empty">Add a few transactions to get smart insights.</div>';
+}
+function renderCalendar(){
+ let m=$('calMonth').value;if(!m)return;let [y,mo]=m.split('-').map(Number),first=new Date(y,mo-1,1),days=new Date(y,mo,0).getDate(),start=first.getDay(),a=mt(m);
+ let inc={},exp={};a.forEach(x=>{if(x.type==='income')inc[x.date]=(inc[x.date]||0)+x.amount;else exp[x.date]=(exp[x.date]||0)+x.amount});
+ let selected=$('calDay').dataset.date||'';
+ let out=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div class="wd">${x}</div>`).join('');
+ for(let i=0;i<start;i++)out+='<div></div>';
+ for(let d=1;d<=days;d++){let ds=`${m}-${String(d).padStart(2,'0')}`,cl=(inc[ds]?'hasinc ':'')+(exp[ds]?'hasexp ':'')+(selected===ds?'selected':'');let dots=(inc[ds]||exp[ds])?`<span class="dots">${inc[ds]?'<i class="dot incdot"></i>':''}${exp[ds]?'<i class="dot expdot"></i>':''}</span>`:'';out+=`<div class="day ${cl}" onclick="showCalDay('${ds}')"><strong>${d}</strong>${dots}</div>`}
+ $('calendarGrid').innerHTML=out;
+}
+function showCalDay(ds){let a=txs.filter(x=>x.date===ds);$('calDay').dataset.date=ds;$('calDay').innerHTML=a.length?`<b>📅 ${ds}</b>`+a.map(x=>`<div class="tx"><span>${x.type==='income'?'📥':'📤'} ${esc(x.category)}<small>${esc(x.note||'')}</small></span><b class="${x.type==='income'?'plus':'minus'}">${x.type==='income'?'+':'-'}${money(x.amount)}</b></div>`).join(''):'<div class="empty">No transactions on this date.</div>';renderCalendar()}
+function todayCal(){$('calMonth').value=cur();renderCalendar();showCalDay(localDate())}
+
+
+function renderCategoryChart(t){
+ let c={};t.filter(x=>x.type==='expense').forEach(x=>c[x.category]=(c[x.category]||0)+x.amount);
+ let total=Object.values(c).reduce((a,b)=>a+b,0);
+ $('catChart').innerHTML=total?Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="listline"><span>🏷️ ${esc(k)}</span><b>${money(v)} <small>${Math.round(v/total*100)}%</small></b></div>`).join(''):'<div class="empty">No expenses for this month.</div>';
+}
+function renderSixMonths(m){
+ let d=new Date(m+'-01T00:00:00'),vals=[];
+ for(let n=5;n>=0;n--){let x=new Date(d);x.setMonth(d.getMonth()-n);let mm=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0'),t=mt(mm),i=t.filter(z=>z.type==='income').reduce((a,z)=>a+z.amount,0),e=t.filter(z=>z.type==='expense').reduce((a,z)=>a+z.amount,0);vals.push({m:mm,i,e})}
+ let max=Math.max(1,...vals.flatMap(x=>[x.i,x.e]));
+ $('sixChart').innerHTML=`<div class="sixgrid">${vals.map(x=>`<div class="sixgroup"><div class="sixbars"><div class="bar income" style="height:${Math.max(6,x.i/max*100)}%" title="${mn(x.m)} income ${money(x.i)}"></div><div class="bar expense" style="height:${Math.max(6,x.e/max*100)}%" title="${mn(x.m)} expense ${money(x.e)}"></div></div><div class="sixlabel">${mn(x.m).split(' ')[0].slice(0,3)}</div><div class="sixvalues"><span>${money(x.i)}</span><span>${money(x.e)}</span></div></div>`).join('')}</div><div style="text-align:center;font-size:11px;color:#64748b;margin-top:8px">📥 Income &nbsp;&nbsp; 📤 Expense</div>`;
+}
+
+
+function renderReport(){let m=$('reportMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);$('reportBox').innerHTML=`<div class="listline"><span>📥 Income</span><b class="plus">${money(i)}</b></div><div class="listline"><span>📤 Expense</span><b class="minus">${money(e)}</b></div><div class="listline"><span>💰 Net</span><b>${money(i-e)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${i?Math.round((i-e)/i*100):0}%</b></div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>`<div class="listline"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join('');chart(i,e);renderCategoryChart(t);renderSixMonths(m)}
+function chart(i,e){let max=Math.max(i,e,1),ib=Math.max(8,i/max*100),eb=Math.max(8,e/max*100);$('chart').innerHTML=`<div class="barwrap"><div class="bar" style="height:${ib}%"><em>${money(i)}</em></div><div class="bar" style="height:${eb}%"><em>${money(e)}</em></div></div><div class="chartlabels"><span>📥 Income</span><span>📤 Expense</span></div>`}
+function dark(){document.body.classList.toggle('dark');localStorage.setItem('moneymate_dark',document.body.classList.contains('dark'));mirrorSave()}
+function backup(){let d={version:'4.44',transactions:txs,budgets:bud,emis,savings:saves,debts,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),debtMethod:localStorage.getItem('moneymate_debt_method')||'snowball',debtExtra:Number(localStorage.getItem('moneymate_debt_extra')||0),dark:localStorage.getItem('moneymate_dark')==='true'},json=JSON.stringify(d,null,2);if(window.MoneyMateAndroid&&typeof window.MoneyMateAndroid.saveBackup==='function'){window.MoneyMateAndroid.saveBackup(json,'MoneyMate_Backup.json');return}let b=new Blob([json],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];debts=Array.isArray(d.debts)?d.debts:[];localStorage.setItem('moneymate_debts',JSON.stringify(debts));if(d.customCats&&typeof d.customCats==='object'){customCats={income:Array.isArray(d.customCats.income)?d.customCats.income:[],expense:Array.isArray(d.customCats.expense)?d.customCats.expense:[]};saveCustomCats();}localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring||[]));if(d.emiLeadDays!=null)localStorage.setItem('moneymate_emi_lead',d.emiLeadDays);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));if(d.debtMethod==='avalanche'||d.debtMethod==='snowball'){debtMethod=d.debtMethod;localStorage.setItem('moneymate_debt_method',d.debtMethod)}if(d.debtExtra!=null){localStorage.setItem('moneymate_debt_extra',String(Math.max(0,Number(d.debtExtra)||0)))}if(d.dark===true){localStorage.setItem('moneymate_dark','true');document.body.classList.add('dark')}else if(d.dark===false){localStorage.removeItem('moneymate_dark');document.body.classList.remove('dark')}persistLocal();mirrorSave().catch(err=>console.warn('Restore mirror failed',err));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
+function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings','moneymate_debts'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];debts=[];mirrorSave();renderAll()}}
+
+function payEmi(id){let e=emis.find(x=>x.id===id);if(!e)return;let m=emiMath(e);if(m.remaining<=0)return;let amount=Number(prompt(`EMI payment amount (₹${Number(m.monthly||0).toFixed(2)})`,m.monthly));if(!amount||amount<=0)return;if(m.rate>0&&amount<m.interest){alert(`This payment is below this month's interest of ${money(m.interest)}.`);return}let interest=Math.min(m.remaining, m.interest);let principal=Math.min(m.remaining,Math.max(0,amount-interest));if(principal+interest>m.remaining){principal=m.remaining-interest}e.principalPaid=m.principalPaid+principal;e.interestPaid=m.interestPaid+interest;e.paid=(Number(e.paid)||0)+amount;let d=e.due?new Date(e.due+'T00:00:00'):null;if(d){d.setMonth(d.getMonth()+1);e.due=localYMD(d)}localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave().catch(err=>console.warn(err));renderAll()}
+function addSaving(id){let key=goalMonthKey();openMonthEditor(id,key)}
+async function hashPin(pin){let data=new TextEncoder().encode(pin),buf=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+async function setPin(){let p=prompt('Create a 4–6 digit PIN');if(!/^\d{4,6}$/.test(p||'')){alert('PIN must be 4–6 digits');return}let p2=prompt('Confirm your PIN');if(p!==p2){alert('PINs do not match');return}localStorage.setItem('moneymate_pin',await hashPin(p));alert('PIN lock enabled 🔐')}
+async function unlock(){let p=$('unlockPin').value;if(await hashPin(p)===localStorage.getItem('moneymate_pin')){$('lockScreen').style.display='none';$('unlockPin').value='';$('lockMsg').textContent=''}else $('lockMsg').textContent='Incorrect PIN'}
+function lockNow(){if(localStorage.getItem('moneymate_pin'))$('lockScreen').style.display='flex'}
+function removePin(){localStorage.removeItem('moneymate_pin');$('lockScreen').style.display='none';alert('PIN lock disabled')}
+
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+function openDebt(id=null){$('debtModal').style.display='flex';$('debtId').value=id||'';if(id){let d=debts.find(x=>x.id==id);$('debtModalTitle').textContent='✏️ Edit Debt';$('debtName').value=d?.name||'';$('debtBalance').value=d?.balance||0;$('debtRate').value=d?.rate||0;$('debtPayment').value=d?.payment||0}else{$('debtModalTitle').textContent='🚀 Add Debt';$('debtName').value='';$('debtBalance').value='';$('debtRate').value='';$('debtPayment').value=''}}
+function closeDebt(){$('debtModal').style.display='none'}
+function saveDebt(){let name=$('debtName').value.trim(),balance=Number($('debtBalance').value)||0,rate=Math.max(0,Number($('debtRate').value)||0),payment=Number($('debtPayment').value)||0;if(!name||balance<=0||payment<=0){alert('Debt name, balance and minimum payment required');return}let id=$('debtId').value?Number($('debtId').value):Date.now(),o={id,name,balance,rate,payment};let i=debts.findIndex(x=>x.id===id);if(i>=0)debts[i]=o;else debts.push(o);localStorage.setItem('moneymate_debts',JSON.stringify(debts));mirrorSave();closeDebt();renderAll()}
+function delDebt(id){if(confirm('Delete this debt from Debt Planner?')){debts=debts.filter(x=>x.id!==id);localStorage.setItem('moneymate_debts',JSON.stringify(debts));mirrorSave();renderAll()}}
+function setDebtMethod(m){debtMethod=m;localStorage.setItem('moneymate_debt_method',m);renderDebtPlanner()}
+function importEmisToDebts(){if(!emis.length){alert('No EMI loans found. Add an EMI first.');return}let added=0;emis.forEach(e=>{let balance=Math.max(0,Number(emiMath(e).remaining||0));if(balance<=0)return;let exists=debts.find(d=>d.emiId===e.id||d.name===e.name);let o={id:exists?.id||Date.now()+added,emiId:e.id,name:e.name,balance,rate:Number(e.rate||e.interestRate||0),payment:Number(e.monthly||0)};if(exists)Object.assign(exists,o);else{debts.push(o);added++}});localStorage.setItem('moneymate_debts',JSON.stringify(debts));mirrorSave();renderAll();alert(`${added?added+' EMI loan(s) imported':'Existing EMI loans updated'} into Debt Planner ✅`)}
+function debtOrder(list,method){return [...list].sort((a,b)=>method==='avalanche'?(Number(b.rate)-Number(a.rate)):(Number(a.balance)-Number(b.balance)))}
+function simulateDebts(input,method,extra=0){let ds=input.map(d=>({id:d.id,name:d.name,balance:Math.max(0,Number(d.balance)||0),rate:Math.max(0,Number(d.rate)||0),payment:Math.max(0,Number(d.payment)||0),interest:0,paid:0,paidOff:null})).filter(d=>d.balance>0);let totalMin=ds.reduce((a,d)=>a+d.payment,0);let monthlyBudget=totalMin+Math.max(0,Number(extra)||0);if(!ds.length)return {months:0,interest:0,total:0,order:[],end:cur(),warning:''};if(monthlyBudget<=0)return {months:0,interest:0,total:0,order:[],end:'—',warning:'Add minimum payments.'};let months=0,totalInterest=0,order=[],warning='';while(ds.some(d=>d.balance>0)&&months<1200){months++;let start=ds.filter(d=>d.balance>0);start.forEach(d=>{let interest=d.balance*(d.rate/100/12);d.interest+=interest;totalInterest+=interest;d.balance+=interest});let available=monthlyBudget;start.forEach(d=>{if(d.balance<=0)return;let pay=Math.min(d.payment,d.balance);if(pay<d.balance&&pay<=d.balance*0.000001){}d.balance-=pay;d.paid+=pay;available-=pay;if(d.balance<=0.005){d.balance=0;d.paidOff=months;if(!order.some(o=>o.id===d.id))order.push({id:d.id,name:d.name,month:months})}});if(available>0){let active=debtOrder(ds.filter(d=>d.balance>0),method);for(let d of active){if(available<=0)break;let pay=Math.min(available,d.balance);d.balance-=pay;d.paid+=pay;available-=pay;if(d.balance<=0.005){d.balance=0;d.paidOff=months;if(!order.some(o=>o.id===d.id))order.push({id:d.id,name:d.name,month:months})}}}let interestOnly=ds.some(d=>d.balance>0&&d.payment<=d.balance*(d.rate/100/12)+0.000001);if(interestOnly){warning='One or more minimum payments may not cover monthly interest.';if(months>2)break}}let endDate='—';if(months>0&&months<1200){let d=new Date();d.setDate(1);d.setMonth(d.getMonth()+months);endDate=d.toLocaleDateString('en-IN',{month:'short',year:'numeric'})}else if(months>=1200){endDate='>100 years';warning=warning||'Plan did not reach zero within 100 years.'}return {months,interest:totalInterest,total:totalInterest+input.reduce((a,d)=>a+Number(d.balance||0),0),order,end:endDate,warning};}
+function debtMonthsLabel(n){if(!n)return '—';return n<12?`${n} mo`:`${Math.floor(n/12)} yr ${n%12} mo`}
+function renderDebtPlanner(){
+ // Keep debts imported from EMI linked to the EMI's live principal balance.
+ let debtChanged=false;
+ debts.forEach(d=>{if(d.emiId!=null){let e=emis.find(x=>x.id==d.emiId);if(e){let b=Math.max(0,Number(emiMath(e).remaining||0));if(Math.abs(Number(d.balance||0)-b)>0.005){d.balance=b;debtChanged=true}d.rate=Number(e.rate||e.interestRate||d.rate||0);d.payment=Number(e.monthly||d.payment||0);d.name=e.name||d.name}}});
+ if(debtChanged){localStorage.setItem('moneymate_debts',JSON.stringify(debts));mirrorSave()}
+ let total=debts.reduce((a,d)=>a+Number(d.balance||0),0),mins=debts.reduce((a,d)=>a+Number(d.payment||0),0),extra=Math.max(0,Number($('debtExtra')?.value||localStorage.getItem('moneymate_debt_extra')||0));if($('debtExtra')&&document.activeElement!==$('debtExtra')&&$('debtExtra').value==='')$('debtExtra').value=extra||'';if($('debtExtra'))localStorage.setItem('moneymate_debt_extra',String(extra));let sim=simulateDebts(debts,debtMethod,extra);$('debtTotal').textContent=money(total);$('debtMinimum').textContent=money(mins);$('debtExtraView').textContent=money(extra);$('debtFreeDate').textContent=sim.end;$('debtSnowball').classList.toggle('active',debtMethod==='snowball');$('debtAvalanche').classList.toggle('active',debtMethod==='avalanche');if(!debts.length){$('debtPlan').innerHTML='<div class="empty">No debts added yet.<br><small>Add a loan or tap 🏦 Import EMI.</small></div>';return}let minSim=simulateDebts(debts,debtMethod,0),order=sim.order.map((o,i)=>`<div class="debt-order-row"><b>${i+1}.</b><span style="flex:1">${esc(o.name)}</span><span class="debt-badge">${debtMonthsLabel(o.month)}</span></div>`).join('');let rows=debts.map(d=>{let pct=total?Math.max(0,Math.min(100,(1-Number(d.balance)/total)*100)):0;return `<div class="debt-row"><div class="debt-row-head"><b>${esc(d.name)}</b><button class="action-small" onclick="openDebt(${d.id})">✏️</button><button class="action-small" onclick="delDebt(${d.id})">🗑️</button></div><div class="debt-meta"><span>💰 ${money(d.balance)}</span><span>📈 ${Number(d.rate||0).toFixed(2)}%</span><span>💵 ${money(d.payment)}</span></div><div class="debt-progress"><i style="width:${pct}%"></i></div></div>`}).join('');let saved=Math.max(0,minSim.interest-sim.interest),extraMonths=Math.max(0,minSim.months-sim.months);$('debtPlan').innerHTML=`<div class="debt-result"><b>${debtMethod==='avalanche'?'⚡ Avalanche Plan':'❄️ Snowball Plan'}</b><div class="debt-result-grid" style="margin-top:7px"><div><small>Debt-free in</small><b>${debtMonthsLabel(sim.months)}</b></div><div><small>Total interest</small><b>${money(sim.interest)}</b></div><div><small>Interest saved</small><b>${money(saved)}</b></div><div><small>Time saved</small><b>${debtMonthsLabel(extraMonths)}</b></div></div>${sim.warning?`<div class="debt-note">⚠️ ${esc(sim.warning)}</div>`:''}</div><h3 style="margin:12px 0 4px">📋 Your Debts</h3><div class="debt-list">${rows}</div><h3 style="margin:12px 0 4px">🎯 Payoff Order</h3><div class="debt-order">${order||'<div class="empty">No payoff order yet.</div>'}</div>`}
+
+function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderDebtPlanner();renderReport();renderCalendar();renderRecurring()}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{}))}
+async function boot(){
+ fill();
+ loadLocalState();
+ reloadCombinedStateIfNeeded();
+ let restored=false;
+ try{restored=await restoreMirror()}catch(e){console.warn('Restore failed',e)}
+ if(localStorage.getItem('moneymate_dark')==='true')document.body.classList.add('dark');
+ processDueRecurring();
+ restoreView();
+ renderAll();
+ rememberView();
+ checkEmiAlerts();
+ // Never let an empty startup state overwrite an existing IndexedDB backup.
+ if(!restored || txs.length || Object.keys(bud).length || emis.length || saves.length || debts.length) await mirrorSave();
+ lockNow();
+}
+window.addEventListener('pagehide',()=>{try{const a=document.querySelector('.tab.active');if(a){localStorage.setItem('moneymate_page',a.id);sessionStorage.setItem('moneymate_page',a.id)}}catch(e){}});
+window.addEventListener('beforeunload',()=>{try{const a=document.querySelector('.tab.active');if(a){localStorage.setItem('moneymate_page',a.id);sessionStorage.setItem('moneymate_page',a.id)}}catch(e){}});
+boot();
+window.addEventListener('pageshow',()=>{restoreView();reloadCombinedStateIfNeeded();renderAll();checkEmiAlerts()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){restoreView();reloadCombinedStateIfNeeded();renderAll();checkEmiAlerts()}});
+</script>
+</body></html>
