@@ -71,12 +71,12 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.34 True Available Balance</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.35 Dashboard Data Fix</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
 <div class="cards">
-<div class="card full"><span class="card-icon">💰</span><small>Available Balance</small><b id="bal">₹0</b><span id="balSub" style="display:block;color:#64748b;font-size:11px;margin-top:4px">After expenses & current commitments</span></div>
+<div class="card full"><span class="card-icon">💰</span><small>Balance</small><b id="bal">₹0</b></div>
 <div class="card"><span class="card-icon">📥</span><small>Income</small><b id="inc">₹0</b></div>
 <div class="card"><span class="card-icon">📤</span><small>Expense</small><b id="exp">₹0</b></div>
 <div class="card"><span class="card-icon">🧾</span><small>Transactions</small><b id="cnt">0</b></div>
@@ -405,13 +405,199 @@ function delEmi(id){if(confirm('Delete this EMI?')){emis=emis.filter(x=>x.id!==i
 function renderEmi(){let lead=getEmiLeadDays();if($('emiLeadDays'))$('emiLeadDays').value=lead;$('emiList').innerHTML=emis.length?emis.map(e=>{let rem=emiMath(e).remaining,s=emiStatus(e);return `<div class="listbox">${emiCard(e)}<div class="reminder ${s.cls}">🔔 <b>${s.text}</b>${e.due||e.nextDue?` • ${esc(e.due||e.nextDue)}`:''}</div><div class="row"><button class="action-small" onclick="payEmi(${e.id})">✅ Mark Paid</button><button class="action-small" onclick="openEmi(${e.id})">✏️ Edit</button><button class="action-small" onclick="delEmi(${e.id})">🗑️ Delete</button></div><small>Remaining ${money(rem)}</small></div>`}).join(''):'<div class="empty">No EMI added yet.</div>'}
 
 function renderHome(){reloadCombinedStateIfNeeded();let m=$('homeMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);let cashFlow=i-e,currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0),monthlyEmi=emis.reduce((a,e)=>a+Number(e.monthly||0),0),available=cashFlow-currentGoalSaved-monthlyEmi;$('inc').textContent=money(i);$('exp').textContent=money(e);$('bal').textContent=money(available);$('bal').className=available<0?'dash-negative':'';$('balSub').textContent=`Cash flow ${money(cashFlow)} • Goals ${money(currentGoalSaved)} • EMI ${money(monthlyEmi)}`;$('cnt').textContent=t.length;$('rate').textContent=(i?Math.round((cashFlow)/i*100):0)+'%';let b=Number(bud[m]||0);$('homeBudget').innerHTML=b?`<div class="listbox"><b>💸 ${money(e)} / ${money(b)}</b><div class="progress"><i style="width:${Math.min(100,e/b*100)}%"></i></div><small>${e>b?'⚠️ Budget exceeded':'✅ '+money(b-e)+' remaining'}</small></div>`:'<div class="empty">Set a monthly budget to track spending.</div>';$('homeEmi').innerHTML=emis.length?emis.slice(0,3).map(e=>emiCard(e)).join(''):'<div class="empty">No EMI added.</div>';$('homeSave').innerHTML=saves.length?saves.slice(0,3).map(s=>saveCard(s)).join(''):'<div class="empty">No savings goal.</div>';renderDashboard(m,t,i,e,b)}
-function renderDashboard(m,t,income,expense,budget){let net=income-expense,rate=income?Math.round(net/income*100):0,cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+Number(x.amount||0));let top=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,3),goalTarget=saves.reduce((a,s)=>a+Number(s.target||0),0),goalSaved=saves.reduce((a,s)=>a+Math.min(Number(s.target||0),Number(s.saved||0)),0),goalRem=Math.max(0,goalTarget-goalSaved),goalPct=goalTarget?Math.min(100,goalSaved/goalTarget*100):0,currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0),outstanding=emis.reduce((a,e)=>a+emiMath(e).remaining,0),emiMonthly=emis.reduce((a,e)=>a+Number(e.monthly||0),0),available=net-currentGoalSaved-emiMonthly,nextEmi=null,nextDays=null;emis.forEach(e=>{if(!e.due)return;let d=new Date(e.due+'T00:00:00');if(d<new Date()){let nd=new Date();nd.setHours(0,0,0,0);let day=d.getDate();let cand=new Date(nd.getFullYear(),nd.getMonth(),day);if(cand<nd)cand.setMonth(cand.getMonth()+1);d=cand}let days=Math.ceil((d-new Date())/86400000);if(nextDays===null||days<nextDays){nextDays=days;nextEmi={e,d}}});let budgetPct=budget?Math.min(100,expense/budget*100):0,status=available>0?'🟢 Available after commitments':available<0?'🔴 Commitments exceed cash flow':'🟡 Fully committed';let topHtml=top.length?top.map(x=>`<div class="dash-line"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join(''):'<div class="empty">No expenses this month.</div>';let goalHtml=saves.length?`<div class="dash-line"><span>🎯 Goal progress</span><b>${Math.round(goalPct)}%</b></div><div class="dash-progress"><i style="width:${goalPct}%"></i></div><div class="dash-line"><span>${money(goalSaved)} / ${money(goalTarget)} saved</span><b>Need ${money(goalRem)}</b></div>`:'<div class="empty">Add a savings goal to track progress.</div>';let emiHtml=emis.length?`<div class="dash-line"><span>🏦 Outstanding</span><b>${money(outstanding)}</b></div><div class="dash-line"><span>💵 Monthly EMI commitment</span><b>${money(emiMonthly)}</b></div><div class="dash-line"><span>📅 Next EMI</span><b>${nextEmi?nextEmi.d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+' • '+(nextDays<=0?'Today':nextDays+' days'):'Due date not set'}</b></div>`:'<div class="empty">No EMI added yet.</div>';$('homeDashboard').innerHTML=`<div class="listbox money-dashboard"><div class="money-dash-head"><b>📅 ${monthLabel(m)}</b><small>${status}</small></div><div class="dash-grid"><div class="dash-tile"><small>📥 Income</small><b>${money(income)}</b></div><div class="dash-tile"><small>📤 Expense</small><b>${money(expense)}</b></div><div class="dash-tile"><small>💰 Cash flow</small><b class="${net>=0?'dash-positive':'dash-negative'}">${net>=0?'+':''}${money(net)}</b></div><div class="dash-tile"><small>📈 Savings rate</small><b>${rate}%</b></div><div class="dash-tile"><small>🎯 Goals saved this month</small><b>${money(currentGoalSaved)}</b><span class="sub">Current month</span></div><div class="dash-tile"><small>🏦 EMI commitment</small><b>${money(emiMonthly)}</b><span class="sub">Monthly</span></div><div class="dash-tile"><small>💵 Available after commitments</small><b class="${available>=0?'dash-positive':'dash-negative'}">${available>=0?'+':''}${money(available)}</b><span class="sub">Cash flow − goals − EMI</span></div></div><div class="dash-section"><div class="dash-line"><span>🎯 Budget</span><b>${budget?money(expense)+' / '+money(budget):'Not set'}</b></div>${budget?`<div class="dash-progress"><i style="width:${budgetPct}%"></i></div><div class="dash-line"><span>${expense>budget?'⚠️ Budget exceeded':'✅ Remaining'}</span><b>${money(Math.max(0,budget-expense))}</b></div>`:''}</div><div class="dash-section"><b>🔎 Top spending categories</b>${topHtml}</div><div class="dash-section"><b>🎯 Savings goals</b>${goalHtml}</div><div class="dash-section"><b>🏦 EMI snapshot</b>${emiHtml}</div><div class="dash-note">💡 Available Balance subtracts this month's recorded goal savings and the monthly EMI commitment from cash flow. If you already record an EMI or goal transfer as an Expense transaction, avoid entering it twice.</div></div>`}
+function renderDashboard(m,t,income,expense,budget){let net=income-expense,rate=income?Math.round(net/income*100):0,cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+Number(x.amount||0));let top=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,3),goalTarget=saves.reduce((a,s)=>a+Number(s.target||0),0),goalSaved=saves.reduce((a,s)=>a+Math.min(Number(s.target||0),Number(s.saved||0)),0),goalRem=Math.max(0,goalTarget-goalSaved),goalPct=goalTarget?Math.min(100,goalSaved/goalTarget*100):0,currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0),outstanding=emis.reduce((a,e)=>a+emiMath(e).remaining,0),emiMonthly=emis.reduce((a,e)=>a+Number(e.monthly||0),0),available=net-currentGoalSaved-emiMonthly,nextEmi=null,nextDays=null;emis.forEach(e=>{if(!e.due)return;let d=new Date(e.due+'T00:00:00');let todayD=new Date();todayD.setHours(0,0,0,0);if(d<todayD){let day=d.getDate();let cand=new Date(todayD.getFullYear(),todayD.getMonth(),day);if(cand<todayD)cand.setMonth(cand.getMonth()+1);d=cand}let days=Math.ceil((d-todayD)/86400000);if(nextDays===null||days<nextDays){nextDays=days;nextEmi={e,d}}});let budgetPct=budget?Math.min(100,expense/budget*100):0,status=available>0?'🟢 Available after commitments':available<0?'🔴 Commitments exceed cash flow':'🟡 Fully committed';let topHtml=top.length?top.map(x=>`<div class="dash-line"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join(''):'<div class="empty">No expenses this month.</div>';let goalHtml=saves.length?`<div class="dash-line"><span>🎯 Overall goal progress</span><b>${Math.round(goalPct)}%</b></div><div class="dash-progress"><i style="width:${goalPct}%"></i></div><div class="dash-line"><span>${money(goalSaved)} / ${money(goalTarget)} saved</span><b>Need ${money(goalRem)}</b></div><div class="dash-line"><span>💰 This month saved</span><b>${money(currentGoalSaved)}</b></div>`:'<div class="empty">Add a savings goal to track progress.</div>';let emiHtml=emis.length?`<div class="dash-line"><span>🏦 Outstanding</span><b>${money(outstanding)}</b></div><div class="dash-line"><span>💵 Monthly EMI commitment</span><b>${money(emiMonthly)}</b></div><div class="dash-line"><span>📅 Next EMI</span><b>${nextEmi?nextEmi.d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+' • '+(nextDays<=0?'Today':nextDays+' days'):'Due date not set'}</b></div>`:'<div class="empty">No EMI added yet.</div>';$('homeDashboard').innerHTML=`<div class="listbox money-dashboard"><div class="money-dash-head"><b>📅 ${monthLabel(m)}</b><small>${status}</small></div><div class="dash-grid"><div class="dash-tile"><small>📥 Income</small><b>${money(income)}</b></div><div class="dash-tile"><small>📤 Expense</small><b>${money(expense)}</b></div><div class="dash-tile"><small>💰 Cash flow</small><b class="${net>=0?'dash-positive':'dash-negative'}">${net>=0?'+':''}${money(net)}</b></div><div class="dash-tile"><small>📈 Savings rate</small><b>${rate}%</b></div><div class="dash-tile"><small>🎯 Goals saved this month</small><b>${money(currentGoalSaved)}</b><span class="sub">Current month</span></div><div class="dash-tile"><small>🏦 EMI commitment</small><b>${money(emiMonthly)}</b><span class="sub">Monthly</span></div><div class="dash-tile"><small>💵 Available after commitments</small><b class="${available>=0?'dash-positive':'dash-negative'}">${available>=0?'+':''}${money(available)}</b><span class="sub">Cash flow − goals − EMI</span></div></div><div class="dash-section"><div class="dash-line"><span>🎯 Budget</span><b>${budget?money(expense)+' / '+money(budget):'Not set'}</b></div>${budget?`<div class="dash-progress"><i style="width:${budgetPct}%"></i></div><div class="dash-line"><span>${expense>budget?'⚠️ Budget exceeded':'✅ Remaining'}</span><b>${money(Math.max(0,budget-expense))}</b></div>`:''}</div><div class="dash-section"><b>🔎 Top spending categories</b>${topHtml}</div><div class="dash-section"><b>🎯 Savings goals</b>${goalHtml}</div><div class="dash-section"><b>🏦 EMI snapshot</b>${emiHtml}</div><div class="dash-note">💡 Available Balance subtracts this month's recorded goal savings and monthly EMI commitment from cash flow. If you already record a goal transfer or EMI payment as an Expense transaction, avoid entering it twice.</div></div>`}
+
+function emiMath(e){let total=Number(e.total||0),rate=Math.max(0,Number(e.rate||e.interestRate||0)),monthly=Number(e.monthly||0),remaining=Math.max(0,total-Number(e.principalPaid||0));let interest=remaining*(rate/100)/12;let principal=Math.max(0,monthly-interest);if(principal>remaining)principal=remaining;return {total,rate,monthly,remaining,interest,principal,interestPaid:Number(e.interestPaid||0),principalPaid:Number(e.principalPaid||0),years:Number(e.years||e.tenureYears||0)}}
+function emiCard(e){let due=e.due?new Date(e.due+'T00:00:00'):null,todayD=new Date();todayD.setHours(0,0,0,0);let days=due?Math.ceil((due-todayD)/86400000):null;let badge=days!==null?(days<0?'⚠️ Overdue':days<=7?'⏰ Due in '+days+' day(s)':'📅 '+days+' days'):'No due date';let m=emiMath(e);return `<div class="listbox"><div class="listline"><b>🏦 ${esc(e.name)}</b><span class="badge ${days!==null&&days<=7?'warn':'good'}">${badge}</span></div><div class="emi-detail"><div class="emi-detail-row"><span>💵 Monthly EMI</span><b>${money(m.monthly)}</b></div><div class="emi-detail-row"><span>📈 This month's interest</span><b>${money(m.interest)}</b></div><div class="emi-detail-row"><span>🏦 This month's principal</span><b>${money(m.principal)}</b></div><div class="emi-detail-row"><span>💳 Outstanding principal</span><b>${money(m.remaining)}</b></div><div class="emi-detail-row"><span>📊 Rate</span><b>${m.rate?m.rate+'% p.a.':'—'}</b></div><div class="emi-detail-row"><span>📅 Tenure</span><b>${m.years?m.years+' years ('+(m.years*12)+' months)':'—'}</b></div><div class="emi-detail-row"><span>🔁 Payment cycle</span><b>Every month${e.due?' • '+esc(e.due.slice(8,10).replace(/^0/,''))+'th':''}</b></div></div></div>`}
+function parseGoalAmount(v){return Number(String(v??'').replace(/[^0-9.]/g,''))||0}
+function formatGoalAmount(v){let n=parseGoalAmount(v);return n?Math.round(n).toLocaleString('en-IN'):''}
+function formatGoalInput(el){let raw=el.value.replace(/[^0-9]/g,'');el.value=raw?Number(raw).toLocaleString('en-IN'):''}
+function goalMonthly(target,saved,years){let rem=Math.max(0,target-saved),months=Math.max(0,Math.round(Number(years)||0)*12);return rem>0&&months>0?Math.ceil(rem/months):0}
+function goalPlannedMonthly(s){let fixed=Number(s?.monthlyTarget||0);if(fixed>0)return fixed;let target=Number(s?.target||0),saved=Math.min(target,Number(s?.saved||0)),years=Number(s?.years||0);return goalMonthly(target,saved,years)}
+function updateGoalPreview(){let target=parseGoalAmount($('saveTarget').value),saved=Math.min(target,parseGoalAmount($('saveSaved').value)),years=Math.max(0,Number($('saveYears').value)||0),rem=Math.max(0,target-saved),monthly=goalMonthly(target,saved,years);if(!$('goalPreview'))return;if(!target||!years){$('goalPreview').innerHTML='<small>Enter target and years to see the monthly amount.</small>';return}$('goalPreview').innerHTML=`<div class="gp-row"><span>🎯 Target</span><b>${money(target)}</b></div><div class="gp-row"><span>💵 Saved</span><b>${money(saved)}</b></div><div class="gp-row"><span>💰 Remaining</span><b>${money(rem)}</b></div><div class="gp-row"><span>⏳ Duration</span><b>${years} year${years===1?'':'s'} • ${years*12} months</b></div><div style="margin-top:7px;padding-top:8px;border-top:1px solid #e5e7eb"><small>📅 Monthly savings target</small><div class="gp-main">${monthly?money(monthly)+' / month':'🎉 Goal completed!'}</div></div>`}
+function goalMonthKey(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function currentMonthInput(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function addMonthsKey(key,n){let [y,m]=String(key||goalMonthKey()).split('-').map(Number);let d=new Date(y,m-1+n,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function goalBaseSaved(s){
+ let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
+ if(Number.isFinite(Number(s.baseSaved))) return Math.max(0,Number(s.baseSaved));
+ let monthlyTotal=arr.reduce((a,x)=>a+Number(x.amount||0),0);
+ return Math.max(0,Number(s.saved||0)-monthlyTotal);
+}
+function goalMonthlyTotal(s){
+ let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
+ return arr.reduce((a,x)=>a+Math.max(0,Number(x.amount||0)),0);
+}
+function recalcGoalSaved(s){
+ let target=Number(s.target||0),base=goalBaseSaved(s),arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[],nowKey=goalMonthKey();
+ let total=arr.filter(x=>String(x.month||'')<=nowKey).reduce((a,x)=>a+Number(x.amount||0),0);
+ s.baseSaved=base;
+ s.saved=Math.min(target,Math.max(0,base+total));
+ return s.saved;
+}
+function goalMonthStats(s){let key=goalMonthKey(),arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[],saved=arr.filter(x=>x.month===key).reduce((a,x)=>a+Number(x.amount||0),0),target=Number(s.target||0),totalSaved=Math.min(target,Number(s.saved||0)),years=Number(s.years||0),monthly=goalPlannedMonthly(s),rem=Math.max(0,target-totalSaved);return {key,saved,monthly,rem,monthsLeft:Math.max(0,Math.round(years*12))}}
+function monthLabel(key){let d=new Date(key+'-01T00:00:00');return d.toLocaleString('en-IN',{month:'long',year:'numeric'})}
+function monthKeysForGoal(s){let start=String(s.startMonth||currentMonthInput());let years=Math.max(1,Math.round(Number(s.years)||1));let count=years*12;let keys=[];for(let i=0;i<count;i++)keys.push(addMonthsKey(start,i));return keys}
+function monthSavedAmount(s,key){let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];return arr.filter(x=>x.month===key).reduce((a,x)=>a+Number(x.amount||0),0)}
+function openMonthEditor(id,key){
+ let s=saves.find(x=>x.id==id);if(!s)return;
+ if(!Array.isArray(s.monthlySavings))s.monthlySavings=[];
+ if(!Number.isFinite(Number(s.baseSaved)))s.baseSaved=goalBaseSaved(s);
+ let keys=monthKeysForGoal(s),nowKey=goalMonthKey(),requested=String(key||nowKey),selected=keys.includes(requested)?requested:(keys.includes(nowKey)?nowKey:(keys[0]||nowKey));
+ $('monthEditorGoalId').value=id;
+ $('monthEditorMonth').innerHTML=keys.map(k=>`<option value="${k}" ${k===selected?'selected':''} ${k>nowKey?'disabled':''}>${monthLabel(k)}${k>nowKey?' — Future':''}</option>`).join('');
+ loadMonthEditorAmount();
+ $('monthEditorModal').style.display='flex';
+}
+function loadMonthEditorAmount(){
+ let id=Number($('monthEditorGoalId').value),key=$('monthEditorMonth').value,s=saves.find(x=>x.id===id);if(!s)return;
+ let amount=monthSavedAmount(s,key);$('monthEditorAmount').value=amount?formatGoalAmount(amount):'';
+ let target=Number(s.target||0),saved=Math.min(target,Number(s.saved||0)),years=Number(s.years||0),planned=goalPlannedMonthly(s);
+ $('monthEditorSummary').innerHTML=`<b>🎯 ${esc(s.name)}</b><br>Current saved for <b>${monthLabel(key)}</b>: <b>${money(amount)}</b><br><small>Overall saved: ${money(saved)} • Remaining: ${money(Math.max(0,target-saved))} • Current planned monthly amount: ${money(planned)}</small>`;
+}
+function closeMonthEditor(){$('monthEditorModal').style.display='none'}
+function saveMonthEditor(){
+ let id=Number($('monthEditorGoalId').value),key=$('monthEditorMonth').value,s=saves.find(x=>x.id===id);if(!s)return;
+ let nowKey=goalMonthKey();
+ if(key>nowKey){alert('Future month savings cannot be entered yet. Update that month when it starts.');return}
+ let amount=parseGoalAmount($('monthEditorAmount').value);
+ if(!Number.isFinite(amount)||amount<0){alert('Please enter a valid amount.');return}
+ if(!Array.isArray(s.monthlySavings))s.monthlySavings=[];
+ if(!Number.isFinite(Number(s.baseSaved)))s.baseSaved=goalBaseSaved(s);
+ s.monthlySavings=s.monthlySavings.filter(x=>x.month!==key);
+ if(amount>0)s.monthlySavings.push({month:key,amount,date:new Date().toISOString()});
+ recalcGoalSaved(s);
+ localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();closeMonthEditor();renderAll();
+}
+function setGoalMonthAmount(id,key,mode='edit'){openMonthEditor(id,key)}
+
+function goalHistoryHtml(s){
+ let arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[];
+ let by={}; arr.forEach(x=>{let k=String(x.month||'');if(!/^\d{4}-\d{2}$/.test(k))return;by[k]=(by[k]||0)+Number(x.amount||0)});
+ let startMonth=String(s.startMonth||currentMonthInput()),years=Math.max(1,Math.round(Number(s.years)||1)),count=years*12;
+ let monthly=goalPlannedMonthly(s),nowKey=goalMonthKey(),keys=[];
+ for(let i=0;i<count;i++)keys.push(addMonthsKey(startMonth,i));
+ let target=Number(s.target||0),running=goalBaseSaved(s);
+ let rows=keys.map(k=>{
+   let future=k>nowKey,saved=future?0:Number(by[k]||0);
+   if(!future)running=Math.min(target,running+saved);
+   let req=monthly,reached=!future&&saved>=req&&req>0;
+   let status=future?'⏳ Future month':reached?'✅ Monthly target reached':saved>0?'⚠️ Below monthly target':'⏳ Pending';
+   let action=future?`<button class="action-small history-edit" disabled style="opacity:.5;cursor:not-allowed">🔒 Available ${monthLabel(k)}</button>`:saved>0?`<button class="action-small history-edit" onclick="setGoalMonthAmount(${s.id},'${k}','edit')">✏️ Edit</button>`:`<button class="action-small history-edit" onclick="setGoalMonthAmount(${s.id},'${k}','add')">➕ Add</button>`;
+   return `<div class="history-row"><div class="history-main"><b>📅 ${monthLabel(k)}</b><span class="history-status">${status}</span>${future?'':`<span class="history-total">Cumulative saved: ${money(running)}</span>`}<div style="margin-top:5px">${action}</div></div><div style="text-align:right"><b>${future?'₹0':money(saved)}</b><small style="display:block;color:#64748b">${future?'Not started':'Target '+money(req)}</small></div></div>`;
+ }).join('');
+ return `<div class="goal-history"><div class="goal-history-head"><b>📊 Monthly History</b><button class="action-small" onclick="toggleGoalHistory(this)">Hide all months</button></div><small>📅 ${monthLabel(keys[0]||startMonth)} → ${monthLabel(keys[keys.length-1]||startMonth)}</small><div class="info">💡 Past & current months can be Add / Edit. Future months stay ₹0 until that month starts.</div>${rows}</div>`;
+}
+function goalStatsHtml(s){
+ let target=Number(s.target||0),saved=Math.min(target,Number(s.saved||0)),monthly=goalPlannedMonthly(s),start=String(s.startMonth||currentMonthInput()),now=goalMonthKey(),arr=Array.isArray(s.monthlySavings)?s.monthlySavings:[],by={};
+ arr.forEach(x=>{let k=String(x.month||'');if(/^\d{4}-\d{2}$/.test(k))by[k]=(by[k]||0)+Math.max(0,Number(x.amount||0))});
+ let elapsed=[];let startD=new Date(start+'-01T00:00:00'),nowD=new Date(now+'-01T00:00:00');
+ if(startD<=nowD){let y=startD.getFullYear(),m=startD.getMonth();while(y<nowD.getFullYear()||(y===nowD.getFullYear()&&m<=nowD.getMonth())){let k=y+'-'+String(m+1).padStart(2,'0');elapsed.push(k);m++;if(m>=12){m=0;y++}if(elapsed.length>240)break}}
+ let vals=elapsed.map(k=>Number(by[k]||0)),monthsElapsed=elapsed.length,contrib=vals.reduce((a,v)=>a+v,0),avg=monthsElapsed?contrib/monthsElapsed:0,best=vals.length?Math.max(...vals):0,bestIdx=vals.length?vals.indexOf(best):-1;
+ let streak=0;for(let i=vals.length-1;i>=0;i--){if(vals[i]>=monthly&&monthly>0)streak++;else break}
+ let base=goalBaseSaved(s),expected=Math.min(target,base+monthly*monthsElapsed),status=saved>=target?'🎉 Completed':saved>=expected+monthly?'🟢 Ahead':saved>=expected?'🟢 On track':'🟡 Behind';
+ let rem=Math.max(0,target-saved),projected='—';
+ if(rem<=0)projected='Completed'; else if(avg>0){let addMonths=Math.ceil(rem/avg),d=new Date(now+'-01T00:00:00');d.setMonth(d.getMonth()+addMonths);projected=d.toLocaleString('en-IN',{month:'long',year:'numeric'})}
+ let chartKeys=elapsed.slice(-12),chartVals=chartKeys.map(k=>Number(by[k]||0)),maxChart=Math.max(monthly,...chartVals,1);
+ let bars=chartKeys.length?chartKeys.map((k,i)=>{let v=chartVals[i],h=Math.max(3,Math.min(100,v/maxChart*100));return `<div class="goal-chart-col"><span class="goal-chart-value">${v?money(v):'₹0'}</span><div class="goal-chart-bar-wrap"><i class="goal-chart-bar" style="height:${h}%"></i></div><span class="goal-chart-label">${monthLabel(k).split(' ')[0].slice(0,3)}</span></div>`}).join(''):'<small>No monthly savings recorded yet.</small>';
+ let milestones=[25,50,75,100].map(x=>{let have=Math.min(100,saved/target*100);let reached=have>=x;return `<div class="goal-milestone"><span>${reached?'✅':'⬜'} ${x}%</span><div class="goal-milestone-track"><i style="width:${Math.min(100,have/x*100)}%"></i></div><b>${money(Math.ceil(target*x/100))}</b></div>`}).join('');
+ return `<div class="listbox goal-stats"><div class="goal-stats-head"><b>📊 Goal Statistics</b><span class="goal-status">${status}</span></div><div class="goal-stats-grid"><div class="goal-stat-box"><small>💰 Total saved</small><b>${money(saved)}</b></div><div class="goal-stat-box"><small>🎯 Monthly target</small><b>${money(monthly)}</b></div><div class="goal-stat-box"><small>📈 Average / month</small><b>${money(Math.round(avg))}</b></div><div class="goal-stat-box"><small>🏆 Best month</small><b>${bestIdx>=0?money(best)+' • '+monthLabel(elapsed[bestIdx]):'—'}</b></div><div class="goal-stat-box"><small>🔥 Saving streak</small><b>${streak} month${streak===1?'':'s'}</b></div><div class="goal-stat-box"><small>🚀 Projected finish</small><b>${projected}</b></div></div><div class="goal-chart"><b>📈 Last 12 months</b><div class="goal-chart-bars">${bars}</div><small style="color:#64748b">Monthly target: ${money(monthly)}</small></div><div class="goal-milestones"><b>🏁 Milestones</b>${milestones}</div></div>`;
+}
+function openGoal(id){activeGoalId=id;renderSavings();window.scrollTo({top:0,behavior:'smooth'})}
+function closeGoal(){activeGoalId=null;renderSavings();window.scrollTo({top:0,behavior:'smooth'})}
+function goalDetailHtml(s){let target=Number(s.target||0),saved=Math.min(target,Number(s.saved||0)),p=target?Math.min(100,saved/target*100):0,rem=Math.max(0,target-saved),years=Number(s.years||0),monthly=goalPlannedMonthly(s),gm=goalMonthStats(s);return `<div class="goal-detail-page"><div class="goal-detail-head"><button class="action-small" onclick="closeGoal()">← Back to Goals</button><b style="font-size:18px">🎯 ${esc(s.name)}</b><button class="action-small" onclick="openSave(${s.id})">✏️ Edit</button></div><div class="listbox"><div class="goal-title"><b>${esc(s.name)}</b><span class="goal-status">${p>=100?'🎉 Completed':(gm.saved>=gm.monthly&&gm.monthly?'🟢 On track':'🟡 In progress')}</span></div><div class="goal-amounts"><b>${money(saved)}</b><span> / ${money(target)}</span><strong>${Math.round(p)}%</strong></div><div class="progress"><i style="width:${p}%"></i></div><div class="goal-detail-stat"><div><small>💰 Added</small><b>${money(saved)}</b></div><div><small>📊 Progress</small><b>${Math.round(p)}%</b></div><div><small>🎯 Still need</small><b>${money(rem)}</b></div></div><div class="goal-meta">⏳ ${years} year${years===1?'':'s'} • 📅 ${monthly?money(monthly)+' / month':'Goal completed'} • Start ${monthLabel(s.startMonth||currentMonthInput())}</div></div><div class="goal-detail-actions"><button class="action-small" onclick="addSaving(${s.id})">💰 Add Saved</button><button class="action-small" onclick="setGoalMonthAmount(${s.id},goalMonthKey(),'edit')">📅 Update This Month</button></div><div class="goal-month"><b>📊 Current Month — ${monthLabel(gm.key)}</b><div style="display:flex;justify-content:space-between;margin-top:7px"><span>Required</span><b>${money(gm.monthly)}</b></div><div style="display:flex;justify-content:space-between"><span>Saved this month</span><b>${money(gm.saved)}</b></div>${gm.monthly?`<small>${gm.saved>=gm.monthly?'✅ Monthly target reached':'⚠️ '+money(Math.max(0,gm.monthly-gm.saved))+' short this month'}</small>`:''}</div>${goalStatsHtml(s)}${goalHistoryHtml(s)}</div>`}
+function saveCard(s){let target=Number(s.target||0),saved=Math.min(target,Number(s.saved||0)),p=target?Math.min(100,saved/target*100):0,rem=Math.max(0,target-saved),years=Number(s.years||0),gm=goalMonthStats(s),status=rem<=0?'🎉 Completed':(gm.saved>=gm.monthly&&gm.monthly>0?'🟢 On track':gm.saved>0?'🟡 In progress':'⚪ Not started');return `<div class="listbox goal-card"><div class="goal-summary" onclick="openGoal(${s.id})"><div class="goal-title"><b>🎯 ${esc(s.name)}</b><span class="goal-status">${status}</span></div><div class="goal-amounts"><b>${money(saved)}</b><span> / ${money(target)}</span><strong>${Math.round(p)}%</strong></div><div class="progress"><i style="width:${p}%"></i></div><div class="goal-meta">💰 Added ${money(saved)} • 🎯 Need ${money(rem)}${years?` • ⏳ ${years} years`:''}</div></div></div>`}
+
+function openSave(id=null){
+ $('saveModal').style.display='flex';$('saveId').value=id||'';
+ if(id){let s=saves.find(x=>x.id==id);if(!s){closeSave();return}$('saveName').value=s.name||'';$('saveTarget').value=formatGoalAmount(s.target);$('saveSaved').value=formatGoalAmount(s.saved);$('saveStartMonth').value=s.startMonth||currentMonthInput();$('saveYears').value=s.years||''}
+ else{$('saveName').value='';$('saveTarget').value='';$('saveSaved').value='0';$('saveStartMonth').value=currentMonthInput();$('saveYears').value=''}
+ updateGoalPreview();
+}
+function closeSave(){$('saveModal').style.display='none'}
+function saveGoal(){
+ let name=$('saveName').value.trim(),target=parseGoalAmount($('saveTarget').value),saved=parseGoalAmount($('saveSaved').value),startMonth=$('saveStartMonth').value||currentMonthInput(),years=Math.max(0,Number($('saveYears').value)||0);
+ if(!name||target<=0){alert('Goal name and target required');return}
+ if(years<=0){alert('Please enter how many years you want to take to achieve this goal.');$('saveYears').focus();return}
+ saved=Math.max(0,Math.min(target,saved));let id=$('saveId').value;
+ let old=id?saves.find(x=>x.id==id):null;
+ let oldMonthly=Array.isArray(old?.monthlySavings)?old.monthlySavings:[];
+ let nowKey=goalMonthKey();
+ let monthlyTotal=oldMonthly.filter(x=>String(x.month||'')<=nowKey).reduce((a,x)=>a+Number(x.amount||0),0);
+ let base=old?Math.max(0,saved-monthlyTotal):saved;
+ let monthlyTarget=(old&&Number(old.monthlyTarget)>0&&Number(old.target)===target&&Number(old.years)===years)?Number(old.monthlyTarget):goalMonthly(target,saved,years);
+ let o={id:id?Number(id):Date.now(),name,target,saved,baseSaved:base,years,startMonth,monthlyTarget,monthlySavings:oldMonthly};
+ recalcGoalSaved(o);
+ if(id){let idx=saves.findIndex(x=>x.id==id);if(idx>=0)saves[idx]=o;else saves.push(o)}else saves.push(o);
+ localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();closeSave();renderAll();
+}
+function delSave(id){if(confirm('Delete this savings goal?')){saves=saves.filter(x=>x.id!==id);localStorage.setItem('moneymate_savings',JSON.stringify(saves));mirrorSave();renderAll()}}
+function ensureGoalMonthlyTargets(){let changed=false;saves.forEach(s=>{if(!(Number(s.monthlyTarget)>0)){let v=goalMonthly(Number(s.target||0),Math.min(Number(s.target||0),Number(s.saved||0)),Number(s.years||0));if(v>0){s.monthlyTarget=v;changed=true}}});if(changed)localStorage.setItem('moneymate_savings',JSON.stringify(saves));return changed}
+function renderSavings(){
+ ensureGoalMonthlyTargets();
+ let changed=false;saves.forEach(s=>{let before=Number(s.saved||0);recalcGoalSaved(s);if(before!==Number(s.saved||0))changed=true});
+ if(changed)localStorage.setItem('moneymate_savings',JSON.stringify(saves));
+ let list=$('saveList'),detail=$('goalDetailView'),addBtn=$('goalAddBtn');
+ if(activeGoalId){let s=saves.find(x=>x.id==activeGoalId);if(!s){activeGoalId=null;return renderSavings()} list.style.display='none';detail.style.display='block';if(addBtn)addBtn.style.display='none';detail.innerHTML=goalDetailHtml(s);return}
+ list.style.display='block';detail.style.display='none';if(addBtn)addBtn.style.display='inline-flex';
+ list.innerHTML=saves.length?saves.map(s=>`${saveCard(s)}<div class="goal-actions"><button class="action-small" onclick="openGoal(${s.id})">👁️ Open Goal</button><button class="action-small" onclick="addSaving(${s.id})">💰 Add Saved</button><button class="action-small" onclick="openSave(${s.id})">✏️ Edit</button><button class="action-small" onclick="delSave(${s.id})">🗑️ Delete</button></div>`).join(''):'<div class="empty">No savings goal.</div>'; 
+}
+function recurringData(){return JSON.parse(localStorage.getItem('moneymate_recurring')||'[]')}
+function saveRecurring(a){localStorage.setItem('moneymate_recurring',JSON.stringify(a))}
+function renderRecurring(){
+ let a=recurringData();
+ $('recList').innerHTML=a.length?a.map(r=>`<div class="listbox"><div class="listline"><span><b>${r.type==='income'?'📥':'📤'} ${esc(r.name)}</b><small>${r.freq==='monthly'?'Monthly':'Weekly'} • Next ${esc(r.next)}</small></span><b>${money(r.amount)}</b></div><button class="action-small" onclick="applyRecurring(${r.id})">⚡ Add Now</button> <button class="action-small" onclick="delRecurring(${r.id})">🗑️</button></div>`).join(''):'<div class="empty">No recurring transactions.</div>';
+}
+function applyRecurring(id){
+ let a=recurringData(),r=a.find(x=>x.id===id);if(!r)return;
+ txs.unshift({id:Date.now(),type:r.type,category:r.name,amount:r.amount,date:r.next,note:'Recurring'});
+ localStorage.setItem('moneymate_transactions',JSON.stringify(txs));
+ let d=new Date(r.next+'T00:00:00'); if(r.freq==='monthly') d.setMonth(d.getMonth()+1); else d.setDate(d.getDate()+7);
+ r.next=d.toISOString().slice(0,10);saveRecurring(a);renderAll();alert('Recurring transaction added ✅');
+}
+function delRecurring(id){if(confirm('Delete recurring transaction?')){let a=recurringData().filter(x=>x.id!==id);saveRecurring(a);renderRecurring()}}
+
+function getEmiLeadDays(){return Number(localStorage.getItem('moneymate_emi_lead')||6)}
+function saveEmiReminder(){let n=Math.max(0,Math.min(30,Number($('emiLeadDays').value||6)));localStorage.setItem('moneymate_emi_lead',n);renderEmi();alert('EMI reminder saved: '+n+' day(s) before due date. 🔔')}
+function requestEmiNotificationPermission(){if('Notification' in window&&Notification.permission==='default'){Notification.requestPermission().catch(()=>{})}}
+function checkEmiAlerts(){if(!('Notification' in window)||Notification.permission!=='granted')return;let lead=getEmiLeadDays(),today=new Date();today.setHours(0,0,0,0);emis.forEach(e=>{let due=e.due||e.nextDue||e.date;if(!due)return;let d=new Date(due+'T00:00:00'),diff=Math.round((d-today)/86400000);if(diff<0||diff>lead)return;let key='moneymate_emi_notified_'+e.id+'_'+due;if(localStorage.getItem(key))return;try{new Notification('MoneyMate • EMI Reminder',{body:`${e.name}: EMI ${money(Number(e.monthly)||0)} is due ${diff===0?'today':'in '+diff+' day(s)'}.`});localStorage.setItem(key,'1')}catch(_){} });}
+function emiStatus(e){
+ let due=e.due||e.nextDue||e.date; if(!due)return {cls:'upcoming',text:'No due date'};
+ let today=new Date();today.setHours(0,0,0,0),d=new Date(due+'T00:00:00');let diff=Math.round((d-today)/86400000);
+ if(diff<0)return {cls:'overdue',text:`Overdue by ${Math.abs(diff)} day${Math.abs(diff)==1?'':'s'}`};
+ if(diff===0)return {cls:'today',text:'Due today'};
+ return {cls:'upcoming',text:`Due in ${diff} day${diff==1?'':'s'}`};
+}
+async function addSalary(){
+ let amt=Number($('salaryAmt').value),date=$('salaryDate').value||localDate(),note=$('salaryNote').value.trim()||'Salary';
+ if(!amt||amt<=0){alert('Enter salary amount');return}
+ txs.unshift({id:Date.now(),type:'income',category:'Salary',amount:amt,date,note});
+ persistLocal();await mirrorSave();renderAll();alert('Salary added 💰');
+}
+function financialHealth(){
+ let m=$('homeMonth').value,t=mt(m),inc=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),exp=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
+ let budget=Number(bud[m]||0), savings=inc?Math.max(0,(inc-exp)/inc):0;
+ let savingPts=inc?Math.min(40,Math.round(savings*40)):0;
+ let budgetPts=budget?(exp<=budget?30:Math.max(0,30-Math.round((exp-budget)/Math.max(1,budget)*30))):0;
+ let emiCount=emis.reduce((a,e)=>a+(Number(e.total||0)-Number(e.paid||0)>0?1:0),0);
+ let emiPts=emiCount?15:0;
+ let hasData=inc>0||exp>0||budget>0||emis.length>0;
+ let score=hasData?Math.max(0,Math.min(100,savingPts+budgetPts+emiPts)):0;
+ let label=!hasData?'No Data Yet':score>=80?'Excellent':score>=60?'Good':score>=40?'Needs Attention':'Start Improving';
+ return {score,label,inc,exp,budget,savings,savingPts,budgetPts,emiPts,hasData};
+}
+function renderHealth(){
+ let h=financialHealth();
+ $('healthScore').innerHTML=`<div class="listbox health"><div class="healthscore">${h.score}</div><div><b>Financial Health: ${h.label}</b><div class="healthbar" style="margin:9px 0"><i style="width:${h.score}%"></i></div><small>${h.hasData?'Based on savings, budget and EMI load for '+mn(hm())+'.':'Add income, expenses, a budget or EMI to calculate your financial health.'}</small><div class="health-breakdown"><span>💰 Savings</span><b>${h.savingPts}/40</b><span>🎯 Budget</span><b>${h.budgetPts}/30</b><span>🏦 EMI load</span><b>${h.emiPts}/30</b></div></div></div>`;
+}
+function hm(){return $('homeMonth').value}
+
 function renderInsights(){
  let m=$('homeMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
  let b=Number(bud[m]||0),top={};t.filter(x=>x.type==='expense').forEach(x=>top[x.category]=(top[x.category]||0)+x.amount);
  let best=Object.entries(top).sort((a,b)=>b[1]-a[1])[0],prev=new Date(m+'-01T00:00:00');prev.setMonth(prev.getMonth()-1);
  let pm=prev.toISOString().slice(0,7),pe=mt(pm).filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),change=pe?Math.round((e-pe)/pe*100):null;
- let arr=[]; if(i)arr.push(`💰 Net cash flow this month: <b>${money(i-e)}</b>`);
+ let arr=[]; if(i)arr.push(`💰 Net savings this month: <b>${money(i-e)}</b>`);
  if(best)arr.push(`🏷️ Highest expense: <b>${esc(best[0])}</b> (${money(best[1])})`);
  if(b)arr.push(e>b?`⚠️ Budget exceeded by <b>${money(e-b)}</b>`:`🎯 Budget remaining: <b>${money(b-e)}</b>`);
  if(change!==null)arr.push(change>0?`📈 Expense is <b>${change}% higher</b> than last month`:`📉 Expense is <b>${Math.abs(change)}% lower</b> than last month`);
