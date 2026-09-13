@@ -7,12 +7,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
-import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -30,31 +28,18 @@ public class MainActivity extends Activity {
     private static final int FILE_CHOOSER = 1001;
 
     @Override
-    public void onCreate(Bundle state) {
+    protected void onCreate(Bundle state) {
         super.onCreate(state);
 
+        // Safe system bar setup
         Window window = getWindow();
-
-        // MoneyMate header / navigation bar colors
         window.setStatusBarColor(Color.rgb(15, 23, 42));
         window.setNavigationBarColor(Color.WHITE);
-
-        // Android 15/16 edge-to-edge screen-fit fix
-        if (android.os.Build.VERSION.SDK_INT >= 30) {
-            window.setDecorFitsSystemWindows(false);
-
-            WindowInsetsController controller = window.getInsetsController();
-            if (controller != null) {
-                controller.setSystemBarsAppearance(
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-                );
-            }
-        }
 
         webView = new WebView(this);
 
         WebSettings settings = webView.getSettings();
+
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
@@ -62,55 +47,43 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(true);
         settings.setMediaPlaybackRequiresUserGesture(true);
 
-        // Keep content inside status/navigation safe areas
-        webView.setOnApplyWindowInsetsListener((v, insets) -> {
-
-            int top = insets.getInsets(
-                    WindowInsets.Type.statusBars()
-            ).top;
-
-            int bottom = insets.getInsets(
-                    WindowInsets.Type.navigationBars()
-            ).bottom;
-
-            v.setPadding(
-                    0,
-                    top,
-                    0,
-                    bottom
-            );
-
-            return insets;
-        });
+        // Keep WebView inside normal screen area
+        webView.setFitsSystemWindows(true);
 
         webView.setWebViewClient(new WebViewClient());
 
+        // Restore / file picker
         webView.setWebChromeClient(new WebChromeClient() {
+
             @Override
             public boolean onShowFileChooser(
                     WebView view,
                     ValueCallback<Uri[]> callback,
-                    FileChooserParams params
-            ) {
+                    FileChooserParams params) {
+
                 if (filePathCallback != null) {
                     filePathCallback.onReceiveValue(null);
                 }
 
                 filePathCallback = callback;
 
-                Intent intent = params.createIntent();
-
                 try {
+                    Intent intent = params.createIntent();
                     startActivityForResult(intent, FILE_CHOOSER);
                 } catch (Exception e) {
                     filePathCallback = null;
-                    return true;
+                    Toast.makeText(
+                            MainActivity.this,
+                            "File picker failed",
+                            Toast.LENGTH_SHORT
+                    ).show();
                 }
 
                 return true;
             }
         });
 
+        // JavaScript bridge for Android backup
         webView.addJavascriptInterface(
                 new NativeBridge(),
                 "MoneyMateAndroid"
@@ -118,6 +91,7 @@ public class MainActivity extends Activity {
 
         setContentView(webView);
 
+        // Load MoneyMate
         webView.loadUrl(
                 "file:///android_asset/www/index.html"
         );
@@ -125,20 +99,26 @@ public class MainActivity extends Activity {
 
     public class NativeBridge {
 
-        @JavascriptInterface
-        public void saveBackup(String json, String filename) {
+        @android.webkit.JavascriptInterface
+        public void saveBackup(
+                String json,
+                String filename
+        ) {
 
             try {
 
-                ContentResolver cr = getContentResolver();
+                ContentResolver resolver = getContentResolver();
 
                 ContentValues values = new ContentValues();
 
+                String safeName =
+                        (filename == null || filename.trim().isEmpty())
+                        ? "MoneyMate_Backup.json"
+                        : filename;
+
                 values.put(
                         MediaStore.Downloads.DISPLAY_NAME,
-                        filename == null
-                                ? "MoneyMate_Backup.json"
-                                : filename
+                        safeName
                 );
 
                 values.put(
@@ -146,51 +126,63 @@ public class MainActivity extends Activity {
                         "application/json"
                 );
 
-                values.put(
-                        MediaStore.Downloads.RELATIVE_PATH,
-                        "Download/MoneyMate"
-                );
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
-                values.put(
-                        MediaStore.Downloads.IS_PENDING,
-                        1
-                );
+                    values.put(
+                            MediaStore.Downloads.RELATIVE_PATH,
+                            "Download/MoneyMate"
+                    );
 
-                Uri uri = cr.insert(
+                    values.put(
+                            MediaStore.Downloads.IS_PENDING,
+                            1
+                    );
+                }
+
+                Uri uri = resolver.insert(
                         MediaStore.Downloads.EXTERNAL_CONTENT_URI,
                         values
                 );
 
                 if (uri == null) {
                     throw new Exception(
-                            "Unable to create download"
+                            "Unable to create backup file"
                     );
                 }
 
-                try (
-                        OutputStream out =
-                                cr.openOutputStream(uri)
-                ) {
-                    out.write(
-                            json.getBytes(
-                                    StandardCharsets.UTF_8
-                            )
+                OutputStream out =
+                        resolver.openOutputStream(uri);
+
+                if (out == null) {
+                    throw new Exception(
+                            "Unable to open backup file"
                     );
                 }
 
-                values.clear();
-
-                values.put(
-                        MediaStore.Downloads.IS_PENDING,
-                        0
+                out.write(
+                        json.getBytes(
+                                StandardCharsets.UTF_8
+                        )
                 );
 
-                cr.update(
-                        uri,
-                        values,
-                        null,
-                        null
-                );
+                out.close();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                    values.clear();
+
+                    values.put(
+                            MediaStore.Downloads.IS_PENDING,
+                            0
+                    );
+
+                    resolver.update(
+                            uri,
+                            values,
+                            null,
+                            null
+                    );
+                }
 
                 runOnUiThread(() ->
                         Toast.makeText(
@@ -217,8 +209,7 @@ public class MainActivity extends Activity {
     protected void onActivityResult(
             int requestCode,
             int resultCode,
-            Intent data
-    ) {
+            Intent data) {
 
         super.onActivityResult(
                 requestCode,
