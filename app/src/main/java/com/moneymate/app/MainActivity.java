@@ -6,16 +6,19 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsets;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.io.OutputStream;
@@ -31,13 +34,39 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
 
-        // Safe system bar setup
         Window window = getWindow();
-        window.setStatusBarColor(Color.rgb(15, 23, 42));
-        window.setNavigationBarColor(Color.WHITE);
 
+        // MoneyMate dark system bars
+        window.setStatusBarColor(Color.rgb(15, 23, 42));
+        window.setNavigationBarColor(Color.rgb(15, 23, 42));
+
+        // Keep status/navigation icons visible on dark bars
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.getDecorView().setSystemUiVisibility(0);
+        }
+
+        // Android 15/16 edge-to-edge safe layout
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false);
+        }
+
+        // Root container
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(Color.rgb(15, 23, 42));
+
+        // MoneyMate WebView
         webView = new WebView(this);
 
+        FrameLayout.LayoutParams webParams =
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                );
+
+        root.addView(webView, webParams);
+        setContentView(root);
+
+        // WebView settings
         WebSettings settings = webView.getSettings();
 
         settings.setJavaScriptEnabled(true);
@@ -47,16 +76,39 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(true);
         settings.setMediaPlaybackRequiresUserGesture(true);
 
-        // Safe screen-fit for Android 15/16
-if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-    window.setDecorFitsSystemWindows(true);
-}
-
-webView.setFitsSystemWindows(true);
-webView.setPadding(0, 0, 0, 0);
-        
-
         webView.setWebViewClient(new WebViewClient());
+
+        // IMPORTANT:
+        // Put the WebView content between the actual system bars.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+            webView.setOnApplyWindowInsetsListener((v, insets) -> {
+
+                android.graphics.Insets bars =
+                        insets.getInsets(
+                                WindowInsets.Type.statusBars()
+                                        | WindowInsets.Type.navigationBars()
+                        );
+
+                FrameLayout.LayoutParams params =
+                        (FrameLayout.LayoutParams) v.getLayoutParams();
+
+                params.topMargin = bars.top;
+                params.bottomMargin = bars.bottom;
+                params.leftMargin = 0;
+                params.rightMargin = 0;
+
+                v.setLayoutParams(params);
+
+                return insets;
+            });
+
+            webView.requestApplyInsets();
+
+        } else {
+
+            webView.setPadding(0, 24, 0, 24);
+        }
 
         // Restore / file picker
         webView.setWebChromeClient(new WebChromeClient() {
@@ -74,10 +126,14 @@ webView.setPadding(0, 0, 0, 0);
                 filePathCallback = callback;
 
                 try {
+
                     Intent intent = params.createIntent();
                     startActivityForResult(intent, FILE_CHOOSER);
+
                 } catch (Exception e) {
+
                     filePathCallback = null;
+
                     Toast.makeText(
                             MainActivity.this,
                             "File picker failed",
@@ -95,21 +151,17 @@ webView.setPadding(0, 0, 0, 0);
                 "MoneyMateAndroid"
         );
 
-        setContentView(webView);
-
         // Load MoneyMate
         webView.loadUrl(
                 "file:///android_asset/www/index.html"
         );
     }
 
+    // Android backup bridge
     public class NativeBridge {
 
-        @android.webkit.JavascriptInterface
-        public void saveBackup(
-                String json,
-                String filename
-        ) {
+        @JavascriptInterface
+        public void saveBackup(String json, String filename) {
 
             try {
 
@@ -119,8 +171,8 @@ webView.setPadding(0, 0, 0, 0);
 
                 String safeName =
                         (filename == null || filename.trim().isEmpty())
-                        ? "MoneyMate_Backup.json"
-                        : filename;
+                                ? "MoneyMate_Backup.json"
+                                : filename;
 
                 values.put(
                         MediaStore.Downloads.DISPLAY_NAME,
@@ -211,6 +263,7 @@ webView.setPadding(0, 0, 0, 0);
         }
     }
 
+    // File picker result
     @Override
     protected void onActivityResult(
             int requestCode,
@@ -241,6 +294,7 @@ webView.setPadding(0, 0, 0, 0);
         }
     }
 
+    // Android back button
     @Override
     public void onBackPressed() {
 
