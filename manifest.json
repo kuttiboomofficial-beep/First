@@ -1,1 +1,14 @@
-{"name":"MoneyMate","short_name":"MoneyMate","start_url":"./index.html","display":"standalone","background_color":"#ffffff","theme_color":"#111827","icons":[]}
+{
+  "name": "MoneyMate - Personal Finance",
+  "short_name": "MoneyMate",
+  "description": "Simple personal finance tracker for income, expenses, budgets, EMI, savings goals and debt planning.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

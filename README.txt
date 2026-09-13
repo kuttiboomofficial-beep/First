@@ -1,9 +1,14 @@
-MoneyMate V4.28 — Goal Completion Prediction
+MoneyMate V4.43 - Play Store Prep
 
-Includes monthly goal tracking, future savings, Goal Health, On Track/Ahead/Behind status, current saving pace and projected completion month.
+This build keeps the existing MoneyMate features and adds:
+- Consistent V4.43 release label/state version
+- PWA manifest
+- App icon
+- Offline service-worker cache shell
+- Standalone mobile display metadata
 
-MoneyMate V4.14
-Fixed missing renderTx function that caused navigation and list rendering to stop after renderAll(). Savings Goal monthly history is retained.
-
-
-V4.28: Goal Achievement / Completed Goals UI added.
+Next release steps:
+1. Full feature testing on Android
+2. Prepare Android package/AAB
+3. Create Play Store listing assets and privacy policy
+4. Closed testing and production access
