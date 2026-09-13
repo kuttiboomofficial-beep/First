@@ -265,10 +265,10 @@ if(!Array.isArray(txs))txs=[]; if(!bud||typeof bud!=='object'||Array.isArray(bud
 emis=emis.map(e=>{let o={...e};if(o.principalPaid==null)o.principalPaid=Number(o.paid||0);if(o.interestPaid==null)o.interestPaid=0;if(o.rate==null)o.rate=Number(o.interestRate||0);if(o.years==null)o.years=Number(o.tenureYears||0);return o;});
 const DB_NAME='MoneyMateDB',DB_STORE='state',DB_KEY='main';
 function openDB(){return new Promise((resolve,reject)=>{try{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(DB_STORE))r.result.createObjectStore(DB_STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)}catch(e){reject(e)}})}
-function statePayload(){return {version:'4.39',updatedAt:Date.now(),transactions:txs,budgets:bud,emis,savings:saves,debts,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')}}
+function statePayload(){return {version:'4.41',updatedAt:Date.now(),transactions:txs,budgets:bud,emis,savings:saves,debts,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),dark:localStorage.getItem('moneymate_dark')}}
 let saveQueue=Promise.resolve();
 function persistLocal(){
-  const data={transactions:txs,budgets:bud,emis,savings:saves,updatedAt:Date.now()};
+  const data={transactions:txs,budgets:bud,emis,savings:saves,debts,updatedAt:Date.now()};
   const raw=JSON.stringify(data);
   localStorage.setItem('moneymate_state',raw);
   localStorage.setItem('moneymate_transactions',JSON.stringify(txs));
@@ -300,7 +300,7 @@ function reloadCombinedStateIfNeeded(){
     if(!raw)return false;
     const d=JSON.parse(raw);
     if(!d||!Array.isArray(d.transactions))return false;
-    const hasMemory=txs.length||Object.keys(bud).length||emis.length||saves.length;
+    const hasMemory=txs.length||Object.keys(bud).length||emis.length||saves.length||debts.length;
     if(!hasMemory || (d.updatedAt && Number(d.updatedAt)>Number(localStorage.getItem('moneymate_updated_at')||0))){
       txs=d.transactions;
       bud=d.budgets&&typeof d.budgets==='object'?d.budgets:{};
@@ -311,6 +311,7 @@ function reloadCombinedStateIfNeeded(){
       localStorage.setItem('moneymate_budgets',JSON.stringify(bud));
       localStorage.setItem('moneymate_emis',JSON.stringify(emis));
       localStorage.setItem('moneymate_savings',JSON.stringify(saves));
+      localStorage.setItem('moneymate_updated_at',String(d.updatedAt||Date.now()));
       return true;
     }
   }catch(e){console.warn('Combined state reload failed',e)}
@@ -705,7 +706,7 @@ function renderSixMonths(m){
 function renderReport(){let m=$('reportMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);$('reportBox').innerHTML=`<div class="listline"><span>📥 Income</span><b class="plus">${money(i)}</b></div><div class="listline"><span>📤 Expense</span><b class="minus">${money(e)}</b></div><div class="listline"><span>💰 Net</span><b>${money(i-e)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${i?Math.round((i-e)/i*100):0}%</b></div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>`<div class="listline"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join('');chart(i,e);renderCategoryChart(t);renderSixMonths(m)}
 function chart(i,e){let max=Math.max(i,e,1),ib=Math.max(8,i/max*100),eb=Math.max(8,e/max*100);$('chart').innerHTML=`<div class="barwrap"><div class="bar" style="height:${ib}%"><em>${money(i)}</em></div><div class="bar" style="height:${eb}%"><em>${money(e)}</em></div></div><div class="chartlabels"><span>📥 Income</span><span>📤 Expense</span></div>`}
 function dark(){document.body.classList.toggle('dark');localStorage.setItem('moneymate_dark',document.body.classList.contains('dark'));mirrorSave()}
-function backup(){let d={version:'4.39',transactions:txs,budgets:bud,emis,savings:saves,debts,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays()};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function backup(){let d={version:'4.41',transactions:txs,budgets:bud,emis,savings:saves,debts,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays()};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];debts=Array.isArray(d.debts)?d.debts:[];localStorage.setItem('moneymate_debts',JSON.stringify(debts));if(d.customCats&&typeof d.customCats==='object'){customCats={income:Array.isArray(d.customCats.income)?d.customCats.income:[],expense:Array.isArray(d.customCats.expense)?d.customCats.expense:[]};saveCustomCats();}localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring||[]));if(d.emiLeadDays!=null)localStorage.setItem('moneymate_emi_lead',d.emiLeadDays);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
 function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings','moneymate_debts'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];debts=[];mirrorSave();renderAll()}}
 
