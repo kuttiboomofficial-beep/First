@@ -71,12 +71,12 @@ main{padding-bottom:112px}.bottom{height:74px;padding-bottom:env(safe-area-inset
 </head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.35 Dashboard Data Fix</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.36 Dashboard Render Fix</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
 <div class="cards">
-<div class="card full"><span class="card-icon">💰</span><small>Balance</small><b id="bal">₹0</b></div>
+<div class="card full"><span class="card-icon">💰</span><small>Balance</small><b id="bal">₹0</b><small id="balSub" style="display:block;margin-top:6px;color:#64748b"></small></div>
 <div class="card"><span class="card-icon">📥</span><small>Income</small><b id="inc">₹0</b></div>
 <div class="card"><span class="card-icon">📤</span><small>Expense</small><b id="exp">₹0</b></div>
 <div class="card"><span class="card-icon">🧾</span><small>Transactions</small><b id="cnt">0</b></div>
