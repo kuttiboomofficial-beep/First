@@ -8,7 +8,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MoneyMate V4.39 Clean Customer UX</title>
+<title>MoneyMate V4.40 Functions Restore & Clean UX</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 .app{max-width:540px;margin:auto;min-height:100vh;background:#fff}header{padding:18px;background:#111827;color:#fff}
@@ -90,10 +90,10 @@ button{min-height:44px;transition:transform .08s ease,opacity .08s ease}button:a
 </head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.39 Clean Customer UX</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.40 Functions Restore & Clean UX</p></header>
 <main>
 <section id="home" class="tab active">
-<div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome();renderInsights();renderHealth()"></select><button onclick="today()">📅 Today</button></div>
+<div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome()"></select><button onclick="today()">📅 Today</button></div>
 <div class="cards">
 <div class="card full"><span class="card-icon">💰</span><small>Available Balance</small><b id="bal">₹0</b><small id="balSub" style="display:block;margin-top:6px;color:#64748b"></small></div>
 <div class="card"><span class="card-icon">📥</span><small>Income</small><b id="inc">₹0</b></div>
@@ -433,7 +433,23 @@ function saveEmi(){let name=$('emiName').value.trim(),total=Number($('emiTotal')
 function delEmi(id){if(confirm('Delete this EMI?')){emis=emis.filter(x=>x.id!==id);localStorage.setItem('moneymate_emis',JSON.stringify(emis));mirrorSave();renderAll()}}
 function renderEmi(){let lead=getEmiLeadDays();if($('emiLeadDays'))$('emiLeadDays').value=lead;$('emiList').innerHTML=emis.length?emis.map(e=>{let rem=emiMath(e).remaining,s=emiStatus(e);return `<div class="listbox">${emiCard(e)}<div class="reminder ${s.cls}">🔔 <b>${s.text}</b>${e.due||e.nextDue?` • ${esc(e.due||e.nextDue)}`:''}</div><div class="row"><button class="action-small" onclick="payEmi(${e.id})">✅ Mark Paid</button><button class="action-small" onclick="openEmi(${e.id})">✏️ Edit</button><button class="action-small" onclick="delEmi(${e.id})">🗑️ Delete</button></div><small>Remaining ${money(rem)}</small></div>`}).join(''):'<div class="empty">No EMI added yet.</div>'}
 
-function renderHome(){reloadCombinedStateIfNeeded();let m=$('homeMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);let cashFlow=i-e,currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0),monthlyEmi=emis.reduce((a,e)=>a+Number(e.monthly||0),0),available=cashFlow-currentGoalSaved-monthlyEmi;$('inc').textContent=money(i);$('exp').textContent=money(e);$('bal').textContent=money(available);$('bal').className=available<0?'dash-negative':'';$('balSub').textContent=`Cash flow ${money(cashFlow)} • Goals ${money(currentGoalSaved)} • EMI ${money(monthlyEmi)}`;$('cnt').textContent=t.length;$('rate').textContent=(i?Math.round((cashFlow)/i*100):0)+'%';let b=Number(bud[m]||0);$('homeBudget').innerHTML=b?`<div class="listbox"><b>💸 ${money(e)} / ${money(b)}</b><div class="progress"><i style="width:${Math.min(100,e/b*100)}%"></i></div><small>${e>b?'⚠️ Budget exceeded':'✅ '+money(b-e)+' remaining'}</small></div>`:'<div class="empty">Set a monthly budget to track spending.</div>';$('homeEmi').innerHTML=emis.length?emis.slice(0,3).map(e=>emiCard(e)).join(''):'<div class="empty">No EMI added.</div>';$('homeSave').innerHTML=saves.length?saves.slice(0,3).map(s=>saveCard(s)).join(''):'<div class="empty">No savings goal.</div>';renderDashboard(m,t,i,e,b)}
+function renderHome(){
+ reloadCombinedStateIfNeeded();
+ let m=$('homeMonth').value;
+ let t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
+ let cashFlow=i-e;
+ let currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0);
+ let monthlyEmi=emis.reduce((a,e)=>a+Number(e.monthly||0),0);
+ let available=cashFlow-currentGoalSaved-monthlyEmi;
+ $('inc').textContent=money(i);
+ $('exp').textContent=money(e);
+ $('bal').textContent=money(available);
+ $('bal').className=available<0?'dash-negative':'';
+ $('balSub').textContent=`Cash flow ${money(cashFlow)} • Goals ${money(currentGoalSaved)} • EMI ${money(monthlyEmi)}`;
+ $('cnt').textContent=t.length;
+ $('rate').textContent=(i?Math.round((cashFlow)/i*100):0)+'%';
+ renderDashboard(m,t,i,e,Number(bud[m]||0));
+}
 function renderDashboard(m,t,income,expense,budget){
  let net=income-expense,rate=income?Math.round(net/income*100):0,cats={};
  t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+Number(x.amount||0));
@@ -714,7 +730,7 @@ function simulateDebts(input,method,extra=0){let ds=input.map(d=>({id:d.id,name:
 function debtMonthsLabel(n){if(!n)return '—';return n<12?`${n} mo`:`${Math.floor(n/12)} yr ${n%12} mo`}
 function renderDebtPlanner(){let total=debts.reduce((a,d)=>a+Number(d.balance||0),0),mins=debts.reduce((a,d)=>a+Number(d.payment||0),0),extra=Math.max(0,Number($('debtExtra')?.value||localStorage.getItem('moneymate_debt_extra')||0));if($('debtExtra')&&document.activeElement!==$('debtExtra')&&$('debtExtra').value==='')$('debtExtra').value=extra||'';if($('debtExtra'))localStorage.setItem('moneymate_debt_extra',String(extra));let sim=simulateDebts(debts,debtMethod,extra);$('debtTotal').textContent=money(total);$('debtMinimum').textContent=money(mins);$('debtExtraView').textContent=money(extra);$('debtFreeDate').textContent=sim.end;$('debtSnowball').classList.toggle('active',debtMethod==='snowball');$('debtAvalanche').classList.toggle('active',debtMethod==='avalanche');if(!debts.length){$('debtPlan').innerHTML='<div class="empty">No debts added yet.<br><small>Add a loan or tap 🏦 Import EMI.</small></div>';return}let minSim=simulateDebts(debts,debtMethod,0),order=sim.order.map((o,i)=>`<div class="debt-order-row"><b>${i+1}.</b><span style="flex:1">${esc(o.name)}</span><span class="debt-badge">${debtMonthsLabel(o.month)}</span></div>`).join('');let rows=debts.map(d=>{let pct=total?Math.max(0,Math.min(100,(1-Number(d.balance)/total)*100)):0;return `<div class="debt-row"><div class="debt-row-head"><b>${esc(d.name)}</b><button class="action-small" onclick="openDebt(${d.id})">✏️</button><button class="action-small" onclick="delDebt(${d.id})">🗑️</button></div><div class="debt-meta"><span>💰 ${money(d.balance)}</span><span>📈 ${Number(d.rate||0).toFixed(2)}%</span><span>💵 ${money(d.payment)}</span></div><div class="debt-progress"><i style="width:${pct}%"></i></div></div>`}).join('');let saved=Math.max(0,minSim.interest-sim.interest),extraMonths=Math.max(0,minSim.months-sim.months);$('debtPlan').innerHTML=`<div class="debt-result"><b>${debtMethod==='avalanche'?'⚡ Avalanche Plan':'❄️ Snowball Plan'}</b><div class="debt-result-grid" style="margin-top:7px"><div><small>Debt-free in</small><b>${debtMonthsLabel(sim.months)}</b></div><div><small>Total interest</small><b>${money(sim.interest)}</b></div><div><small>Interest saved</small><b>${money(saved)}</b></div><div><small>Time saved</small><b>${debtMonthsLabel(extraMonths)}</b></div></div>${sim.warning?`<div class="debt-note">⚠️ ${esc(sim.warning)}</div>`:''}</div><h3 style="margin:12px 0 4px">📋 Your Debts</h3><div class="debt-list">${rows}</div><h3 style="margin:12px 0 4px">🎯 Payoff Order</h3><div class="debt-order">${order||'<div class="empty">No payoff order yet.</div>'}</div>`}
 
-function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderDebtPlanner();renderReport();renderCalendar();renderRecurring();renderInsights();renderHealth()}
+function renderAll(){renderHome();renderTx();renderBudget();renderEmi();renderSavings();renderDebtPlanner();renderReport();renderCalendar();renderRecurring()}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{}))}
 async function boot(){
  fill();
