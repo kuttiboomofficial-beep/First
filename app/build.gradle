@@ -7,7 +7,7 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId 'com.moneymate.app'
+        applicationId 'com.tavrixlabs.moneymate'
         minSdk 26
         targetSdk 36
         versionCode 1
