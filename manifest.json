@@ -1,7 +1,7 @@
 {
-  "name": "MoneyMate - Personal Finance",
-  "short_name": "MoneyMate",
-  "description": "Simple personal finance tracker for income, expenses, budgets, EMI, savings goals and debt planning.",
+  "name": "MoneyMate - Smart Money Manager",
+"short_name": "MoneyMate",
+"description": "Smart money manager for income, expenses, budgets, EMI, savings goals and debt planning."
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
