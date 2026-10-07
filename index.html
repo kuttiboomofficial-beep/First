@@ -90,7 +90,7 @@ button{min-height:44px;transition:transform .08s ease,opacity .08s ease}button:a
 </head>
 <body>
 <div class="app">
-<header><h1><span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:#087f5b;color:#fff;font-size:28px;font-weight:800;margin-right:8px;box-shadow:0 4px 10px rgba(0,0,0,.18)">₹</span> MoneyMate</h1><p>MoneyMate • V4.43 Play Store Prep</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.43 Play Store Prep</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome()"></select><button onclick="today()">📅 Today</button></div>
@@ -116,7 +116,7 @@ button{min-height:44px;transition:transform .08s ease,opacity .08s ease}button:a
 
 <section id="budget" class="tab">
 <h2>🎯 Monthly Budget</h2><label>📅 Month</label><select id="budgetMonth" onchange="rememberView();renderBudget()"></select>
-<label>₹ Overall Budget (₹)</label><div class="row"><input id="budgetAmount" type="number" placeholder="Enter budget amount" style="flex:1"><button onclick="saveBudget()">💾 Save Budget</button></div><div id="budgetBox" class="listbox"></div>
+<label>💰 Overall Budget (₹)</label><div class="row"><input id="budgetAmount" type="number" placeholder="Enter budget amount" style="flex:1"><button onclick="saveBudget()">💾 Save Budget</button></div><div id="budgetBox" class="listbox"></div>
 </section>
 
 <section id="emi" class="tab">
@@ -126,7 +126,7 @@ button{min-height:44px;transition:transform .08s ease,opacity .08s ease}button:a
 <small style="color:#64748b">Calculate your monthly EMI before adding the loan.</small>
 <div class="calc-mode"><button type="button" id="calcModeLoan" class="calc-mode-btn active" onclick="setCalcMode('loan')">💰 Loan Amount</button><button type="button" id="calcModeEmi" class="calc-mode-btn" onclick="setCalcMode('emi')">📅 Monthly EMI</button></div>
 <div class="calc-grid">
-<div><label id="calcValueLabel">₹ Loan Amount (₹)</label><input id="calcPrincipal" type="number" min="0" step="1000" placeholder="e.g. 2000000"></div>
+<div><label id="calcValueLabel">💰 Loan Amount (₹)</label><input id="calcPrincipal" type="number" min="0" step="1000" placeholder="e.g. 2000000"></div>
 <div><label>📈 Interest Rate (% p.a.)</label><input id="calcRate" type="number" min="0" step="0.01" placeholder="e.g. 10.5"></div>
 <div><label>📅 Tenure (Years)</label><input id="calcYears" type="number" min="1" step="1" placeholder="e.g. 17"></div>
 <div style="display:flex;align-items:end"><button style="width:100%" onclick="calculateEmiTool()">🧮 Calculate EMI</button></div>
@@ -450,14 +450,21 @@ function renderHome(){
  let m=$('homeMonth').value;
  let t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
  let cashFlow=i-e;
- let currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0);
+
+ // Available Balance is an overall/current balance, not a selected-month value.
+ // Keep it unchanged when the Home month selector changes.
+ let overallIncome=txs.filter(x=>x.type==='income').reduce((a,x)=>a+Number(x.amount||0),0);
+ let overallExpense=txs.filter(x=>x.type==='expense').reduce((a,x)=>a+Number(x.amount||0),0);
+ let overallCashFlow=overallIncome-overallExpense;
+ let overallGoalSaved=saves.reduce((a,s)=>a+Math.min(Number(s.target||0),Number(s.saved||0)),0);
  let monthlyEmi=emis.reduce((a,e)=>a+Number(e.monthly||0),0);
- let available=cashFlow-currentGoalSaved-monthlyEmi;
+ let available=overallCashFlow-overallGoalSaved-monthlyEmi;
+
  $('inc').textContent=money(i);
  $('exp').textContent=money(e);
  $('bal').textContent=money(available);
  $('bal').className=available<0?'dash-negative':'';
- $('balSub').textContent=`Cash flow ${money(cashFlow)} • Goals ${money(currentGoalSaved)} • EMI ${money(monthlyEmi)}`;
+ $('balSub').textContent=`Overall cash flow ${money(overallCashFlow)} • Goals ${money(overallGoalSaved)} • EMI ${money(monthlyEmi)}`;
  $('cnt').textContent=t.length;
  $('rate').textContent=(i?Math.round((cashFlow)/i*100):0)+'%';
  renderDashboard(m,t,i,e,Number(bud[m]||0));
