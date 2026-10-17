@@ -90,7 +90,7 @@ button{min-height:44px;transition:transform .08s ease,opacity .08s ease}button:a
 </head>
 <body>
 <div class="app">
-<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.43 Play Store Prep</p></header>
+<header><h1>💰 MoneyMate</h1><p>Personal Finance Tracker • V4.44 Available Balance Fix</p></header>
 <main>
 <section id="home" class="tab active">
 <div class="monthbar"><select id="homeMonth" onchange="rememberView();renderHome()"></select><button onclick="today()">📅 Today</button></div>
@@ -450,21 +450,19 @@ function renderHome(){
  let m=$('homeMonth').value;
  let t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0);
  let cashFlow=i-e;
-
- // Available Balance is an overall/current balance, not a selected-month value.
- // Keep it unchanged when the Home month selector changes.
- let overallIncome=txs.filter(x=>x.type==='income').reduce((a,x)=>a+Number(x.amount||0),0);
- let overallExpense=txs.filter(x=>x.type==='expense').reduce((a,x)=>a+Number(x.amount||0),0);
- let overallCashFlow=overallIncome-overallExpense;
- let overallGoalSaved=saves.reduce((a,s)=>a+Math.min(Number(s.target||0),Number(s.saved||0)),0);
+ let allIncome=txs.filter(x=>x.type==='income').reduce((a,x)=>a+Number(x.amount||0),0);
+ let allExpense=txs.filter(x=>x.type==='expense').reduce((a,x)=>a+Number(x.amount||0),0);
+ let allTimeCashFlow=allIncome-allExpense;
+ let currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0);
+ let totalGoalSaved=saves.reduce((a,s)=>a+goalBaseSaved(s)+goalMonthlyTotal(s),0);
  let monthlyEmi=emis.reduce((a,e)=>a+Number(e.monthly||0),0);
- let available=overallCashFlow-overallGoalSaved-monthlyEmi;
-
+ // Available Balance is an overall figure and must not change with the selected month.
+ let available=allTimeCashFlow-totalGoalSaved-monthlyEmi;
  $('inc').textContent=money(i);
  $('exp').textContent=money(e);
  $('bal').textContent=money(available);
  $('bal').className=available<0?'dash-negative':'';
- $('balSub').textContent=`Overall cash flow ${money(overallCashFlow)} • Goals ${money(overallGoalSaved)} • EMI ${money(monthlyEmi)}`;
+ $('balSub').textContent=`All-time cash flow ${money(allTimeCashFlow)} • Goals saved ${money(totalGoalSaved)} • Monthly EMI ${money(monthlyEmi)}`;
  $('cnt').textContent=t.length;
  $('rate').textContent=(i?Math.round((cashFlow)/i*100):0)+'%';
  renderDashboard(m,t,i,e,Number(bud[m]||0));
@@ -474,7 +472,7 @@ function renderDashboard(m,t,income,expense,budget){
  t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+Number(x.amount||0));
  let top=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,1);
  let goalTarget=saves.reduce((a,s)=>a+Number(s.target||0),0),goalSaved=saves.reduce((a,s)=>a+Math.min(Number(s.target||0),Number(s.saved||0)),0),goalRem=Math.max(0,goalTarget-goalSaved),goalPct=goalTarget?Math.min(100,goalSaved/goalTarget*100):0,currentGoalSaved=saves.reduce((a,s)=>a+monthSavedAmount(s,m),0);
- let outstanding=emis.reduce((a,e)=>a+emiMath(e).remaining,0),emiMonthly=emis.reduce((a,e)=>a+Number(e.monthly||0),0),available=net-currentGoalSaved-emiMonthly;
+ let outstanding=emis.reduce((a,e)=>a+emiMath(e).remaining,0),emiMonthly=emis.reduce((a,e)=>a+Number(e.monthly||0),0),allTimeCashFlow=txs.reduce((sum,x)=>sum+(x.type==='income'?1:-1)*Number(x.amount||0),0),totalGoalSaved=saves.reduce((a,s)=>a+goalBaseSaved(s)+goalMonthlyTotal(s),0),available=allTimeCashFlow-totalGoalSaved-emiMonthly;
  let nextEmi=null,nextDays=null;
  emis.forEach(e=>{if(!e.due)return;let d=new Date(e.due+'T00:00:00'),todayD=new Date();todayD.setHours(0,0,0,0);if(d<todayD){let day=d.getDate();let cand=new Date(todayD.getFullYear(),todayD.getMonth(),day);if(cand<todayD)cand.setMonth(cand.getMonth()+1);d=cand}let days=Math.ceil((d-todayD)/86400000);if(nextDays===null||days<nextDays){nextDays=days;nextEmi={e,d}}});
  let budgetPct=budget?Math.min(100,expense/budget*100):0;
@@ -497,7 +495,7 @@ function renderDashboard(m,t,income,expense,budget){
  </div>
  <h3 class="home-subhead">🔔 Needs Attention</h3><div class="attention-list">${attention.join('')}</div>
  <h3 class="home-subhead">🏆 Progress</h3><div class="listbox progress-box">${goalProgress}<div class="divider"></div>${debtHtml}<div class="divider"></div><div class="health-mini"><span>🏆 Financial Health</span><b>${health.score} • ${health.label}</b></div></div>
- <div class="dash-note">💡 Available Balance = cash flow − this month's goal savings − monthly EMI commitment.</div>`;
+ <div class="dash-note">💡 Available Balance = all-time income − all-time expenses − total recorded goal savings − monthly EMI commitment. It stays the same when you change months.</div>`;
 }
 function emiMath(e){let total=Number(e.total||0),rate=Math.max(0,Number(e.rate||e.interestRate||0)),monthly=Number(e.monthly||0),remaining=Math.max(0,total-Number(e.principalPaid||0));let interest=remaining*(rate/100)/12;let principal=Math.max(0,monthly-interest);if(principal>remaining)principal=remaining;return {total,rate,monthly,remaining,interest,principal,interestPaid:Number(e.interestPaid||0),principalPaid:Number(e.principalPaid||0),years:Number(e.years||e.tenureYears||0)}}
 function emiCard(e){let due=e.due?new Date(e.due+'T00:00:00'):null,todayD=new Date();todayD.setHours(0,0,0,0);let days=due?Math.ceil((due-todayD)/86400000):null;let badge=days!==null?(days<0?'⚠️ Overdue':days<=7?'⏰ Due in '+days+' day(s)':'📅 '+days+' days'):'No due date';let m=emiMath(e);return `<div class="listbox"><div class="listline"><b>🏦 ${esc(e.name)}</b><span class="badge ${days!==null&&days<=7?'warn':'good'}">${badge}</span></div><div class="emi-detail"><div class="emi-detail-row"><span>💵 Monthly EMI</span><b>${money(m.monthly)}</b></div><div class="emi-detail-row"><span>📈 This month's interest</span><b>${money(m.interest)}</b></div><div class="emi-detail-row"><span>🏦 This month's principal</span><b>${money(m.principal)}</b></div><div class="emi-detail-row"><span>💳 Outstanding principal</span><b>${money(m.remaining)}</b></div><div class="emi-detail-row"><span>📊 Rate</span><b>${m.rate?m.rate+'% p.a.':'—'}</b></div><div class="emi-detail-row"><span>📅 Tenure</span><b>${m.years?m.years+' years ('+(m.years*12)+' months)':'—'}</b></div><div class="emi-detail-row"><span>🔁 Payment cycle</span><b>Every month${e.due?' • '+esc(e.due.slice(8,10).replace(/^0/,''))+'th':''}</b></div></div></div>`}
@@ -724,7 +722,7 @@ function renderSixMonths(m){
 function renderReport(){let m=$('reportMonth').value,t=mt(m),i=t.filter(x=>x.type==='income').reduce((a,x)=>a+x.amount,0),e=t.filter(x=>x.type==='expense').reduce((a,x)=>a+x.amount,0),cats={};t.filter(x=>x.type==='expense').forEach(x=>cats[x.category]=(cats[x.category]||0)+x.amount);$('reportBox').innerHTML=`<div class="listline"><span>📥 Income</span><b class="plus">${money(i)}</b></div><div class="listline"><span>📤 Expense</span><b class="minus">${money(e)}</b></div><div class="listline"><span>💰 Net</span><b>${money(i-e)}</b></div><div class="listline"><span>📈 Savings Rate</span><b>${i?Math.round((i-e)/i*100):0}%</b></div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>`<div class="listline"><span>🏷️ ${esc(x[0])}</span><b>${money(x[1])}</b></div>`).join('');chart(i,e);renderCategoryChart(t);renderSixMonths(m)}
 function chart(i,e){let max=Math.max(i,e,1),ib=Math.max(8,i/max*100),eb=Math.max(8,e/max*100);$('chart').innerHTML=`<div class="barwrap"><div class="bar" style="height:${ib}%"><em>${money(i)}</em></div><div class="bar" style="height:${eb}%"><em>${money(e)}</em></div></div><div class="chartlabels"><span>📥 Income</span><span>📤 Expense</span></div>`}
 function dark(){document.body.classList.toggle('dark');localStorage.setItem('moneymate_dark',document.body.classList.contains('dark'));mirrorSave()}
-function backup(){let d={version:'4.44',transactions:txs,budgets:bud,emis,savings:saves,debts,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),debtMethod:localStorage.getItem('moneymate_debt_method')||'snowball',debtExtra:Number(localStorage.getItem('moneymate_debt_extra')||0),dark:localStorage.getItem('moneymate_dark')==='true'};let b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function backup(){let d={version:'4.44',transactions:txs,budgets:bud,emis,savings:saves,debts,customCats,recurring:recurringData(),emiLeadDays:getEmiLeadDays(),debtMethod:localStorage.getItem('moneymate_debt_method')||'snowball',debtExtra:Number(localStorage.getItem('moneymate_debt_extra')||0),dark:localStorage.getItem('moneymate_dark')==='true'},json=JSON.stringify(d,null,2);if(window.MoneyMateAndroid&&typeof window.MoneyMateAndroid.saveBackup==='function'){window.MoneyMateAndroid.saveBackup(json,'MoneyMate_Backup.json');return}let b=new Blob([json],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MoneyMate_Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function restore(){$('file').click()}$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.transactions))throw 0;txs=d.transactions;bud=d.budgets||{};emis=d.emis||[];saves=d.savings||[];debts=Array.isArray(d.debts)?d.debts:[];localStorage.setItem('moneymate_debts',JSON.stringify(debts));if(d.customCats&&typeof d.customCats==='object'){customCats={income:Array.isArray(d.customCats.income)?d.customCats.income:[],expense:Array.isArray(d.customCats.expense)?d.customCats.expense:[]};saveCustomCats();}localStorage.setItem('moneymate_recurring',JSON.stringify(d.recurring||[]));if(d.emiLeadDays!=null)localStorage.setItem('moneymate_emi_lead',d.emiLeadDays);localStorage.setItem('moneymate_transactions',JSON.stringify(txs));localStorage.setItem('moneymate_budgets',JSON.stringify(bud));localStorage.setItem('moneymate_emis',JSON.stringify(emis));localStorage.setItem('moneymate_savings',JSON.stringify(saves));if(d.debtMethod==='avalanche'||d.debtMethod==='snowball'){debtMethod=d.debtMethod;localStorage.setItem('moneymate_debt_method',d.debtMethod)}if(d.debtExtra!=null){localStorage.setItem('moneymate_debt_extra',String(Math.max(0,Number(d.debtExtra)||0)))}if(d.dark===true){localStorage.setItem('moneymate_dark','true');document.body.classList.add('dark')}else if(d.dark===false){localStorage.removeItem('moneymate_dark');document.body.classList.remove('dark')}persistLocal();mirrorSave().catch(err=>console.warn('Restore mirror failed',err));renderAll();alert('Backup restored successfully!')}catch(x){alert('Invalid MoneyMate backup file')}};r.readAsText(f)})
 function clearAll(){if(confirm('Clear ALL MoneyMate data?')){['moneymate_transactions','moneymate_budgets','moneymate_emis','moneymate_savings','moneymate_debts'].forEach(k=>localStorage.removeItem(k));txs=[];bud={};emis=[];saves=[];debts=[];mirrorSave();renderAll()}}
 
